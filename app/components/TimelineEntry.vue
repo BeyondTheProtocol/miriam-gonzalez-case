@@ -14,21 +14,21 @@
     <!-- Content -->
     <div>
       <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <time class="font-mono uppercase text-[11px] tracking-[0.12em] text-tinta">
+        <time class="font-mono uppercase text-2xs tracking-[0.12em] text-tinta">
           {{ entry.date }}
         </time>
         <template v-if="entry.tag">
-          <span class="text-tinta/40" aria-hidden="true">·</span>
+          <span class="tl-sep" aria-hidden="true">·</span>
           <span
-            class="font-mono uppercase text-[11px] tracking-[0.12em] font-semibold"
-            :style="{ color: meta.accent }"
+            class="font-mono uppercase text-2xs tracking-[0.12em] font-semibold"
+            :style="{ color: colorEtiqueta }"
           >
             {{ entry.tag }}
           </span>
         </template>
         <span
           v-if="live"
-          class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em]"
+          class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.08em]"
           style="background: rgba(255,107,71,0.12); color: #c2452a"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-coral" aria-hidden="true" />
@@ -38,7 +38,10 @@
       <h3 class="font-display font-semibold text-berenjena mt-1 mb-1.5 text-base">
         {{ entry.title }}
       </h3>
-      <p class="text-sm text-tinta leading-relaxed">
+      <!-- T3-LOTE2 (A22): el hito a 16 px desde `lg` (15 antes; el móvil no cambia) y con la medida (68ch), no a los 94 a 101 caracteres de antes.
+           T3-BARRIDO: 68ch dejaba hasta 90 caracteres por línea en español y 93 en inglés (Hanken a 16 px). `[--measure:58ch]` sustituye el token SOLO en este
+           elemento (interino: el token global `--measure: 58ch` mueve la medida de /celula-a-celula, que es del PR #290, y se firma después). -->
+      <p class="text-sm lg:text-base text-tinta leading-relaxed lg:leading-relaxed measure [--measure:58ch]">
         {{ entry.description }}
       </p>
       <!-- Vídeo del hito (`video:` en timeline.yml; hoy, el explicativo del ADC en el del 7-oct). Su título es un h4 porque el
@@ -50,7 +53,7 @@
         width="384" height="288" sizes="100vw sm:384px" format="webp"
         class="mt-4 rounded-card w-full max-w-sm aspect-[4/3] object-cover" loading="lazy" decoding="async" />
       <a v-if="entry.link" :href="entry.link" target="_blank" rel="noopener"
-        class="tl-link mt-3 inline-flex items-center gap-1.5 rounded-lg py-1.5 pr-2 text-xs font-medium text-miriam transition-colors">
+        class="tl-link mt-3 inline-flex items-center gap-1.5 rounded-lg py-1.5 pr-2 lg:min-h-control text-xs font-medium text-miriam transition-colors">
         <Icon name="ph:arrow-up-right-bold" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
         {{ entry.linkLabel || $t('timeline.read_more') }}<span class="sr-only"> {{ $t('a11y.new_tab') }}</span>
       </a>
@@ -85,6 +88,8 @@ const props = defineProps<{
 const video = computed(() => videoPorId(props.entry.video))
 
 const meta = computed(() => CATEGORY_META[categoryForTag(props.entry.tag)])
+// El acento de «red» es el coral, que como texto sobre crema da 2,6:1 (lote 2, A22): la etiqueta va en --texto-1 y el color de la categoría lo lleva el punto del raíl.
+const colorEtiqueta = computed(() => (categoryForTag(props.entry.tag) === 'network' ? 'var(--texto-1)' : meta.value.accent))
 
 // El dot: vivo → coral; destacado → relleno suave + aro de su categoría;
 // normal → crema con aro tenue. El interior lleva el acento de la categoría.
@@ -125,7 +130,15 @@ const innerStyle = computed(() => {
   0%, 100% { box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 0 rgb(var(--color-cta-rgb) / 0.5); }
   50% { box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 14px rgb(var(--color-cta-rgb) / 0); }
 }
+/* Separador «·» entre la fecha y la etiqueta (decorativo): `--texto-3` en lugar de `text-tinta/40` (2,19:1); el rol mide 4,9:1. */
+.tl-sep { color: var(--texto-3); }
 /* Afordancia del enlace: leve realce de fondo al pasar/enfocar (toque cómodo). */
+/* Por debajo de `lg` el enlace mide 28 px (desde `lg`, 44 reales con `min-h-control`). Zona pulsable de 44: un ::after invisible de 8 px arriba y abajo. No mueve
+   nada (con 44 px visibles, cada hito con enlace crecía 16 px); R10 cuenta la zona y no solo el dibujo. */
+@media (max-width: 1023.98px) {
+  .tl-link { position: relative; }
+  .tl-link::after { content: ''; position: absolute; inset: -8px 0; }
+}
 .tl-link:hover,
 .tl-link:focus-visible {
   color: var(--color-text);

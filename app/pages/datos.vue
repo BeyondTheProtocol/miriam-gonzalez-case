@@ -68,6 +68,10 @@ const franja90 = Array.from({ length: 90 }, (_, i) => {
 const ecog = c.ficha?.ecog
 const nLineas = sistemicas.filter((l) => { const i = rangoParcial(l.inicio); return i && i[0] <= hoyMs }).length
 const nunca = c.nunca_recibido
+// T3-LOTE2 (A24): las casillas de la fila KPI (ECOG, líneas sistémicas y «nunca ha recibido»; el SNC va aparte desde `lg`) y las rejillas de
+// minigráficos sin hueco: tres columnas desde `lg` solo si el número cuadra (con nueve marcadores se ven seis y los otros tres, plegados).
+const nEleg = [ecog, true, nunca].filter(Boolean).length
+const tres = (n: number) => n > 0 && n % 3 === 0
 const snc = (c.ficha?.sitios ?? []).find((x: any) => /^SNC|^CNS/.test(T(x.valor)))
 /* SNC: el texto sale del dato (fuente.json), no de la plantilla. Hasta el 29-sep aquí ponía «no estudiado»
    y había una RM craneal negativa del 13-jul-2026. */
@@ -448,7 +452,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 </script>
 
 <template>
-  <div class="dt-raiz overflow-x-clip" :style="estiloCab">
+  <div class="dt-raiz overflow-x-clip [--measure:58ch]" :style="estiloCab">
     <div class="dt-progreso" aria-hidden="true" />
     <ClientOnly>
       <DatosPelicula :abierta="peliAbierta" :eventos="eventos" :lineas="lineas" :series="seriesPeli" :contexto="contexto"
@@ -456,15 +460,16 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
                      :sello="c.analiticas.sello" :lang="lang" @cerrar="cerrarPeli" @ver="verDatosDesdePeli" @fecha="fechaPeli" />
     </ClientOnly>
     <section class="section-spacing !pt-8 sm:!pt-12" :aria-label="L('El caso en datos', 'The case in data')">
-      <div class="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">
+      <div class="section-wide">
         <PageHeader
+          variante="pagina"
           :title="L('El caso en datos', 'The case in data')"
           :subtitle="L('La evolución clínica de Miriam de un vistazo, con la fuente de cada cifra.', 'Miriam’s clinical course at a glance, and where every number comes from.')"
         >
           <!-- La fecha, con la voz de Nota que usan las demás páginas (rediseño F3): la de caso.json, no la del build. -->
           <div class="mt-4 flex flex-wrap items-center gap-x-4">
             <ActualizadoEl :fecha="c.actualizado" />
-            <a href="/datos/caso.json" download class="inline-flex items-center min-h-[44px] font-mono text-[11px] uppercase tracking-[0.12em] text-miriam underline underline-offset-2">{{ L('Descargar los datos', 'Download the data') }}</a>
+            <a href="/datos/caso.json" download class="inline-flex items-center min-h-[44px] font-mono text-2xs uppercase tracking-[0.12em] text-miriam underline underline-offset-2">{{ L('Descargar los datos', 'Download the data') }}</a>
           </div>
         </PageHeader>
         <p class="dt-aviso">
@@ -508,12 +513,12 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 
         <!-- 1 · Hoy -->
         <section id="s-hoy" class="dt-sec" aria-labelledby="h-hoy">
-          <h2 id="h-hoy" class="dt-h2">{{ L('Hoy', 'Today') }}</h2>
-          <ul class="dt-eleg" :aria-label="L('Datos que suelen decidir un ensayo', 'Data that usually decide a trial')">
+          <h2 id="h-hoy" class="h2-seccion mb-3">{{ L('Hoy', 'Today') }}</h2>
+          <ul class="dt-eleg" :style="{ '--n': nEleg }" :aria-label="L('Datos que suelen decidir un ensayo', 'Data that usually decide a trial')">
             <li v-if="ecog"><span class="dt-eleg__k">ECOG</span><span class="dt-eleg__v nums">{{ T(ecog.valor) }}</span><span class="dt-eleg__f">{{ fechaCorta(ecog.fecha, lang) }}</span><DatosSello :s="ecog.sello" :lang="lang" /></li>
             <li><span class="dt-eleg__k">{{ L('Líneas sistémicas', 'Systemic lines') }}</span><span class="dt-eleg__v nums">{{ nLineas }}</span><span class="dt-eleg__f">{{ sistemicas.filter((l) => rangoParcial(l.inicio)![0] <= hoyMs).map((l) => l.id).join(' · ') }}</span></li>
             <li v-if="nunca" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Nunca ha recibido', 'Never received') }}</span><span class="dt-eleg__lista">{{ (nunca.valor as Texto[]).map((x) => T(x).split(' (')[0]).join(' · ') }}</span><DatosSello :s="nunca.sello" :lang="lang" /></li>
-            <li v-if="snc" class="dt-eleg--ancha"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ sncTxt }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
+            <li v-if="snc" class="dt-eleg--ancha dt-eleg--snc"><span class="dt-eleg__k">{{ L('Sistema nervioso central', 'Central nervous system') }}</span><span class="dt-eleg__lista">{{ sncTxt }}</span><DatosSello :s="snc.sello" :lang="lang" /></li>
           </ul>
           <!-- dónde hay enfermedad: el sujeto de «Hoy» (oncologo-virtual); SNC ya va en la fila de arriba -->
           <ul v-if="sitiosCortos.length" class="dt-sitios" :aria-label="L('Dónde hay enfermedad', 'Disease sites')">
@@ -569,13 +574,13 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
              eran públicas, en un orden de prioridad PROVISIONAL (utils/peticiones.ts); sin plegar: el que llega aquí
              por el ancla viene a leerlas. -->
         <section v-if="hayPeticiones" id="que-buscamos" class="dt-sec" aria-labelledby="h-busca">
-          <h2 id="h-busca" class="dt-h2">{{ L('Qué buscamos', 'What we’re looking for') }}</h2>
+          <h2 id="h-busca" class="h2-seccion mb-3">{{ L('Qué buscamos', 'What we’re looking for') }}</h2>
           <QueBuscamos :fuente="seBusca" />
         </section>
 
         <!-- 3 · Tejido: decide el acceso a la vacuna (ruta a NED), por eso antes que Evolución y que la carga tumoral -->
         <section id="s-tejido" class="dt-sec" aria-labelledby="h-tejido">
-          <h2 id="h-tejido" class="dt-h2">{{ L('Tejido y muestras', 'Tissue and samples') }}</h2>
+          <h2 id="h-tejido" class="h2-seccion mb-3">{{ L('Tejido y muestras', 'Tissue and samples') }}</h2>
           <p v-if="sinFresco" class="dt-resumen-tejido">
             <strong>{{ L('Todo el material disponible está en parafina.', 'All available material is in paraffin.') }}</strong>
             {{ L('No hay tejido fresco, congelado ni PBMC.', 'There is no fresh or frozen tissue and no PBMC.') }}
@@ -604,16 +609,22 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 
         <!-- 4 · Carga tumoral: lo segundo que busca un clínico (RECIST y PET de cuerpo entero, por eso no «en el hígado»); antes en el 5.º pantallazo -->
         <section v-if="(em.recist ?? []).length" id="s-higado" class="dt-sec" aria-labelledby="h-carga">
-          <h2 id="h-carga" class="dt-h2">{{ L('Carga tumoral', 'Tumor burden') }}</h2>
+          <h2 id="h-carga" class="h2-seccion mb-3">{{ L('Carga tumoral', 'Tumor burden') }}</h2>
+          <!-- T3-LOTE2 (A24): texto + pieza (regla de retícula 1). La figura (la regla, el globo y su resumen) a la izquierda y las notas de la medida y el último
+               PET a la derecha, desde `lg`; debajo, la pila de siempre. El dibujo mide su propio ancho (`useAncho`), así que en media fila se redibuja sin encoger el texto. -->
+          <div class="rejilla-par dt-carga-par">
           <DatosCargaTumoral :recist="em.recist" :volumen="em.volumen ?? []" :lang="lang" />
-          <p class="dt-pie">{{ L('RECIST: informe del radiólogo', 'RECIST: radiologist’s report') }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ L('Volumen: modelo de segmentación sobre los mismos TC, sin validar por radiología.', 'Volume: segmentation model on the same CT scans, not validated by radiology.') }}</p>
-          <div v-if="pets.length" class="dt-pet">
-            <p class="dt-pet__k">{{ L('PET más reciente', 'Latest PET') }} · <span class="nums">{{ fechaCorta(pets[0].fecha, lang) }}</span> <DatosSello :s="pets[0].sello" :lang="lang" /></p>
-            <p class="dt-pet__v">{{ T(pets[0].resumen) }}</p>
-            <details v-if="pets.length > 1" class="dt-det">
-              <summary>{{ pets.length === 2 ? L('1 PET anterior', '1 earlier PET scan') : L(`${pets.length - 1} PET anteriores`, `${pets.length - 1} earlier PET scans`) }}</summary>
-              <ul class="dt-busca"><li v-for="p in pets.slice(1)" :key="p.fecha"><span class="nums">{{ fechaCorta(p.fecha, lang) }}</span> · {{ T(p.resumen) }} <DatosSello :s="p.sello" :lang="lang" /></li></ul>
-            </details>
+            <div>
+            <p class="dt-pie">{{ L('RECIST: informe del radiólogo', 'RECIST: radiologist’s report') }} <DatosSello :s="em.recist[0].sello" :lang="lang" /> · {{ L('Volumen: modelo de segmentación sobre los mismos TC, sin validar por radiología.', 'Volume: segmentation model on the same CT scans, not validated by radiology.') }}</p>
+            <div v-if="pets.length" class="dt-pet">
+              <p class="dt-pet__k">{{ L('PET más reciente', 'Latest PET') }} · <span class="nums">{{ fechaCorta(pets[0].fecha, lang) }}</span> <DatosSello :s="pets[0].sello" :lang="lang" /></p>
+              <p class="dt-pet__v">{{ T(pets[0].resumen) }}</p>
+              <details v-if="pets.length > 1" class="dt-det">
+                <summary>{{ pets.length === 2 ? L('1 PET anterior', '1 earlier PET scan') : L(`${pets.length - 1} PET anteriores`, `${pets.length - 1} earlier PET scans`) }}</summary>
+                <ul class="dt-busca"><li v-for="p in pets.slice(1)" :key="p.fecha"><span class="nums">{{ fechaCorta(p.fecha, lang) }}</span> · {{ T(p.resumen) }} <DatosSello :s="p.sello" :lang="lang" /></li></ul>
+              </details>
+            </div>
+            </div>
           </div>
           <details class="dt-det">
             <summary>{{ L('Lesión a lesión', 'Lesion by lesion') }}</summary>
@@ -639,7 +650,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 
         <!-- 5 · Evolución: línea de tiempo + analíticas con la misma ventana (la profundidad, no la entrada) -->
         <section id="s-evo" class="dt-sec" aria-labelledby="h-evo">
-          <h2 id="h-evo" class="dt-h2">{{ L('Evolución', 'Clinical course') }}</h2>
+          <h2 id="h-evo" class="h2-seccion mb-3">{{ L('Evolución', 'Clinical course') }}</h2>
           <div class="dt-controles">
             <div class="dt-vistas" role="group" :aria-label="L('Ventana de tiempo', 'Time window')">
               <button v-for="[k, es, en] in VENTANAS" :key="k" type="button" class="dt-vista" :aria-pressed="ventana === k" @click="parar(); ventana = k">{{ L(es, en) }}</button>
@@ -670,7 +681,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
                               @cursor="parar(); cursor = $event" />
             <details class="dt-det">
               <summary>{{ L('Cada prueba en su gráfico', 'Each test on its own chart') }}</summary>
-              <div class="dt-minis">
+              <div class="dt-minis" :class="{ 'dt-minis--tres': tres(minis.length) }">
                 <DatosMiniSerie v-for="m in minis" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
                                 :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                                 @cursor="parar(); cursor = $event" />
@@ -678,14 +689,14 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
             </details>
           </template>
           <template v-else>
-          <div id="dt-minis" class="dt-minis" aria-live="polite">
+          <div id="dt-minis" class="dt-minis" :class="{ 'dt-minis--tres': tres(minisVista.length) }" aria-live="polite">
             <DatosMiniSerie v-for="m in minisVista" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
                             :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                             @cursor="parar(); cursor = $event" />
           </div>
           <details v-if="minisPlegados.length" :key="pestana" class="dt-det" :open="plegadosAbiertos" @toggle="plegadosAbiertos = ($event.target as HTMLDetailsElement).open">
             <summary>{{ L(`${minisPlegados.length} pruebas más: ${minisPlegados.map((m) => m.nombre).join(', ')}`, `${minisPlegados.length} more tests: ${minisPlegados.map((m) => m.nombre).join(', ')}`) }}</summary>
-            <div class="dt-minis">
+            <div class="dt-minis" :class="{ 'dt-minis--tres': tres(minisPlegados.length) }">
               <DatosMiniSerie v-for="m in minisPlegados" :key="m.a!.key" :a="m.a!" :nombre="m.nombre" :modo="m.modo" :sin-banda="m.sinBanda"
                               :resalta="etapaSel" :desde="rango[0]" :hasta="rango[1]" :contexto="contexto" :cursor="cursor" :cabezal="cabezal" :lang="lang"
                               @cursor="parar(); cursor = $event" />
@@ -767,7 +778,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
           </p>
         </section>
         <section id="reservorio" class="dt-sec" aria-labelledby="h-reservorio">
-          <h2 id="h-reservorio" class="dt-h2">{{ L('Reservorio venoso', 'Venous port') }}</h2>
+          <h2 id="h-reservorio" class="h2-seccion mb-3">{{ L('Reservorio venoso', 'Venous port') }}</h2>
           <p class="dt-nota">
             <NuxtLink :to="localePath('reservorio')" class="link-action group">
               {{ L('El reservorio: qué es y por qué se cambió', 'The port: what it is and why it was replaced') }}
@@ -780,13 +791,13 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
              bloque con fondo propio, para que se lea como escaparate y no como piezas sueltas (diseno) -->
         <div class="dt-vitrina">
         <section id="s-vitrina" class="dt-sec" aria-labelledby="h-vitrina">
-          <h2 id="h-vitrina" class="dt-h2">{{ L('El caso, visto de otra forma', 'The case, seen another way') }}</h2>
+          <h2 id="h-vitrina" class="h2-seccion mb-3">{{ L('El caso, visto de otra forma', 'The case, seen another way') }}</h2>
           <p class="dt-nota">{{ L('Los mismos datos de arriba, dibujados para verlos de un golpe. Pulsa un punto o un día para leerlo; desde ahí puedes ir a esa fecha.', 'The same data as above, drawn to be seen at a glance. Click or tap a dot or a day to read it; from there you can jump to that date.') }}</p>
           <DatosCielo :grupos="grupos" :contexto="contexto" :hoy="hoy" :lang="lang" :nombres="nombresCortos" @fecha="irAFecha" />
 
         </section>
         <section v-if="fechaDx" id="s-dias" class="dt-sec" aria-labelledby="h-dias">
-          <h2 id="h-dias" class="dt-h2">{{ L('Cada día desde el diagnóstico', 'Every day since diagnosis') }}</h2>
+          <h2 id="h-dias" class="h2-seccion mb-3">{{ L('Cada día desde el diagnóstico', 'Every day since diagnosis') }}</h2>
           <DatosDias :lineas="lineas" :eventos="eventos" :grupos="grupos" :tacs="(em.recist ?? []).map((r: any) => r.fecha)" :diagnostico="fechaDx" :hoy="hoy" :lang="lang" @fecha="irAFecha" />
         </section>
 
@@ -838,7 +849,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 
 <style scoped>
 .dt-aviso { display: flex; gap: 8px; align-items: flex-start; font: 500 13.5px/1.45 var(--font-body); color: var(--color-text);
-  background: var(--color-bg-card); border-radius: 12px; padding: 10px 12px; margin: 0 0 8px; }
+  background: var(--color-bg-card); border-radius: 12px; padding: 10px 12px; margin: 0 0 8px; max-width: var(--measure); }
 .dt-progreso { display: none; }
 /* barra de progreso de lectura (animation-timeline: scroll()); sin soporte, no aparece */
 @supports (animation-timeline: scroll()) {
@@ -866,50 +877,66 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 .dt-sec { padding-top: 32px; scroll-margin-top: calc(var(--dt-cab) + 61px); } /* 61 = alto de la barra de secciones */
 /* Sin entrada al hacer scroll (26-sep-2026): las secciones se leen, no se animan al pasar (skill
    `movimiento-movil`). Antes había un `animation-timeline: view()` que deslizaba cada sección. */
-.dt-h2 { font: var(--tipo-h2); color: var(--color-text); margin: 0 0 12px; }
 .dt-h3 { font: 700 17px/1.3 var(--font-body); color: var(--color-text); margin: 26px 0 6px; }
-.dt-nota { font: 400 13px/1.5 var(--font-body); color: var(--color-text-soft); margin: 0 0 10px; max-width: 70ch; }
-.dt-pie { font: 400 12px/1.5 var(--font-body); color: var(--color-text-soft); margin: 10px 0 0; }
+.dt-nota { font: 400 13px/1.5 var(--font-body); color: var(--color-text-soft); margin: 0 0 10px; max-width: var(--measure); }
+.dt-pie { font: 400 var(--texto-xs)/1.5 var(--font-body); color: var(--color-text-soft); margin: 10px 0 0; max-width: var(--measure); }
 .dt-link { color: var(--color-miriam); text-decoration: underline; text-underline-offset: 2px; }
 .dt-eleg { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 @media (min-width: 900px) { .dt-eleg { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .dt-eleg li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); min-width: 0; }
 .dt-eleg--ancha { grid-column: span 2; }
 @media (min-width: 900px) { .dt-eleg--ancha { grid-column: span 1; } }
-.dt-eleg__k { width: 100%; font: 600 11.5px var(--font-body); color: var(--color-text-soft); }
+.dt-eleg__k { width: 100%; font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); }
 .dt-eleg__v { font: 700 22px/1.1 var(--font-display); color: var(--color-text); }
-.dt-eleg__f { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
+.dt-eleg__f { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); }
 .dt-eleg__lista { font: 500 13px/1.35 var(--font-body); color: var(--color-text); }
+/* T3-LOTE2 (A24), desde `lg`: la fila KPI son tantas casillas como datos hay (`--n`; el SNC, un texto largo de unos 330 caracteres, sale de la rejilla y va
+   debajo, a la medida), las cifras con `--tipo-cifra` y los valores de texto con `--texto-xl`. Por debajo de `lg`, la fila de siempre. */
+@media (min-width: 1024px) {
+  .dt-eleg { grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 12px; }
+  .dt-eleg__v { font: var(--tipo-cifra); letter-spacing: var(--track-cifra); }
+  .dt-eleg li:not(.dt-eleg--snc) .dt-eleg__lista { font: 500 var(--texto-xl)/1.25 var(--font-body); }
+  .dt-eleg--snc { grid-column: 1 / -1; }
+  .dt-eleg--snc .dt-eleg__lista { max-width: var(--measure); font: 400 var(--texto-ui)/1.5 var(--font-body); }
+}
+/* «Carga tumoral»: la pila conserva sus márgenes de siempre; el hueco de `.rejilla-par` solo cuenta entre columnas. */
+.dt-carga-par { row-gap: 0; }
 .dt-funcion { margin-top: 14px; }
 .dt-funcion__t { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font: 700 14px/1.3 var(--font-body); color: var(--color-text); margin: 0 0 8px; }
-.dt-funcion__t .nums { font: 500 12px var(--font-mono); color: var(--color-text-soft); }
+.dt-funcion__t .nums { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); }
 .dt-funcion__lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 @media (min-width: 900px) { .dt-funcion__lista { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+/* T3-LOTE2 (revisión): con el suelo de 13 px la palabra de `RangoBarra` («dentro», «por debajo», «within») ya no cabía al lado de la pista en tarjetas de
+   133 a 150 px (900 a ~1050 px y 360 px) y salía de la tarjeta. Ahora baja bajo la pista cuando no cabe. `margin-right: -8px` le deja usar hasta 8 px del
+   relleno de 12 antes de bajar: las etiquetas cortas que ya cabían dentro de la tarjeta (375 px o más, unos 1100 px o más) no cambian. La etiqueta larga
+   («por debajo», la tarjeta de Linfocitos) sí baja también en esos anchos, de 375 px en adelante: antes se partía en dos líneas junto a la pista (99 px de
+   alto) y ahora cabe en una, bajo la pista (98 px). */
+.dt-funcion__lista :deep(.rb) { flex-wrap: wrap; row-gap: 2px; margin-right: -8px; }
 .dt-funcion__item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 44px; text-align: left; padding: 10px 12px; border-radius: 12px;
   border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); color: inherit; transition: border-color var(--dur-micro); }
 .dt-funcion__item:hover { border-color: rgb(var(--color-text-rgb) / 0.25); }
 .dt-funcion__item:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
-.dt-funcion__n { font: 600 12px var(--font-body); color: var(--color-text-soft); }
+.dt-funcion__n { font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); }
 .dt-funcion__v { font: 700 18px/1.2 var(--font-mono); color: var(--color-text); }
-.dt-funcion__u { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
+.dt-funcion__u { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); }
 .dt-funcion__f { color: var(--color-miriam); margin-right: 2px; }
-.dt-funcion__d { font: 500 11px var(--font-mono); color: var(--color-text-soft); }
+.dt-funcion__d { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); }
 .dt-dx { margin: 4px 0 0; padding: 12px 14px; border-radius: 14px; border: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
-.dt-dx__k { font: 600 11.5px var(--font-body); color: var(--color-text-soft); margin: 0 0 2px; }
-.dt-dx__v { font: 600 15px/1.4 var(--font-body); color: var(--color-text); margin: 0; }
+.dt-dx__k { font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 0 0 2px; }
+.dt-dx__v { font: 600 15px/1.4 var(--font-body); color: var(--color-text); margin: 0; max-width: var(--measure); }
 .dt-pocas { margin-top: 14px; }
-.dt-pocas__t { font: 600 12.5px var(--font-body); color: var(--color-text-soft); margin: 0 0 6px; }
+.dt-pocas__t { font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 0 0 6px; }
 .dt-pocas__fuera { font-weight: 600; }
-.dt-dx__link { display: inline-block; margin-top: 6px; padding: 4px 0; font: 600 13px/1.4 var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 2px; }
-.dt-sitios { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 4px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); }
+.dt-dx__link { display: inline-flex; align-items: center; min-height: var(--control-min); margin-top: 6px; font: 600 13px/1.4 var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 2px; }
+.dt-sitios { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 4px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); max-width: var(--measure); }
 .dt-sitios li { padding-left: 12px; position: relative; }
 .dt-sitios li::before { content: ''; position: absolute; left: 0; top: 0.6em; width: 5px; height: 5px; border-radius: 50%; background: var(--color-miriam); }
 .dt-busca { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font: 400 14px/1.5 var(--font-body); color: var(--color-text); }
 .dt-busca li { padding: 8px 12px; border-radius: 10px; background: var(--color-bg-card); }
 .dt-pet { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--color-bg-card); }
-.dt-pet__k { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 600 12px var(--font-body); color: var(--color-text-soft); margin: 0 0 4px; }
+.dt-pet__k { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 0 0 4px; }
 .dt-pet__v { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 0; }
-.dt-resumen-tejido { font: 400 14px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: var(--color-miriam-soft); }
+.dt-resumen-tejido { font: 400 14px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: var(--color-miriam-soft); max-width: var(--measure); }
 .dt-cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (min-width: 900px) { .dt-cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
 .dt-controles { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
@@ -936,7 +963,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 @media (min-width: 640px) { .dt-vitrina { margin: 40px 0 0; padding: 8px 24px 28px; border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 24px; } }
 .dt-vitrina .dt-tarjeta { background: var(--color-bg); }
 .dt-reloj { font: var(--tipo-cifra); font-size: clamp(28px, 8vw, 44px); letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0 0 4px; }
-.dt-vista { font: 600 13px/1 var(--font-body); padding: 0 12px; min-height: 44px; border-radius: 999px; color: var(--color-text-soft); }
+.dt-vista { font: 600 13px/1 var(--font-body); padding: 0 12px; min-height: 44px; min-width: var(--control-min); border-radius: 999px; color: var(--color-text-soft); }
 .dt-vista[aria-pressed='true'] { background: var(--color-text); color: var(--color-bg); }
 .dt-pestanas { display: flex; gap: 6px; overflow-x: auto; margin: 4px 0 6px; padding-bottom: 2px; }
 .dt-pestana { font: 600 14px/1 var(--font-body); padding: 0 14px; min-height: 44px; border-radius: 999px; white-space: nowrap;
@@ -948,6 +975,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 .dt-vista:focus-visible, .dt-pestana:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .dt-minis { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 28px; }
 @media (min-width: 900px) { .dt-minis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .dt-minis--tres { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .dt-det { margin-top: 12px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.1); padding-top: 4px; }
 .dt-det > summary { font: 700 16px/1.3 var(--font-body); color: var(--color-text); cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; }
 /* flex quita el marcador nativo: sin esto un desplegable parece un título (lo vio `diseno`) */
@@ -963,10 +991,10 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 .dt-tarjeta { background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 14px; padding: 12px 14px; min-width: 0; }
 .dt-tarjeta--ancha { grid-column: 1 / -1; }
 .dt-tarjeta__t { font: 700 14.5px/1.35 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
-.dt-tarjeta__det { font: 400 12.5px/1.4 var(--font-body); color: var(--color-text-soft); margin: 0 0 6px; }
+.dt-tarjeta__det { font: 400 var(--texto-xs)/1.4 var(--font-body); color: var(--color-text-soft); margin: 0 0 6px; }
 .dt-tarjeta__l { font: 400 13px/1.45 var(--font-body); color: var(--color-text); margin: 0 0 4px; }
 .dt-tarjeta__l span { font-weight: 600; color: var(--color-text-soft); margin-right: 4px; }
-.dt-tarjeta__pie { display: flex; gap: 8px; align-items: center; font: 500 11.5px var(--font-mono); color: var(--color-text-soft); margin: 8px 0 0; }
+.dt-tarjeta__pie { display: flex; gap: 8px; align-items: center; font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); margin: 8px 0 0; }
 .dt-lista { margin: 0; padding-left: 18px; display: grid; gap: 6px; font: 400 14.5px/1.5 var(--font-body); color: var(--color-text); }
 .dt-lista-trat { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; font: 400 14px/1.45 var(--font-body); color: var(--color-text); }
 .dt-lista-trat p { margin: 0; }
@@ -976,7 +1004,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
   color: var(--texto-2); border: 1px solid var(--trazo-medio); }
 .dt-hist__linea--activa { background: var(--color-miriam-soft); color: var(--color-text); border-color: transparent; }
 .dt-hist__texto { min-width: 0; }
-.dt-hist__reg { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-12); margin: 0 0 var(--sp-4); font: var(--tipo-h4); color: var(--texto-1); }
+.dt-hist__reg { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-12); margin: 0 0 var(--sp-4); font: var(--tipo-h4); color: var(--texto-1); max-width: var(--measure); }
 .dt-hist__res { margin: 0 0 var(--sp-8); font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
 .dt-cita { margin: 0 0 var(--sp-12); padding-left: var(--sp-12); border-left: 2px solid var(--trazo-medio); font: var(--tipo-body-sm); font-style: italic; color: var(--texto-2); max-width: var(--measure); }
 .dt-ficha { margin: 0; }
@@ -984,8 +1012,15 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 @media (min-width: 700px) { .dt-ficha__fila { grid-template-columns: minmax(150px, 220px) 1fr; gap: 12px; } }
 .dt-ficha__fila dt { font: 600 13px/1.45 var(--font-body); color: var(--color-text-soft); }
 .dt-ficha__fila dd { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 0; }
-.dt-molecular { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 18px 0 0; }
+.dt-molecular { font: 400 14px/1.5 var(--font-body); color: var(--color-text); margin: 18px 0 0; max-width: var(--measure); }
 .dt-ayuda { margin: 28px 0 8px; }
+/* T3-BARRIDO: la escala es 13/15/16/17. Los 13,5, 14 y 14,5 px de esta página pasan a ella desde `lg`; por debajo conservan su valor (el móvil no se toca en
+   esta tanda). Las etiquetas y los avisos van al suelo (13); el cuerpo de tarjeta, a 15. */
+@media (min-width: 1024px) {
+  .dt-aviso, .dt-sitios, .dt-sonido { font-size: var(--texto-xs); }
+  .dt-funcion__t, .dt-busca, .dt-pet__v, .dt-resumen-tejido, .dt-play, .dt-pestana, .dt-lista-trat, .dt-ficha__fila dd, .dt-molecular,
+  .dt-tarjeta__t, .dt-lista { font-size: var(--texto-sm); }
+}
 </style>
 
 <style>

@@ -106,8 +106,10 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Alto real ≈ 99px + safe-area (medido a 375px). Si cambia, ajustar la reserva
-   de `main.has-support-bar` en main.css o la barra tapará el final de main. */
+/* Alto real ≈ 106px + safe-area (medido a 375px: botón de 52,8 + enlace de 44 + 6 de aire arriba y 2 abajo + el filete). Eran 99 antes de que «Más formas de
+   ayudar» pasara a 44 px de alto (pasó a 123 con el aire de siempre: 10 + 8 px de relleno y 7,2 de hueco). Los dos controles miden lo que deben (el botón
+   y el enlace, 44 o más) y se tocan sin hueco; el aire sobrante sale del relleno y del hueco, no de los controles. Si cambia, ajustar la reserva de
+   `main.has-support-bar` en main.css o la barra tapará el final de main. */
 .mobile-support-bar {
   position: fixed;
   left: 0;
@@ -115,12 +117,12 @@ onBeforeUnmount(() => {
   bottom: 0;
   z-index: 40;
   background: var(--color-text); /* berenjena */
-  padding: 10px 16px 8px;
-  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  padding: 6px 16px 2px;
+  padding-bottom: calc(2px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(250, 246, 240, 0.12);
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0;
 }
 .mobile-support-bar__more {
   display: inline-flex;
@@ -128,8 +130,9 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 0.3rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  font-size: var(--texto-xs); /* suelo de 13 px: eran 11,52 px en mono sin mayúsculas */
   font-weight: 600;
+  min-height: var(--control-min);
   color: rgba(250, 246, 240, 0.72);
   text-decoration: none;
   padding-bottom: 2px;

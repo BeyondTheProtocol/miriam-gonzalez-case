@@ -9,7 +9,7 @@
 //   pnpm test:diseno --lista R3      imprime cada hallazgo de una regla (o de todas, sin argumento)
 //   pnpm test:diseno --archivo X     solo los ficheros cuya ruta contiene X (para trabajar; no comprueba la baseline)
 //
-// Reglas R1 a R9 y R11 (esta herramienta; no necesitan build). La R10 (render en Chrome sobre el build estático) es
+// Reglas R1 a R9, R11, R12 y R13 (esta herramienta; no necesitan build). La R10 (render en Chrome sobre el build estático) es
 // scripts/test-diseno-render.mjs, con su propia baseline, y corre en .github/workflows/diseno.yml.
 //
 // Por qué un ratchet y no «cero»: el sitio nació con tres vocabularios de diseño y se corrige por páginas (fases P1 a P13).
@@ -42,10 +42,23 @@ export const REGLAS: Record<string, string> = {
   R5: 'duplicados: clases de rol (-h2, -aviso, -tarjeta, -chip, -pill) declaradas fuera de main.css y de los componentes base',
   R6: 'en línea: letter-spacing en style="" y glifos (→ ← ↗ ✓ ✱ × ‹ › ⓘ ↧) usados como icono en una plantilla',
   R7: 'clases clave: .link-action con min-height 44 y .form-input con 16 px y 44 px (se rompen, falla; no hay baseline que valga)',
-  R8: 'cabeceras: <h2> de página sin .h2-seccion ni .h2-declaracion (o sin CabeceraSeccion)',
+  R8: 'cabeceras: <h2> de página sin .h2-seccion ni .h2-declaracion (o sin CabeceraSeccion); en las tres legales y /contacto (H2_COMO_H3) vale también .h3-seccion',
   R9: 'doc: tablas de DESIGN-SYSTEM.md y tokens.css público desfasados del canon, y tokens del canon que nadie lee',
   R11: 'espacios: un espacio al principio o al final de un elemento (`<span> {{ x }}</span>`, `<template> <em>`): Vue lo elimina y el texto sale pegado',
+  R12: 'contenedor: `max-w-[Npx]` con el relleno de página (`px-4 sm:px-6 lg:px-8`) o `section-container` fuera de /gracias y /links: el H1 no cae bajo el logo, se usa .section-wide',
+  R13: 'medida: `max-w-2xl` o `max-w-3xl` en un <p>: la medida de un párrafo es .measure (68ch), no un ancho suelto',
 }
+
+/** Las dos páginas donde `.section-container` (896 px, centrado) es a propósito: una sola columna centrada (DS sección 3). */
+const CONTENEDOR_CENTRADO = new Set(['app/pages/gracias.vue', 'app/pages/links.vue'])
+
+/** Las tres páginas legales y /contacto, cuyo `<h2>` puede llevar `.h3-seccion` (20 a 24 px) en vez de `.h2-seccion` (30 a 36 px): R8 las admite solo aquí.
+ *  Motivo (excepción firmada en el DS, sección 8): en los 11 capítulos de una legal, 36 px bajo un H1 de 48 a 1280 pesan más que el texto que titulan, y a 375 px
+ *  el H1 mide 30 px y `.h2-seccion` también; en /contacto, el único H2 de la página es el titular de una tarjeta lateral de 530 px, y a 36 px ocupa dos líneas más
+ *  que las tres de su texto. El nivel semántico no cambia (sigue siendo un `<h2>`). /ciencia/evidencia estaba en la lista (a 375 px el titular de grupo igualaba
+ *  al de página) y salió en la revisión del barrido: ahora lleva `bajo-lg:h3-seccion lg:h2-seccion`, que R8 admite por el segundo.
+ *  Una página nueva que lo necesite se añade aquí con su motivo, no se acepta por defecto. */
+const H2_COMO_H3 = new Set(['app/pages/aviso-legal.vue', 'app/pages/privacidad.vue', 'app/pages/cookies.vue', 'app/pages/contacto.vue'])
 
 /** Componentes base del sistema: aquí SÍ se declaran las clases de rol (R5). */
 const BASE = new Set([
@@ -301,6 +314,12 @@ function reglasPlantilla(archivo: string, r: Region, salida: Hallazgo[]) {
     const clases = m[2] ?? m[3] ?? ''
     claseTam(clases, /\bfont-mono\b/.test(clases) && /\buppercase\b/.test(clases), (x) => H('R2', m.index!, x))
   }
+  // R2 · lienzo: `cx.font = '600 10px …'`. El canvas no lee CSS y R10 no mide ese texto (solo el del DOM y el de los <text> de un SVG),
+  // así que sin esta regla un rótulo de 9 o 10 px vuelve sin que nadie lo vea. 12 px solo vale en mono (mayúsculas o cifras de eje).
+  for (const m of tx.matchAll(/\.font\s*=\s*['"`]([^\n]*)/g)) {
+    const t = m[1].match(/(?:^|\s)(\d+(?:\.\d+)?)px\b/)
+    if (t && (Number(t[1]) < 12 || (Number(t[1]) < 13 && !/mono/i.test(m[1])))) H('R2', m.index!, `canvas font = ${m[1].trim()}`)
+  }
   for (const m of tx.matchAll(/\bstyle\s*=\s*"([^"]*)"/g)) {
     for (const d of m[1].split(';')) {
       const k = d.indexOf(':')
@@ -355,16 +374,29 @@ export function hallazgosR11(tx: string): { idx: number; texto: string }[] {
   return out
 }
 
-/** R6, R8 y R11: sobre la plantilla. */
+/** R6, R8, R11, R12 y R13: sobre la plantilla. */
 function reglasEnPlantilla(archivo: string, r: Region, salida: Hallazgo[]) {
   const H = (regla: string, idx: number, texto: string) => salida.push({ regla, archivo, linea: lineaDe(r.texto, idx, r.desde), texto: texto.trim().split('\n')[0].slice(0, 110) })
   const tx = r.texto
   for (const m of tx.matchAll(/\bstyle\s*=\s*"[^"]*letter-spacing[^"]*"/g)) H('R6', m.index!, m[0])
   for (const m of tx.matchAll(RE_GLIFO)) H('R6', m.index!, `glifo ${m[0]}`)
   for (const h of hallazgosR11(tx)) H('R11', h.idx, h.texto)
+  // R12 · contenedor propio: lo que el DS llama «el H1 no cae bajo el logo». Mira cada atributo class (también :class).
+  for (const m of tx.matchAll(/(?::|v-bind:)?class\s*=\s*("([^"]*)"|'([^']*)')/g)) {
+    const clases = m[2] ?? m[3] ?? ''
+    if (/(?<![\w-])(?:[a-z0-9]+:)*max-w-\[[\d.]+(?:px|rem)\]/.test(clases) && /(?<![\w-])px-4(?![\w-])/.test(clases) && /(?<![\w-])sm:px-6(?![\w-])/.test(clases) && /(?<![\w-])lg:px-8(?![\w-])/.test(clases)) {
+      H('R12', m.index!, 'contenedor propio: max-w-[…] con el relleno de página')
+    }
+    if (/(?<![\w-])section-container(?![\w-])/.test(clases) && !CONTENEDOR_CENTRADO.has(archivo)) H('R12', m.index!, 'section-container fuera de /gracias y /links')
+  }
+  // R13 · medida suelta en un párrafo. `(?=[\s>])` deja fuera <path>, <pre>, <picture>…; el [^>]* cruza líneas (el <p> de varias líneas).
+  for (const m of tx.matchAll(/<p(?=[\s>])([^>]*)>/g)) {
+    for (const c of m[1].matchAll(/(?<![\w-])(?:[a-z0-9]+:)*max-w-(?:2xl|3xl)(?![\w-])/g)) H('R13', m.index!, `<p> con ${c[0]}`)
+  }
   if (archivo.startsWith('app/pages/')) {
+    const rolDelH2 = H2_COMO_H3.has(archivo) ? /\b(?:h2-(?:seccion|declaracion)|h3-seccion)\b/ : /\bh2-(?:seccion|declaracion)\b/
     for (const m of tx.matchAll(/<h2\b([^>]*)>/g)) {
-      if (!/\bh2-(?:seccion|declaracion)\b/.test(m[1])) H('R8', m.index!, m[0])
+      if (!rolDelH2.test(m[1])) H('R8', m.index!, m[0])
     }
   }
 }
@@ -540,6 +572,13 @@ function autotest(): string[] {
   eq('R2 font abreviado 11px', cuenta('x.vue', vue('<p/>', '.a { font: 600 11px/1.4 var(--font-mono) }'), 'R2'), 1)
   eq('R2 text-[10px]', cuenta('x.vue', vue('<p class="text-[10px] md:text-[11.5px] text-[13px]"/>'), 'R2'), 2)
   eq('R2 style inline', cuenta('x.vue', vue('<p style="font-size: 11px"/>'), 'R2'), 1)
+  // R2 en el lienzo (cx.font): 9 a 11 px nunca; 12 px solo en mono; 13 px o más vale
+  const lienzo = (f: string) => `<script setup lang="ts">\nfunction pintar(cx: CanvasRenderingContext2D) {\n  cx.font = ${f}\n}\n</script>\n`
+  eq('R2 lienzo 10px', cuenta('x.vue', lienzo(`'600 10px "Hanken Grotesk", sans-serif'`), 'R2'), 1)
+  eq('R2 lienzo 9px mono', cuenta('x.vue', lienzo(`'700 9px "JetBrains Mono", monospace'`), 'R2'), 1)
+  eq('R2 lienzo 12px sin mono', cuenta('x.vue', lienzo(`'600 12px "Hanken Grotesk", sans-serif'`), 'R2'), 1)
+  eq('R2 lienzo 12px mono vale', cuenta('x.vue', lienzo(`'600 12px "JetBrains Mono", ui-monospace, monospace'`), 'R2'), 0)
+  eq('R2 lienzo 13px vale', cuenta('x.vue', lienzo(`'600 13px "Hanken Grotesk", sans-serif'`), 'R2'), 0)
   // R3
   eq('R3 radio literal', cuenta('x.vue', vue('<p/>', '.a { border-radius: 14px } .b { border-radius: 999px } .c { border-radius: var(--radius-card) } .d { border-radius: 50% }'), 'R3'), 2)
   eq('R3 rounded', cuenta('x.vue', vue('<p class="rounded-xl rounded-[10px] rounded-card rounded-full rounded-t-2xl"/>'), 'R3'), 3)
@@ -560,6 +599,12 @@ function autotest(): string[] {
   // R8
   eq('R8 h2 sin rol', cuenta('app/pages/x.vue', vue('<h2 class="text-3xl">a</h2><h2 id="x" class="h2-seccion">b</h2><h2>c</h2>'), 'R8'), 2)
   eq('R8 solo en páginas', cuenta('app/components/X.vue', vue('<h2>a</h2>'), 'R8'), 0)
+  eq('R8 .h3-seccion en un h2 de /contacto no cuenta', cuenta('app/pages/contacto.vue', vue('<h2 class="bajo-lg:text-sm lg:h3-seccion">a</h2>'), 'R8'), 0)
+  eq('R8 .h3-seccion en un h2 de las tres legales no cuenta', cuenta('app/pages/aviso-legal.vue', vue('<h2 class="h3-seccion">a</h2><h2 :id="`t-${i}`" class="h3-seccion">b</h2>'), 'R8') + cuenta('app/pages/cookies.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8'), 0)
+  eq('R8 bajo-lg:h3-seccion lg:h2-seccion vale en cualquier página (el rol entra desde lg)', cuenta('app/pages/ciencia/evidencia.vue', vue('<h2 class="bajo-lg:h3-seccion lg:h2-seccion">a</h2>'), 'R8'), 0)
+  eq('R8 /ciencia/evidencia con solo .h3-seccion ya cuenta', cuenta('app/pages/ciencia/evidencia.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8'), 1)
+  eq('R8 en esas páginas un h2 sin rol sigue contando', cuenta('app/pages/privacidad.vue', vue('<h2 class="text-3xl">a</h2><h2 class="h3-seccion">b</h2><h2>c</h2>'), 'R8'), 2)
+  eq('R8 .h3-seccion en un h2 de cualquier otra página cuenta', cuenta('app/pages/x.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8') + cuenta('app/pages/ciencia/index.vue', vue('<h2 class="h3-seccion">a</h2>'), 'R8'), 2)
   // R11
   eq('R11 espacio inicial en un span', cuenta('app/components/x.vue', vue('<p><span class="u"> {{ unidad }}</span></p>'), 'R11'), 1)
   eq('R11 espacio inicial en un template', cuenta('app/components/x.vue', vue('<p><template v-if="r"> <em>{{ r }}</em></template></p>'), 'R11'), 1)
@@ -568,6 +613,20 @@ function autotest(): string[] {
   eq('R11 el espacio como texto no cuenta', cuenta('app/components/x.vue', vue('<p><span>{{ \' \' }}{{ a }}</span><span>&nbsp;{{ b }}</span></p>'), 'R11'), 0)
   eq('R11 entre dos elementos no cuenta', cuenta('app/components/x.vue', vue('<p><b>{{ a }}</b> <i>{{ b }}</i></p>'), 'R11'), 0)
   eq('R11 un vacío no cuenta', cuenta('app/components/x.vue', vue('<p>{{ a }}<br> <b>{{ b }}</b><Icon name="x" /> <b>y</b></p>'), 'R11'), 0)
+  // R12
+  eq('R12 contenedor propio', cuenta('app/pages/x.vue', vue('<div class="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">a</div><div class="px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto">b</div>'), 'R12'), 2)
+  eq('R12 un max-w sin el relleno de página no cuenta', cuenta('app/pages/x.vue', vue('<img class="max-w-[300px] px-4"><div class="max-w-xl px-4 sm:px-6 lg:px-8">a</div>'), 'R12'), 0)
+  eq('R12 el relleno de página va completo (px-4 sm:px-6 lg:px-8)', cuenta('app/pages/x.vue', vue('<div class="max-w-[300px] px-4 sm:px-6">a</div><div class="max-w-[300px] px-4 lg:px-8">b</div><div class="lg:max-w-[1120px] px-4 sm:px-6 lg:px-8">c</div>'), 'R12'), 1)
+  eq('R12 section-wide no cuenta', cuenta('app/pages/x.vue', vue('<div class="section-wide">a</div>'), 'R12'), 0)
+  eq('R12 section-container en una página', cuenta('app/pages/aviso-legal.vue', vue('<div class="section-container max-w-3xl py-16">a</div>'), 'R12'), 1)
+  eq('R12 section-container en /gracias y /links no cuenta', cuenta('app/pages/gracias.vue', vue('<div class="section-container">a</div>'), 'R12') + cuenta('app/pages/links.vue', vue('<div class="relative section-container max-w-xl">a</div>'), 'R12'), 0)
+  eq('R12 section-container en un comentario no cuenta', cuenta('app/pages/x.vue', vue('<!-- .section-container (896 px) -->\n<div class="section-wide">a</div>'), 'R12'), 0)
+  // R13
+  eq('R13 max-w en un p', cuenta('app/pages/x.vue', vue('<p class="mt-2 max-w-2xl">a</p><p class="text-sm sm:max-w-3xl">b</p><p :class="[\'max-w-3xl\']">c</p>'), 'R13'), 3)
+  eq('R13 un p de varias líneas', cuenta('app/components/x.vue', vue('<p\n  class="text-sm\n    max-w-2xl"\n>\n  a\n</p>'), 'R13'), 1)
+  eq('R13 solo en <p>: ni div, ni path, ni pre', cuenta('app/pages/x.vue', vue('<div class="max-w-2xl">a</div><svg><path class="max-w-3xl"/></svg><pre class="max-w-3xl">b</pre>'), 'R13'), 0)
+  eq('R13 .measure y otros anchos no cuentan', cuenta('app/pages/x.vue', vue('<p class="measure">a</p><p class="max-w-xl">b</p><p class="max-w-4xl">c</p>'), 'R13'), 0)
+  eq('R13 excepción firmada', cuenta('app/pages/x.vue', vue('<!-- ds-exc: prueba -->\n<p class="max-w-2xl">a</p>'), 'R13'), 0)
   // R7
   const canonDePrueba = ':root {\n  --control-min: 44px;\n  --texto-ui: 16px;\n}\n'
   eq('R7 verde', reglaR7('.link-action { min-height: var(--control-min); } .form-input { font-size: var(--texto-ui); min-height: var(--control-min); }', canonDePrueba).length, 0)

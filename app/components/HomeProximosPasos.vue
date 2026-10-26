@@ -28,7 +28,7 @@ const idBarra = useId()
 
 <template>
   <div>
-    <p class="text-base text-tinta leading-relaxed mb-6 max-w-2xl">{{ $t('home.pasos_intro') }}</p>
+    <p class="text-base text-tinta leading-relaxed mb-6 measure">{{ $t('home.pasos_intro') }}</p>
 
     <div class="card-base max-w-3xl hpp">
       <p :id="idBarra" class="font-display font-semibold text-berenjena text-lg">{{ progreso }}</p>

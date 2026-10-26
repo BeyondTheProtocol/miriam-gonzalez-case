@@ -39,7 +39,9 @@ const geo = computed(() => {
   // el globo va DEBAJO de su título: centro = título + margen + radio máximo (no pisa el texto)
   const cy = 98 + rMax
   const marcas = [0, 20, 40, 60, 80, 100, 120].filter((t) => t <= maxMm * 0.97)
-  return { XR, R, cx: w / 2, cy, H: cy + rMax + 26, umbral: XR((r0.value.suma_mm ?? 0) * 1.2), marcas }
+  // H ENTERO (T3-CI): con rMax = w × 0,26 (figura de menos de ~338 px) H salía fraccional (294,04 a 327 px); Chrome ajusta el `height` del SVG a 1/64 px
+  // (294,03125) y, con `meet`, la escala baja a 0,99997: las etiquetas de 13 px se pintan a 12,9996 px y el suelo de 13 las cuenta. Con viewBox y alto enteros la escala es 1.
+  return { XR, R, cx: w / 2, cy, H: Math.ceil(cy + rMax + 26), umbral: XR((r0.value.suma_mm ?? 0) * 1.2), marcas }
 })
 const mm = computed(() => lerp(r0.value.suma_mm ?? 0, r1.value.suma_mm ?? 0))
 const ml = computed(() => lerp(v0.value.ml ?? 0, v1.value.ml ?? 0))
@@ -75,7 +77,7 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
       <!-- eje rotulado (0 mm y cada 20): el +20 % se lee contra una escala, no flota (diseno) -->
       <text v-for="t in geo.marcas" :key="`t${t}`" :x="geo.XR(t)" y="52" :text-anchor="t === 0 ? 'start' : 'middle'" class="ct__eje nums">{{ t === 0 ? '0 mm' : t }}</text>
       <line :x1="geo.umbral" :x2="geo.umbral" y1="24" y2="44" class="ct__umbral" />
-      <text :x="geo.umbral" y="64" text-anchor="middle" class="ct__umbral-txt">+20 %</text>
+      <text :x="geo.umbral" y="68" text-anchor="middle" class="ct__umbral-txt">+20 %</text>
       <!-- la cifra, encima del final de la regla; la marca de +20 % queda libre debajo -->
       <text :x="geo.XR(mm)" y="22" text-anchor="end" class="ct__cifra nums">{{ mmTxt }} mm</text>
       <!-- el globo -->
@@ -98,22 +100,24 @@ const fechaTxt = computed(() => (f.value < 0.5 ? fechaCorta(r0.value.fecha, prop
 <style scoped>
 .ct { margin: 0; }
 .ct__svg { display: block; overflow: visible; }
-.ct__etq { font: 600 12px var(--font-body); fill: var(--color-text-soft); }
+.ct__etq { font: 600 var(--texto-xs) var(--font-body); fill: var(--color-text-soft); }
 .ct__regla { stroke: var(--color-text); stroke-width: 8; stroke-linecap: round; }
 .ct__marca { stroke: var(--color-text); stroke-opacity: 0.35; }
 .ct__umbral { stroke: var(--color-miriam); stroke-width: 2; stroke-dasharray: 3 2; }
-.ct__eje { font: 500 10px var(--font-mono); fill: var(--color-text-soft); }
-.ct__umbral-txt { font: 700 10px var(--font-mono); fill: var(--color-miriam); }
+.ct__eje { font: 500 var(--texto-xs) var(--font-mono); fill: var(--color-text-soft); }
+.ct__umbral-txt { font: 700 var(--texto-xs) var(--font-mono); fill: var(--color-miriam); }
 .ct__cifra { font: 700 13px var(--font-mono); fill: var(--color-text); }
 .ct__sombra { fill: none; stroke: var(--color-text); stroke-opacity: 0.35; stroke-dasharray: 4 3; }
 .ct__globo { fill: var(--color-miriam); }
 .ct__les { fill: var(--color-bg); fill-opacity: 0.75; }
 .ct__les--nueva { fill: var(--color-bg); fill-opacity: 1; }
 .ct__ml { font: 700 20px var(--font-display); fill: var(--color-bg); paint-order: stroke; stroke: rgb(var(--color-text-rgb) / 0.35); stroke-width: 2px; }
-.ct__fecha { font: 600 12px var(--font-mono); fill: var(--color-text-soft); }
+.ct__fecha { font: 600 var(--texto-xs) var(--font-mono); fill: var(--color-text-soft); }
 .ct__resumen { display: grid; gap: 4px; font: 400 13.5px/1.45 var(--font-body); color: var(--color-text); margin-top: 6px; }
 .ct__resumen p { margin: 0; }
 .ct__resumen strong { font-family: var(--font-mono); }
-.ct__concilia { font: 400 12.5px/1.45 var(--font-body); color: var(--color-text-soft); margin: 2px 0 0; padding-left: 10px; border-left: 2px solid rgb(var(--color-miriam-rgb) / 0.5); }
+.ct__concilia { font: 400 var(--texto-xs)/1.45 var(--font-body); color: var(--color-text-soft); margin: 2px 0 0; padding-left: 10px; border-left: 2px solid rgb(var(--color-miriam-rgb) / 0.5); }
 .ct__otra { justify-self: start; min-height: 44px; font: 700 13px var(--font-body); color: var(--color-miriam); text-decoration: underline; text-underline-offset: 3px; }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) { .ct__resumen { font-size: var(--texto-xs); } }
 </style>

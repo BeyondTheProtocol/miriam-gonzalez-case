@@ -370,7 +370,7 @@ function fechaLegible(f: string) {
         :aria-label="L('Catéter del reservorio en 3D: tubo liso en los dos extremos leídos en el TC (el portal y la punta) y a rayas en el tramo intermedio, interpolado entre ambos. Hueso y tráquea, en gris, solo de contexto. Arrastra o usa las flechas del teclado para girar, y los botones o las teclas + y − para acercar.', 'Reservoir catheter in 3D: a plain tube at the two ends read on the CT scan (the port and the tip) and a striped one in the middle stretch, interpolated between them. Bone and trachea, in grey, for context only. Drag or use the arrow keys to rotate, and the buttons or the + and − keys to zoom.')"
         class="absolute inset-0 cursor-grab active:cursor-grabbing rv-host"
       />
-      <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-[12px]" style="color:#aeb6c2">
+      <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-xs" style="color:#aeb6c2">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
       <div v-if="!loading && !failed" class="rv-mandos" role="group" :aria-label="L('Mandos del visor', 'Viewer controls')">
@@ -396,59 +396,63 @@ function fechaLegible(f: string) {
         </button>
       </div>
     </div>
-    <p v-if="!failed" class="text-[11px] text-tinta mt-1.5">
+    <p v-if="!failed" class="text-xs text-tinta mt-1.5 measure">
       {{ L('Arrastra para girar · botones + y −, o Ctrl o ⌘ + rueda, para acercar · clic derecho o dos dedos para desplazar', 'Drag to rotate · + and − buttons, or Ctrl or ⌘ + scroll, to zoom · right-click or two fingers to pan') }}
     </p>
 
-    <!-- vistas rápidas: llevan el punto de giro a lo que se quiere mirar -->
-    <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Qué mirar', 'What to look at')">
-      <button v-for="v in ([['todo', L('Todo el trayecto', 'Whole path')], ['reservorio', L('El reservorio', 'The port')], ['punta', L('La punta', 'The tip')]] as [Vista, string][])" :key="v[0]"
-        type="button"
-        class="rv-fecha border transition-colors"
-        :class="vista === v[0]
-          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
-          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
-        :aria-pressed="vista === v[0]" @click="enfoca(v[0])">{{ v[1] }}</button>
-    </div>
+    <!-- Los chips (qué mirar, fecha del TC y capa ilustrativa) son una sola fila que se parte donde haga falta desde `lg` (revisión del barrido); por debajo
+         de `lg` cada grupo conserva su fila, como siempre. Cada grupo sigue siendo su `role="group"` con su nombre. -->
+    <div v-if="!loading && !failed" class="lg:mt-2.5 lg:flex lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-1">
+      <!-- vistas rápidas: llevan el punto de giro a lo que se quiere mirar -->
+      <div class="mt-2.5 lg:mt-0 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Qué mirar', 'What to look at')">
+        <button v-for="v in ([['todo', L('Todo el trayecto', 'Whole path')], ['reservorio', L('El reservorio', 'The port')], ['punta', L('La punta', 'The tip')]] as [Vista, string][])" :key="v[0]"
+          type="button"
+          class="rv-fecha border transition-colors"
+          :class="vista === v[0]
+            ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+            : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+          :aria-pressed="vista === v[0]" @click="enfoca(v[0])">{{ v[1] }}</button>
+      </div>
 
-    <!-- selector de fecha: 3 TC separados por meses, la misma reconstrucción cada vez -->
-    <div v-if="!loading && !failed && fechas.length > 1" class="mt-2.5 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Elegir fecha del TC', 'Choose CT date')">
-      <button v-for="f in fechas" :key="f"
-        type="button"
-        class="rv-fecha border transition-colors"
-        :class="fechaActual === f
-          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
-          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
-        :aria-pressed="fechaActual === f" @click="cargaFecha(f)">{{ fechaLegible(f) }}</button>
-    </div>
+      <!-- selector de fecha: 3 TC separados por meses, la misma reconstrucción cada vez -->
+      <div v-if="fechas.length > 1" class="mt-2.5 lg:mt-0 flex flex-wrap items-center gap-1" role="group" :aria-label="L('Elegir fecha del TC', 'Choose CT date')">
+        <button v-for="f in fechas" :key="f"
+          type="button"
+          class="rv-fecha border transition-colors"
+          :class="fechaActual === f
+            ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+            : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+          :aria-pressed="fechaActual === f" @click="cargaFecha(f)">{{ fechaLegible(f) }}</button>
+      </div>
 
-    <!-- capa ilustrativa: un botón con estado, igual que los de fecha -->
-    <div v-if="!loading && !failed && hayModelo" class="mt-2.5">
-      <button
-        type="button"
-        class="rv-fecha border transition-colors"
-        :class="verModelo
-          ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
-          : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
-        :aria-pressed="verModelo" @click="alternaModelo">{{ L('Ver el dispositivo (ilustración)', 'Show the device (illustration)') }}</button>
-      <label v-if="verModelo" class="rv-opacidad">
-        <span>{{ L('Opacidad del dispositivo', 'Device opacity') }}</span>
-        <input v-model.number="opacidad" type="range" min="10" max="100" step="5"
-          :aria-valuetext="opacidad + ' %'">
-        <output aria-hidden="true">{{ opacidad }} %</output>
-      </label>
+      <!-- capa ilustrativa: un botón con estado, igual que los de fecha -->
+      <div v-if="hayModelo" class="mt-2.5 lg:mt-0">
+        <button
+          type="button"
+          class="rv-fecha border transition-colors"
+          :class="verModelo
+            ? 'bg-berenjena/10 border-berenjena/40 text-berenjena font-semibold'
+            : 'bg-transparent border-berenjena/20 text-tinta hover:border-berenjena/40'"
+          :aria-pressed="verModelo" @click="alternaModelo">{{ L('Ver el dispositivo (ilustración)', 'Show the device (illustration)') }}</button>
+      </div>
     </div>
+    <label v-if="!loading && !failed && hayModelo && verModelo" class="rv-opacidad">
+      <span>{{ L('Opacidad del dispositivo', 'Device opacity') }}</span>
+      <input v-model.number="opacidad" type="range" min="10" max="100" step="5"
+        :aria-valuetext="opacidad + ' %'">
+      <output aria-hidden="true">{{ opacidad }} %</output>
+    </label>
 
     <!-- leyenda: píldoras, forma + color, reusando .badge-genomic -->
     <div v-if="!loading && !failed" class="mt-2.5 flex flex-wrap items-center gap-2">
-      <span class="badge-genomic" style="color:#c2410c;background:rgba(255,107,71,0.14)"><span class="rv-muestra rv-muestra--lisa" aria-hidden="true" />{{ L('medido', 'measured') }}</span>
-      <span class="badge-genomic" style="color:#c2410c;background:rgba(255,107,71,0.14)"><span class="rv-muestra rv-muestra--rayas" aria-hidden="true" />{{ L('interpolado', 'interpolated') }}</span>
-      <span v-if="verModelo" class="badge-genomic" style="color:#5b3fa8;background:rgba(168,131,245,0.22)"><span class="rv-muestra rv-muestra--lila" aria-hidden="true" />{{ L('ilustración', 'illustration') }}</span>
+      <span class="badge-genomic rv-ley rv-ley--medido"><span class="rv-muestra rv-muestra--lisa" aria-hidden="true" />{{ L('medido', 'measured') }}</span>
+      <span class="badge-genomic rv-ley rv-ley--medido"><span class="rv-muestra rv-muestra--rayas" aria-hidden="true" />{{ L('interpolado', 'interpolated') }}</span>
+      <span v-if="verModelo" class="badge-genomic rv-ley rv-ley--ilustracion"><span class="rv-muestra rv-muestra--lila" aria-hidden="true" />{{ L('ilustración', 'illustration') }}</span>
     </div>
-    <p v-if="!loading && !failed" class="mt-2 text-[11px] text-tinta leading-snug">
+    <p v-if="!loading && !failed" class="mt-2 text-xs text-tinta leading-snug measure">
       {{ L('Medido: los dos puntos leídos directamente en el corte del TC: el portal y la punta. Interpolado: la ruta más probable entre ambos sobre el propio TC, no una medida punto a punto; por eso se dibuja a rayas. Hueso y tráquea, en gris, son solo referencia anatómica.', 'Measured: the two points read directly on the CT slice: the port and the tip. Interpolated: the most likely route between them on the CT itself, not a point-by-point measurement; that is why it is drawn striped. Bone and trachea, in grey, are anatomical reference only.') }}
     </p>
-    <p v-if="!loading && !failed && verModelo && escena?.modelo" class="mt-2 text-[11px] text-tinta leading-snug">
+    <p v-if="!loading && !failed && verModelo && escena?.modelo" class="mt-2 text-xs text-tinta leading-snug measure">
       {{ L(`Ilustración, no medida: un modelo de catálogo del dispositivo, dibujado a partir de fotos y colocado a escala 1:1 sobre el portal medido. Coincide con él con un error medio de ${mm(escena.fechas[fechaActual]?.modelo_ajuste_mm)} mm.`,
            `Illustration, not a measurement: a catalogue model of the device, drawn from photos and placed at 1:1 scale over the measured port. It matches it with a mean error of ${escena.fechas[fechaActual]?.modelo_ajuste_mm} mm.`) }}
       {{ L('Modelo:', 'Model:') }}
@@ -456,7 +460,7 @@ function fechaLegible(f: string) {
       {{ escena.modelo.autor }},
       <a :href="escena.modelo.licencia_url" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">{{ escena.modelo.licencia }}</a>.
     </p>
-    <p v-if="!loading && !failed && escena" class="mt-1.5 text-[11px] text-tinta leading-snug">
+    <p v-if="!loading && !failed && escena" class="mt-1.5 text-xs text-tinta leading-snug measure">
       {{ L(`Longitud del catéter, portal→punta: ${mm(escena.fechas[fechaActual]?.longitud_mm)} mm (± ${escena.error_medida_mm} mm; ± ${escena.error_diferencia_mm} mm en la diferencia entre fechas).`,
            `Catheter length, port→tip: ${escena.fechas[fechaActual]?.longitud_mm} mm (± ${escena.error_medida_mm} mm; ± ${escena.error_diferencia_mm} mm on the difference between dates).`) }}
     </p>
@@ -467,8 +471,13 @@ function fechaLegible(f: string) {
 .rv-caja { aspect-ratio: 1 / 1; background: #1c1126; border-radius: 0.75rem; overflow: hidden; }
 .rv-host:focus-visible { outline: 2px solid #1c969e; outline-offset: -2px; }
 .rv-fecha {
-  font-size: 11px; line-height: 1; padding: 7px 11px; min-height: 32px; border-radius: 999px;
+  font-size: var(--texto-xs); line-height: 1; padding: 0 11px; min-height: var(--control-min); border-radius: 999px;
 }
+/* T3-BARRIDO: la leyenda lleva el texto en --texto-1 (el naranja #c2410c sobre el coral al 14 % daba 4,19:1) y el color va en la muestra de al lado, que ya es
+   «forma + color». El fondo de cada píldora se deriva de la paleta con color-mix (cero hex y cero rgba). */
+.rv-ley { color: var(--texto-1); }
+.rv-ley--medido { background: color-mix(in srgb, var(--color-cta) 14%, var(--color-bg)); }
+.rv-ley--ilustracion { background: color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg)); }
 @media (pointer: coarse) { .rv-fecha { min-height: 44px; padding: 0 14px; } }
 .rv-caja:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; border-radius: 0; }
 .rv-mandos { position: absolute; bottom: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; }
@@ -484,7 +493,7 @@ function fechaLegible(f: string) {
 .rv-muestra--lisa { background: #ff6b47; }
 .rv-muestra--rayas { background: repeating-linear-gradient(90deg, #ff6b47 0 5px, #ffe3d9 5px 8px); }
 .rv-muestra--lila { background: #7d4be0; }
-.rv-opacidad { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 11px; min-height: 32px; }
+.rv-opacidad { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: var(--texto-xs); min-height: 32px; }
 .rv-opacidad input { flex: 1 1 140px; max-width: 260px; accent-color: #7c4ddb; min-height: 24px; }
 .rv-opacidad output { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
 @media (pointer: coarse) { .rv-opacidad { min-height: 44px; } .rv-opacidad input { min-height: 44px; } }

@@ -60,57 +60,66 @@ const fases = computed(() =>
 
 <template>
   <!-- Variante tarjeta · bloque oscuro. `data-tema="oscuro"` remapea los roles (texto, identidad, insignias) sin hex en línea. -->
+  <!-- T3-LOTE3 (A33): tres bloques sin estilo propio por debajo de `lg` (el orden del DOM es el de siempre: la cifra, las fases y luego el
+       botón) y, desde `lg`, una rejilla de dos columnas: la cifra y el botón a la izquierda, las fases a la derecha. No cambia ni el fondo, ni el
+       radio, ni el `data-tema`: la caja oscura es la excepción firmada de DESIGN-SYSTEM.md §8. -->
   <div v-if="card && data" ref="raiz" class="gfm gfm--card" data-tema="oscuro">
-    <p
-      class="gfm__importe nums"
-      :data-gofundme-importe="data.currentAmount.amount"
-      :data-gofundme-origen="data.origen ?? 'semilla'"
-    >{{ importe }}</p>
-    <p class="gfm__rotulo">{{ $t('gofundme.raised_on') }}</p>
-    <!-- La fecha de la cifra va en su propia línea y sin «·» delante (como la variante en línea): así no deja un punto colgando al
-         final de la línea del rótulo, y la propia fecha no se parte (espacios duros en fechaDeCifra). -->
-    <p v-if="cifraDe" class="gfm__rotulo gfm__rotulo--fecha">
-      <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
-    </p>
-    <p class="gfm__donantes">
-      <NuxtLink :to="localePath('colabora') + '#gracias'" class="gfm__enlace nums">
-        <Icon name="ph:users-three" class="size-4" aria-hidden="true" />
-        {{ donantes }} {{ $t('gofundme.donators') }}
-        <Icon name="ph:arrow-right" class="size-3 gfm__flecha" aria-hidden="true" />
-      </NuxtLink>
-    </p>
+    <div class="gfm__bloque-cifra">
+      <p
+        class="gfm__importe nums"
+        :data-gofundme-importe="data.currentAmount.amount"
+        :data-gofundme-origen="data.origen ?? 'semilla'"
+      >{{ importe }}</p>
+      <p class="gfm__rotulo">{{ $t('gofundme.raised_on') }}</p>
+      <!-- La fecha de la cifra va en su propia línea y sin «·» delante (como la variante en línea): así no deja un punto colgando al
+           final de la línea del rótulo, y la propia fecha no se parte (espacios duros en fechaDeCifra). -->
+      <p v-if="cifraDe" class="gfm__rotulo gfm__rotulo--fecha">
+        <time :datetime="cifraDe.iso">{{ $t('gofundme.cifra_a', { fecha: cifraDe.texto }) }}</time>
+      </p>
+      <p class="gfm__donantes">
+        <NuxtLink :to="localePath('colabora') + '#gracias'" class="gfm__enlace nums">
+          <Icon name="ph:users-three" class="size-4" aria-hidden="true" />
+          {{ donantes }} {{ $t('gofundme.donators') }}
+          <Icon name="ph:arrow-right" class="size-3 gfm__flecha" aria-hidden="true" />
+        </NuxtLink>
+      </p>
+    </div>
 
     <!-- Las fases del caso, cada una con su estado en texto. Sin importes ni barra. -->
-    <p :id="idFases" class="gfm__fases-titulo">{{ $t('gofundme.fases_titulo') }}</p>
-    <!-- role="list": con `list-style: none` Safari/VoiceOver deja de anunciarla como lista, y sin lista no hay nombre que valga. -->
-    <ol class="gfm__fases" role="list" :aria-labelledby="idFases">
-      <li v-for="f in fases" :key="f.clave" class="gfm__fase">
-        <p class="gfm__fase-titulo">
-          {{ $t(`gofundme.phases.${f.clave}.label`) }}
-          <!-- «Terapia personalizada · presupuesto en curso»: el punto lo dice el lector de pantalla; a la vista, la insignia ya separa (a 375 px
-               la insignia baja de línea y un punto suelto al final de la primera quedaba huérfano). -->
-          <span class="sr-only"> · </span>
-          <span class="status-badge" :class="f.insignia">{{ f.estado }}</span>
-        </p>
-        <p class="gfm__fase-desc">{{ $t(`gofundme.phases.${f.clave}.desc`) }}</p>
-      </li>
-    </ol>
+    <div class="gfm__bloque-fases">
+      <p :id="idFases" class="gfm__fases-titulo">{{ $t('gofundme.fases_titulo') }}</p>
+      <!-- role="list": con `list-style: none` Safari/VoiceOver deja de anunciarla como lista, y sin lista no hay nombre que valga. -->
+      <ol class="gfm__fases" role="list" :aria-labelledby="idFases">
+        <li v-for="f in fases" :key="f.clave" class="gfm__fase">
+          <p class="gfm__fase-titulo">
+            {{ $t(`gofundme.phases.${f.clave}.label`) }}
+            <!-- «Terapia personalizada · presupuesto en curso»: el punto lo dice el lector de pantalla; a la vista, la insignia ya separa (a 375 px
+                 la insignia baja de línea y un punto suelto al final de la primera quedaba huérfano). -->
+            <span class="sr-only"> · </span>
+            <span class="status-badge" :class="f.insignia">{{ f.estado }}</span>
+          </p>
+          <p class="gfm__fase-desc">{{ $t(`gofundme.phases.${f.clave}.desc`) }}</p>
+        </li>
+      </ol>
+    </div>
 
     <!-- Prueba social (auditoría 4.3): «únete a quienes ya lo hacen». El número de donantes ya aparece arriba, así que aquí
          solo va el encuadre. -->
-    <p class="gfm__prueba">{{ $t('gofundme.social_proof') }}</p>
-    <a
-      href="https://gofund.me/3e25cae99"
-      target="_blank"
-      rel="noopener noreferrer"
-      @click="trackSupport('gofundme_widget')"
-      data-support-cta
-      class="btn-cta mt-3 w-full sm:w-auto"
-    >
-      <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
-      {{ $t('gofundme.donate_now') }}
-      <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
-    </a>
+    <div class="gfm__bloque-cierre">
+      <p class="gfm__prueba">{{ $t('gofundme.social_proof') }}</p>
+      <a
+        href="https://gofund.me/3e25cae99"
+        target="_blank"
+        rel="noopener noreferrer"
+        @click="trackSupport('gofundme_widget')"
+        data-support-cta
+        class="btn-cta mt-3 w-full sm:w-auto"
+      >
+        <Icon name="ph:heart-fill" class="heart-beat w-4 h-4" aria-hidden="true" />
+        {{ $t('gofundme.donate_now') }}
+        <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
+      </a>
+    </div>
   </div>
 
   <!-- Variante por defecto · una línea -->
@@ -270,6 +279,28 @@ const fases = computed(() =>
   font-size: 0.8125rem;
   letter-spacing: 0.03em;
   color: var(--texto-2);
+}
+
+/* Dos columnas desde `lg` (T3-LOTE3, A33): la cifra y el botón a la izquierda, las fases a la derecha. A la fila de 1104 px de la home le sobraba
+   la mitad de la caja con todo apilado en una columna de ~480 px. Las áreas ponen los tres bloques sin tocar el orden del DOM (el de lectura y el
+   del foco: cifra, fases, botón). Las fases ocupan las dos filas; la segunda es `1fr` para que, si las fases son más altas que la cifra, el exceso
+   se reparta en ella y no abra hueco entre la cifra y el botón. Los márgenes de arriba de cada columna se anulan: la pila de debajo de `lg` los
+   necesita para separar bloques, la rejilla no. */
+@media (min-width: 1024px) {
+  .gfm--card {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'cifra fases'
+      'cierre fases';
+    column-gap: var(--sp-48);
+    align-items: start;
+  }
+  .gfm__bloque-cifra { grid-area: cifra; }
+  .gfm__bloque-fases { grid-area: fases; }
+  .gfm__bloque-cierre { grid-area: cierre; }
+  .gfm__bloque-fases .gfm__fases-titulo { margin-top: 0; }
 }
 
 /* ── Línea (/gastos, /colabora) ────────────────────────────────────────────── */

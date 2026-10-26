@@ -119,6 +119,33 @@
     margin-inline-start: 0;
   }
 
+  /* Pegajoso bajo la cabecera fija (lote 0 del repaso de escritorio, 25-oct-2026). Un `lg:top-24` son 96 px y la cabecera mide
+     73 (112 con la barra «lo último»): el título del bloque pegado quedaba tapado. `--cabecera-alto` es el alto REAL (app/plugins/
+     cabecera-alto.client.ts lo publica), así que el bloque queda siempre 24 px por debajo. Solo fija el `top`: la posición la pone quien
+     lo usa, y con prefijo (`lg:sticky lg:sticky-bajo-cabecera lg:self-start`), para que el móvil no se pegue. */
+  .sticky-bajo-cabecera {
+    top: calc(var(--cabecera-alto) + var(--sp-24));
+  }
+
+  /* Texto + pieza (regla de retícula 1). Un texto estrecho encima de una pieza ancha deja la mitad de la fila vacía: desde `lg`, el
+     texto (en `.measure`, que lo limita a 68ch) va a la izquierda y la pieza a la derecha, a la misma altura de arranque. Debajo de
+     `lg` es una pila normal, así que el móvil queda como estaba. Hijos directos: uno de texto y una pieza (tarjeta, figura, tabla).
+     La pista de la pila es `minmax(0, 1fr)` y no la `auto` implícita: con `auto`, una pieza ancha (un SVG de 700 px, una tabla con `nowrap`)
+     ensanchaba la columna ENTERA y el texto con ella (609 px en un móvil de 375, medido en revisión). Con `minmax(0, 1fr)` el texto se queda en
+     el ancho del contenedor y la pieza ancha pelea sola con su desborde (una tabla va dentro de `.tabla-scroll`). */
+  .rejilla-par {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-32);
+  }
+  @media (min-width: 1024px) {
+    .rejilla-par {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--sp-48);
+      align-items: start;
+    }
+  }
+
   .section-spacing {
     @apply py-20 sm:py-28;
   }
@@ -129,12 +156,14 @@
 
   /* Hueco bajo el contenido para la barra de apoyo fija (<lg), SOLO en rutas
      donde puede aparecer (clase puesta por el layout vía useSupportBarRoute).
-     6.25rem = 100px ≥ alto real de la barra (99px + safe-area, medido a 375px);
+     6.75rem = 108px ≥ alto real de la barra (106px + safe-area, medido a 375px);
      con 4.5rem (72px) la barra tapaba 27px del final de main. En las rutas
-     silenciadas no hay reserva: no queda hueco vacío. */
+     silenciadas no hay reserva: no queda hueco vacío. (Eran 6,25 rem con una
+     barra de 99 px; el enlace «Más formas de ayudar» a 44 px la llevó a 123 y
+     la reserva a 7,9 rem; el relleno se recortó y quedó en 106, y esta en 6,75.) */
   @media (max-width: 1023px) {
     main.has-support-bar {
-      padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(6.75rem + env(safe-area-inset-bottom, 0px));
     }
   }
 
@@ -220,6 +249,15 @@
     max-width: var(--measure);
     text-wrap: pretty;
   }
+  /* Un titular de rol dentro de una prosa larga (las tres páginas legales llevan `.h3-seccion` en el <h2> de cada capítulo; `.h2-seccion` queda para
+     una prosa que lo pida): el plugin de tipografía le da un margen en em de SU tamaño (2em y 1em de 36 px son 72 y 36 px) y la sección se separaba
+     demasiado. Aquí el aire es el del sistema: 48 px arriba y 16 abajo; el primero de la prosa sigue pegado a su cabecera. */
+  .prose > :is(.h2-seccion, .h3-seccion) { margin-bottom: var(--sp-16); }
+  .prose > :is(.h2-seccion, .h3-seccion):not(:first-child) { margin-top: var(--sp-48); }
+  /* El <h3> suelto de una prosa legal (los subapartados de /privacidad, que no llevan clase de rol). El plugin de tipografía lo pintaba en Fraunces a 20 px: el mismo tamaño
+     que el H2 de capítulo (`.h3-seccion`, 20 px a 375), y solo el número y el aire los separaban. Aquí es el rol de título de tarjeta (Hanken 700, 17 px, `.h4-tarjeta`) con el
+     aire del sistema: 32 px arriba y 12 abajo (los que ya tenía). T3-CIERRE, decisión G. */
+  .prose-ink > h3 { font: var(--tipo-h4); margin-block: var(--sp-32) var(--sp-12); }
 
   /* Cifras alineadas: tabular-nums evita el "salto" de anchura al cambiar
      dígitos (importes de campaña, %, contadores, celdas de datos). */
@@ -638,16 +676,6 @@
   /* «Pendiente»: mismos tokens que --complete, nombre que dice lo que representa. */
   .status-badge--pending   { background: color-mix(in srgb, var(--texto-1) 6%, transparent); color: var(--texto-2); }
   .status-badge--candidate { background: #fde4cc; color: #8a4a1a; }
-  .status-badge--reference {
-    background: #e0ecf8;
-    color: #1e4a6f;
-    /* References can be long citations — allow wrapping so they never
-       force horizontal overflow on narrow screens. */
-    white-space: normal;
-    text-align: left;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
   .status-badge--paused    { background: #f0d4cc; color: #7a3018; }
   .status-badge--firma     { background: var(--color-miriam-soft); color: #5a2466; }
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
@@ -663,6 +691,26 @@
   .status-badge--pendiente { background: var(--estado-pendiente-fondo); color: var(--estado-pendiente-texto); box-shadow: inset 0 0 0 1px var(--estado-pendiente-borde); }
   .status-badge--nopuede   { background: var(--estado-nopuede-fondo);   color: var(--estado-nopuede-texto);   box-shadow: inset 0 0 0 1px var(--estado-nopuede-borde); }
   .status-badge--atencion  { background: var(--estado-atencion-fondo);  color: var(--estado-atencion-texto);  box-shadow: inset 0 0 0 1px var(--estado-atencion-borde); }
+
+  /* El estado `atencion` escrito como FRASE (lote 2 del repaso de escritorio, A26 y A29, 25-oct-2026): el mensaje de un error o de «esto pide un
+     cuidado» (un envío que falló, un captcha que no cargó, un campo sin rellenar). Es el mismo estado que la insignia (mismos --estado-atencion-*, mismo
+     icono de triángulo, por máscara: el color nunca es la única señal), pero en una o dos líneas de texto normal y no en una etiqueta mono en mayúsculas de
+     una sola línea. Sustituye a `text-coral-deep`: el coral no porta significado como texto (DESIGN-SYSTEM §5). Lleva `role="alert"` quien lo use. */
+  .msg-atencion {
+    display: flex; align-items: flex-start; gap: var(--sp-8);
+    box-sizing: border-box; max-width: var(--measure);
+    padding: var(--sp-8) var(--sp-12);
+    border-radius: var(--radius-btn);
+    background: var(--estado-atencion-fondo); color: var(--estado-atencion-texto);
+    box-shadow: inset 0 0 0 1px var(--estado-atencion-borde);
+    font: var(--tipo-body-sm);
+  }
+  .msg-atencion::before {
+    content: ''; flex: none; width: 1.2em; height: 1.2em; margin-top: 0.1em;
+    background-color: currentColor;
+    -webkit-mask: var(--icono-atencion) center / contain no-repeat;
+    mask: var(--icono-atencion) center / contain no-repeat;
+  }
 
   /* Stat readout card — small label / big mono value / unit-range caption.
      Flex column with a fixed min-height so cards in a grid stay aligned and do
@@ -711,6 +759,8 @@
     color: var(--estado-atencion-texto);
     font-size: var(--texto-sm);
     line-height: 1.5;
+    /* Regla de retícula 3: un aviso de dos líneas no ocupa 1104 px. Tope a la medida, alineado a la izquierda del shell. */
+    max-width: var(--measure);
   }
   .alert-callout__title {
     @apply font-semibold;
@@ -1412,6 +1462,15 @@
     line-height: 1.55;
     color: rgb(var(--color-text-soft-rgb) / 0.82);
     margin-top: 0.25rem;
+  }
+  /* T3-BARRIDO (colabora): la nota «Tómate el tiempo» es prosa y el mono es para datos tabulares (DS sección 1): desde `lg`, Hanken a 15 px. Por debajo
+     conserva su mono de 13 px (el móvil no se toca en esta tanda). */
+  @media (min-width: 1024px) {
+    .pathway-comfort {
+      font-family: var(--font-body);
+      font-size: var(--texto-sm);
+      line-height: 1.5;
+    }
   }
   .pathway-comfort__icon {
     width: 14px;

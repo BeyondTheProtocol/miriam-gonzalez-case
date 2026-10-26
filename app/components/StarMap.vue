@@ -6,7 +6,7 @@
       v-if="donationCount && total"
       keypath="thanksWall.stars_line"
       tag="p"
-      class="mb-4 text-tinta leading-relaxed max-w-2xl"
+      class="mb-4 text-tinta leading-relaxed measure"
     >
       <template #star>
         <svg class="inline-block w-4 h-4" style="vertical-align: -0.08em" viewBox="0 0 20 20" aria-hidden="true">
@@ -14,10 +14,10 @@
         </svg>
       </template>
       <template #n>
-        <strong class="font-semibold text-coral-deep nums">{{ donationCount }}</strong>
+        <strong class="font-semibold text-berenjena nums">{{ donationCount }}</strong>
       </template>
       <template #total>
-        <strong class="font-semibold text-coral-deep nums" style="white-space: nowrap">{{ total }}</strong>
+        <strong class="font-semibold text-berenjena nums" style="white-space: nowrap">{{ total }}</strong>
       </template>
     </i18n-t>
 
@@ -139,7 +139,7 @@
             :class="['starmap__label', 'starmap__label--patron', a.side ? 'starmap__label--' + a.side : '']"
             :style="{ left: a.x + '%', top: a.y + '%' }"
           >{{ a.name }}</span>
-          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%' }">
+          <span class="starmap__m44" :style="{ left: BEEHIVE.x + '%', top: BEEHIVE.y + '%', maxWidth: 'calc(' + BEEHIVE.x + '% - 14px)' }">
             M44 · el Pesebre<small>{{ $t('thanksWall.m44_subtitle') }}</small>
           </span>
         </div>
@@ -166,11 +166,22 @@
       </div>
     </div>
 
-    <Nota v-if="anchorMarkers.length" class="mt-3">{{ $t('thanksWall.patrons_note') }}</Nota>
+    <!-- Las tres notas son prosa de lectura, no la «Última actualización» (la única que el sistema deja a `Nota`): un `<p class="measure">` con su icono, mono
+         de 13 px por debajo de `lg` (el móvil no cambia) y Hanken a 15 px desde `lg` (revisión del barrido). -->
+    <p v-if="anchorMarkers.length" class="starmap__nota measure mt-3">
+      <Icon name="ph:asterisk-bold" class="starmap__nota-icono" aria-hidden="true" />
+      <span>{{ $t('thanksWall.patrons_note') }}</span>
+    </p>
     <!-- Cómo se juega: nota de gesto (dedito), pequeña, bajo el mapa. -->
-    <Nota icon="tap" class="mt-2">{{ $t('thanksWall.sky_hint') }}</Nota>
+    <p class="starmap__nota measure mt-2">
+      <Icon name="ph:hand-tap" class="starmap__nota-icono" aria-hidden="true" />
+      <span>{{ $t('thanksWall.sky_hint') }}</span>
+    </p>
     <!-- Cómo leerlo: el brillo crece en escala log (✱ nota al margen). -->
-    <Nota class="mt-2">{{ $t('thanksWall.magnitude_note') }}</Nota>
+    <p class="starmap__nota measure mt-2">
+      <Icon name="ph:asterisk-bold" class="starmap__nota-icono" aria-hidden="true" />
+      <span>{{ $t('thanksWall.magnitude_note') }}</span>
+    </p>
 
     <!-- El juego: tu estrella se enciende donando (solo el botón; el resto
          del texto se quitó — el pie manuscrito ya cuenta la historia). -->
@@ -916,13 +927,13 @@ const tipStyle = computed(() => {
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
-  color: #bb4128;
+  color: var(--color-text); /* A23: el coral no es texto (DESIGN-SYSTEM §5); el mapa tiene fondo crema fijo, así que berenjena y no un rol de tema */
   pointer-events: none;
 }
 .starmap__m44 small {
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 400;
-  color: rgba(58, 51, 64, 0.6);
+  color: rgba(58, 51, 64, 0.8); /* sobre el crema fijo del mapa: 0,6 daba 3,54:1 (AA pide 4,5:1 a 13 px, peso 400); 0,8 da 6,2:1 */
 }
 .starmap__tip {
   position: absolute;
@@ -946,7 +957,7 @@ const tipStyle = computed(() => {
 }
 .starmap__tip-meta {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: var(--texto-xs);
   color: rgba(250, 246, 240, 0.78);
 }
 .starmap__anchor--patron {
@@ -965,7 +976,8 @@ const tipStyle = computed(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Controles de zoom: barra segmentada (design system). */
+/* Controles de zoom: barra segmentada (design system). Cada botón mide 44 px (zona táctil) y dibuja su círculo de 36 con ::before, así que la barra mide lo
+   mismo de alto que antes (T3-BARRIDO: los botones eran de 36 px). */
 .starmap__zoom {
   position: absolute;
   right: 12px;
@@ -974,7 +986,7 @@ const tipStyle = computed(() => {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 4px;
+  padding: 0;
   border-radius: 9999px;
   border: 1px solid rgba(45, 27, 61, 0.14);
   background: rgba(250, 246, 240, 0.94);
@@ -988,8 +1000,10 @@ const tipStyle = computed(() => {
   background: rgba(45, 27, 61, 0.14);
 }
 .starmap__zoom-btn {
-  width: 36px;
-  height: 36px;
+  position: relative;
+  isolation: isolate;
+  width: var(--control-min);
+  height: var(--control-min);
   border: none;
   border-radius: 9999px;
   background: transparent;
@@ -1000,7 +1014,16 @@ const tipStyle = computed(() => {
   justify-content: center;
   transition: background 0.15s ease, color 0.15s ease;
 }
-.starmap__zoom-btn:hover {
+.starmap__zoom-btn::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  z-index: -1;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.starmap__zoom-btn:hover::before {
   background: rgba(45, 27, 61, 0.08);
 }
 .starmap__zoom-btn--reset:hover {
@@ -1009,6 +1032,46 @@ const tipStyle = computed(() => {
 .starmap__zoom-btn:focus-visible {
   outline: 2px solid #ff6b47;
   outline-offset: 2px;
+}
+/* Las tres notas bajo el mapa (antes `Nota`): la misma receta que tenía, mono de 13 px con su icono; desde `lg`, Hanken a 15 px (más abajo). */
+.starmap__nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--texto-xs);
+  line-height: 1.55;
+  color: var(--texto-3);
+}
+.starmap__nota-icono {
+  width: 14px;
+  height: 14px;
+  color: var(--identidad);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+/* T3-LOTE2 (A23): las notas a mano del mapa pasan de Caveat a Hanken Grotesk a 15 px desde `lg` (la letra a mano se leía mal a 15 y 16 px y es la única
+   fuente que no es del sistema). Por debajo de `lg` el mapa conserva Caveat: las etiquetas se colocan por porcentaje sobre un mapa de 327 px y con Hanken, que es
+   más ancha, se pisarían; ese cambio, si Miriam lo quiere, es de móvil y no entra en este lote. El título (una cabecera, no una nota) toma Fraunces. */
+@media (min-width: 1024px) {
+  .starmap__title { font-family: var(--font-display); font-weight: 600; font-size: 28px; letter-spacing: var(--track-titular); line-height: 1; }
+  .starmap__title small { font-family: var(--font-body); font-size: var(--texto-sm); letter-spacing: 0; }
+  .starmap__label,
+  .starmap__label--patron { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 600; }
+  .starmap__m44 { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
+  .starmap__m44 small { font-family: var(--font-body); font-size: var(--texto-xs); max-width: none; }
+  .starmap__tip-name { font-family: var(--font-body); font-size: var(--texto-sm); font-weight: 700; }
+  /* T3-BARRIDO (colabora): las tres notas bajo el mapa son prosa, no datos tabulares: Hanken a 15 px desde `lg` (por debajo conservan el mono de 13 px; el
+     móvil no se toca en esta tanda). */
+  .starmap__nota { font-family: var(--font-body); font-size: var(--texto-sm); line-height: 1.5; }
+  .starmap__nota-icono { margin-top: 4px; }
+}
+/* T3-BARRIDO (colabora): las puntas de las estrellas cruzaban los rótulos del mapa (en «M44 · el Pesebre», el rótulo y su subtítulo). Un halo del color del mapa
+   (crema fijo) los separa; no mueve nada. */
+.starmap__label,
+.starmap__label--patron,
+.starmap__m44 {
+  text-shadow: 0 0 3px var(--color-bg), 0 0 6px var(--color-bg);
 }
 @keyframes star-ignite {
   0% { opacity: 0; }

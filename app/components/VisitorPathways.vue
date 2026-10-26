@@ -10,7 +10,7 @@
   -->
   <section class="pathways" :aria-labelledby="titleId">
     <h2 :id="titleId" class="sr-only">{{ $t('pathways.colabora_title') }}</h2>
-    <p class="pathway-comfort max-w-2xl" role="note">
+    <p class="pathway-comfort measure" role="note">
       <Icon name="ph:leaf" class="pathway-comfort__icon" aria-hidden="true" />
       {{ $t('pathways.comfort') }}
     </p>

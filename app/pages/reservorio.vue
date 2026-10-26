@@ -125,8 +125,10 @@ defineOgImage('Default.takumi', {
       <div class="res-tres">
         <section v-for="b in bloques" :key="b.id" :aria-labelledby="`res-${b.id}`">
           <CabeceraSeccion :id="`res-${b.id}`" :titulo="b.titulo" />
-          <p class="prosa">{{ b.texto }}</p>
-          <p v-if="b.motivo" class="prosa res-motivo">{{ b.motivo }}</p>
+          <div class="res-cuerpo">
+            <p class="prosa">{{ b.texto }}</p>
+            <p v-if="b.motivo" class="prosa res-motivo">{{ b.motivo }}</p>
+          </div>
         </section>
       </div>
     </Banda>
@@ -184,9 +186,18 @@ defineOgImage('Default.takumi', {
 <style scoped>
 /* Tres bloques: una columna en móvil y en tableta, tres desde 1024. Cada uno con su H2 de capítulo. */
 .res-tres { display: grid; gap: var(--sp-48) var(--sp-32); grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 1024px) { .res-tres { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .res-tres .prosa { margin: 0; }
-.res-motivo { margin-top: var(--sp-12); }
+/* T3-BARRIDO (L291): tres columnas desde `xl` (1280), no desde `lg`: a 1024 cada columna medía unos 285 px (33 caracteres) y «PowerPort de titanio» salía en tres líneas.
+   Entre 1024 y 1279 los tres bloques van en una columna, como por debajo de `lg`. Desde `xl` cada bloque es un subgrid de dos filas (titular y cuerpo), así que el
+   primer párrafo de las tres columnas arranca a la misma altura aunque un titular ocupe una línea y otro dos o tres; sin subgrid, quedan como estaban. */
+@media (min-width: 1280px) {
+  .res-tres { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto; row-gap: 0; }
+  .res-tres > section { display: grid; grid-template-rows: subgrid; grid-row: span 2; }
+}
+.res-cuerpo { min-width: 0; }
+/* El margen de `.res-motivo` (12 px) lo anulaba `.res-tres .prosa { margin: 0 }`, que tiene más especificidad: el párrafo del motivo pegaba sin aire al anterior.
+   Se restituye desde `lg`; por debajo queda como estaba (el móvil no se toca en esta tanda: excepción pendiente). */
+@media (min-width: 1024px) { .res-tres .res-motivo { margin-top: var(--sp-12); } }
 
 .res-historico { margin: 0 0 var(--sp-12); color: var(--identidad); }
 .res-parrafo { margin: 0 0 var(--sp-24); max-width: var(--measure); }

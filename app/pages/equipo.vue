@@ -1,14 +1,17 @@
 <template>
-  <div>
+  <div class="[--measure:58ch]">
+    <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
     <section class="section-spacing" :aria-label="$t('team.title')">
       <div class="section-wide">
+        <!-- T3-BARRIDO (K7): desde `lg` los tres titulares de bloque (que parecían un eyebrow) y el de «Lo que NO somos» son `.h2-seccion`, el rol del sistema; por
+             debajo conservan su receta de siempre (el móvil no se toca en esta tanda: queda como excepción pendiente). -->
         <PageHeader :title="$t('team.title')" :subtitle="$t('team.subtitle')" />
 
         <!-- El equipo de Miriam · retratos del círculo cercano (Miriam, primera) -->
-        <h2 id="team-miriam" class="eyebrow mb-3 block">
+        <h2 id="team-miriam" class="eyebrow lg:h2-seccion lg:normal-case mb-3 block">
           {{ $t('team.miriam_team') }}
         </h2>
-        <p class="text-sm text-tinta leading-relaxed max-w-2xl mb-8">
+        <p class="text-sm text-tinta leading-relaxed measure mb-8">
           {{ $t('team.how_it_formed') }}
         </p>
         <ul
@@ -21,106 +24,81 @@
         </ul>
 
         <!-- Red médica de apoyo · tarjetas de rol (anónimas) -->
-        <h2 id="team-medical" class="eyebrow mb-6 block">
+        <h2 id="team-medical" class="eyebrow lg:h2-seccion lg:normal-case mb-6 block">
           {{ $t('team.medical_support_network') }}
         </h2>
         <ul
           aria-labelledby="team-medical"
           class="grid sm:grid-cols-2 gap-4 mb-16 stagger-children"
         >
-          <li v-for="(member, i) in medicalNetwork" :key="member.role">
-            <TeamCard :member="member" :marked="i % 2 === 0" />
+          <li v-for="member in medicalNetwork" :key="member.role">
+            <TeamCard :member="member" />
           </li>
         </ul>
 
         <!-- Apoyo integral · tarjetas de rol (anónimas) -->
-        <h2 id="team-integrative" class="eyebrow mb-6 block">
+        <h2 id="team-integrative" class="eyebrow lg:h2-seccion lg:normal-case mb-6 block">
           {{ $t('team.integrative_support') }}
         </h2>
         <ul
           aria-labelledby="team-integrative"
           class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children"
         >
-          <li v-for="(member, i) in integrativeSupport" :key="member.role">
-            <TeamCard :member="member" :marked="i % 2 === 0" />
+          <li v-for="member in integrativeSupport" :key="member.role">
+            <TeamCard :member="member" />
           </li>
         </ul>
-
-        <!-- Cierre · "Lo que NO somos" (honestidad operativa) + Beyond the
-             Protocol (próximamente) + cómo ayudar. Panel oscuro sobrio.
-             D5: contenido a max-w-4xl (alineado a la izquierda del shell) para
-             que el panel no quede con un hueco grande a la derecha a 1200px. -->
-        <section
-          class="mt-16 relative overflow-hidden rounded-card p-8 sm:p-12"
-          style="background: #2d1b3d; color: #faf6f0"
-          :aria-labelledby="'notus-title'"
-        >
-          <div
-            aria-hidden="true"
-            class="absolute inset-0 opacity-[0.04]"
-            style="background-image: radial-gradient(circle at 1px 1px, #faf6f0 1px, transparent 0); background-size: 32px 32px"
-          />
-          <div class="relative">
-            <p class="eyebrow mb-3 block" style="color: rgba(250,246,240,0.55)">
-              {{ $t('team.notus_eyebrow') }}
-            </p>
-            <h2
-              id="notus-title"
-              class="heading-display text-2xl sm:text-3xl mb-6"
-              style="color: #faf6f0; letter-spacing: -0.02em"
-            >
-              {{ $t('team.notus_title') }}
-            </h2>
-
-            <ul class="grid gap-x-10 lg:gap-x-16 gap-y-4 lg:grid-cols-2">
-              <li
-                v-for="(item, i) in notUsItems"
-                :key="i"
-                class="flex items-start gap-3.5 text-[15px] leading-relaxed"
-                :class="{ 'lg:col-span-2': i === notUsItems.length - 1 && notUsItems.length % 2 === 1 }"
-              >
-                <span
-                  class="shrink-0 mt-[11px] h-[2px] w-3.5 rounded-full"
-                  style="background: rgba(255,107,71,0.7)"
-                  aria-hidden="true"
-                />
-                <span style="color: rgba(250,246,240,0.72)"
-                  ><strong class="font-semibold" style="color: #faf6f0">{{ item.lead }}</strong
-                  >{{ item.rest ? ' ' + item.rest : '' }}</span
-                >
-              </li>
-            </ul>
-
-            <!-- Beyond the Protocol · próximamente + cómo ayudar -->
-            <div class="mt-8 pt-6" style="border-top: 1px solid rgba(250,246,240,0.15)">
-              <p class="eyebrow mb-2 block" style="color: rgba(250,246,240,0.55)">
-                {{ $t('team.network_origin_label') }}
-              </p>
-              <h3
-                class="heading-display text-xl sm:text-2xl mb-3"
-                style="color: #faf6f0; letter-spacing: -0.02em"
-              >
-                {{ $t('team.network_origin_title') }}
-              </h3>
-              <p class="text-sm leading-relaxed max-w-2xl" style="color: rgba(250,246,240,0.78)">
-                {{ $t('team.network_origin_body') }}
-              </p>
-              <NuxtLink
-                :to="localePath('colabora')"
-                class="link-action group mt-5 text-sm text-cream"
-              >
-                {{ $t('team.network_origin_cta') }}
-                <Icon
-                  name="ph:arrow-right"
-                  class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </NuxtLink>
-            </div>
-          </div>
-        </section>
       </div>
     </section>
+
+    <!-- Cierre (T3-LOTE2, A20, 25-oct-2026). Antes: una caja oscura redondeada con hex en línea, dentro del contenedor y a un paso del pie. Ahora: «Lo que NO
+         somos» es la banda oscura de la página (a sangre, con los roles de color de la Banda: ni un hex) y «Beyond the Protocol» pasa a una banda tarjeta
+         propia, DESPUÉS. Es lo que evita lo que el sistema prohíbe (DESIGN-SYSTEM §3): una banda oscura pegada a la de logos del pie, que también es
+         berenjena. Las cadenas, su orden y los niveles de titular son los de antes. -->
+    <Banda tono="oscura" titular="notus-title">
+      <p class="eyebrow mb-3 block">
+        {{ $t('team.notus_eyebrow') }}
+      </p>
+      <h2 id="notus-title" class="heading-display bajo-lg:text-2xl bajo-lg:sm:text-3xl lg:h2-seccion mb-6">
+        {{ $t('team.notus_title') }}
+      </h2>
+
+      <ul class="grid gap-x-10 lg:gap-x-16 gap-y-4 lg:grid-cols-2">
+        <li
+          v-for="(item, i) in notUsItems"
+          :key="i"
+          class="flex items-start gap-3.5 text-sm leading-relaxed"
+          :class="{ 'lg:col-span-2': i === notUsItems.length - 1 && notUsItems.length % 2 === 1 }"
+        >
+          <span class="notus__marca shrink-0 mt-[11px] h-[2px] w-3.5 rounded-full" aria-hidden="true" />
+          <span class="measure notus__texto"
+            ><strong class="font-semibold notus__lead">{{ item.lead }}</strong
+            >{{ item.rest ? ' ' + item.rest : '' }}</span
+          >
+        </li>
+      </ul>
+    </Banda>
+
+    <!-- Beyond the Protocol · próximamente + cómo ayudar -->
+    <Banda tono="tarjeta" compacta titular="network-origin-title">
+      <p class="eyebrow mb-2 block">
+        {{ $t('team.network_origin_label') }}
+      </p>
+      <h3 id="network-origin-title" class="heading-display text-xl sm:text-2xl mb-3">
+        {{ $t('team.network_origin_title') }}
+      </h3>
+      <p class="text-sm text-tinta leading-relaxed measure">
+        {{ $t('team.network_origin_body') }}
+      </p>
+      <NuxtLink :to="localePath('colabora')" class="link-action group mt-5 text-sm text-miriam">
+        {{ $t('team.network_origin_cta') }}
+        <Icon
+          name="ph:arrow-right"
+          class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+          aria-hidden="true"
+        />
+      </NuxtLink>
+    </Banda>
   </div>
 </template>
 
@@ -194,3 +172,10 @@ defineOgImage('Default.takumi', {
       : 'An engineer, an international team, and AI.',
 })
 </script>
+
+<style scoped>
+/* «Lo que NO somos» (banda oscura): colores por rol, así que se invierten solos con la Banda (antes: crema y coral en hex y rgba escritos a mano). */
+.notus__marca { background: color-mix(in srgb, var(--color-cta) 70%, transparent); } /* el guion coral decorativo de siempre, derivado del átomo */
+.notus__texto { color: var(--texto-2); }
+.notus__lead { color: var(--texto-1); }
+</style>

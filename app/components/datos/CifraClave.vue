@@ -111,20 +111,20 @@ const spark = computed(() => {
 <style scoped>
 .ck { background: var(--color-bg-card); border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 14px;
   padding: 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.ck__etq { font: 600 12.5px/1.3 var(--font-body); color: var(--color-text-soft); margin: 0; }
+.ck__etq { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--color-text-soft); margin: 0; }
 .ck__valor { margin: 2px 0 0; display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap; }
 .ck__valor .nums { font: var(--tipo-cifra); font-size: clamp(26px, 7vw, 36px); letter-spacing: var(--track-cifra); color: var(--color-text); }
 .ck__valor--texto .nums { font-size: clamp(20px, 5.4vw, 26px); line-height: 1.1; }
 .ck__pie :deep(.sello) { white-space: normal; }
-.ck__unidad { font: 500 12px var(--font-mono); color: var(--color-text-soft); }
-.ck__fuera { font: 700 12px/1.3 var(--font-body); color: var(--color-miriam); margin: 0; }
-.ck__previo { font: 500 11.5px var(--font-mono); color: var(--color-text-soft); margin: 2px 0 0; }
-.ck__nota { font: 400 11.5px/1.35 var(--font-body); color: var(--color-text); margin: 4px 0 0; }
-.ck__det { font: 400 12.5px/1.35 var(--font-body); color: var(--color-text); margin: 2px 0 0; }
+.ck__unidad { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); }
+.ck__fuera { font: 700 var(--texto-xs)/1.3 var(--font-body); color: var(--color-miriam); margin: 0; }
+.ck__previo { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); margin: 2px 0 0; }
+.ck__nota { font: 400 var(--texto-xs)/1.35 var(--font-body); color: var(--color-text); margin: 4px 0 0; }
+.ck__det { font: 400 var(--texto-xs)/1.35 var(--font-body); color: var(--color-text); margin: 2px 0 0; }
 .ck__spark { width: 100%; max-width: 160px; height: auto; margin-top: 6px; }
 .ck__franja { width: 100%; max-width: 160px; height: 22px; margin-top: 8px; }
 .ck__on { fill: var(--color-miriam); }
-.ck__franja-txt { font: 400 10.5px var(--font-body); color: var(--color-text-soft); margin: 2px 0 0; }
+.ck__franja-txt { font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 2px 0 0; }
 .ck__off { fill: rgb(var(--color-text-rgb) / 0.25); }
 .ck__linea { fill: none; stroke: var(--viz-div-2); stroke-width: 1.6; }
 .ck__ultimo { fill: var(--color-miriam); stroke: var(--color-text); stroke-width: 0.6; transform-box: fill-box; transform-origin: center; }
@@ -148,5 +148,5 @@ const spark = computed(() => {
 /* nunca desde scale(0): nada aparece de la nada (skill movimiento-movil) */
 @keyframes ck-pop { 0% { transform: scale(0.95); opacity: 0; } 60% { transform: scale(1.8); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .ck--visto .ck__linea, .ck--visto .ck__ultimo, .ck--visto .ck__marca { animation: none; } }
-.ck__pie { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 6px 0 0; font: 500 11px var(--font-mono); color: var(--color-text-soft); }
+.ck__pie { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 6px 0 0; font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); }
 </style>

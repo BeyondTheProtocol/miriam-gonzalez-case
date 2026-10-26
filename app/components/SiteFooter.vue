@@ -82,14 +82,16 @@
         <!-- Marca y aviso, en una fila; debajo, cinco columnas (rediseño de arquitectura, F3): tres de
              navegación por intención (13 enlaces; salen de app/utils/navegacion.ts, la misma fuente que el
              menú), Redes y Legal. En móvil, dos columnas. Cada enlace mide 44 px de alto (vara táctil de la casa). -->
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8">
+        <!-- Desde lg la fila es la misma rejilla de 5 columnas (y el mismo hueco) que el <nav> de abajo: la marca en la primera y el aviso en
+             la segunda, que es donde empieza «Herramientas». Debajo de lg no cambia nada (pila en móvil, fila desde sm). -->
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8 lg:grid lg:grid-cols-5 lg:gap-x-6">
           <div class="flex items-center gap-2.5 shrink-0">
             <BrandMark class="w-8 h-8 shrink-0" />
             <span class="font-display font-semibold text-berenjena text-sm">
               {{ $t('site.title') }}
             </span>
           </div>
-          <p class="text-xs text-tinta leading-relaxed max-w-xl">
+          <p class="text-xs text-tinta leading-relaxed measure lg:col-start-2 lg:col-span-4">
             {{ $t('footer.disclaimer') }}
           </p>
         </div>
@@ -102,7 +104,7 @@
             <ul :aria-labelledby="`pie-${grupo.id}`" class="flex flex-col">
               <li v-for="item in grupo.enlaces.filter(visible)" :key="item.key">
                 <NuxtLink :to="localePath({ name: item.name })"
-                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
+                  class="inline-flex items-center min-h-[44px] min-w-[44px] text-sm text-tinta hover:text-miriam transition-colors"
                   style="text-decoration: none"
                   @click="medirPie(item.key)">
                   {{ $t(item.etiqueta ?? `nav.${item.key}`) }}
@@ -122,7 +124,7 @@
                   :href="red.url"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
+                  class="inline-flex items-center min-h-[44px] min-w-[44px] text-sm text-tinta hover:text-miriam hover:underline underline-offset-2 transition-colors"
                   @click="trackShare(red.id, 'footer')"
                 >
                   {{ red.pie ?? red.nombre }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
@@ -131,7 +133,7 @@
               <li>
                 <a href="https://gofund.me/3e25cae99" target="_blank" rel="noopener noreferrer"
                   @click="trackSupport('footer')"
-                  class="inline-flex items-center min-h-[44px] gap-1 text-sm text-coral-deep hover:text-coral-hover hover:underline underline-offset-2 font-semibold transition-colors">
+                  class="inline-flex items-center min-h-[44px] gap-1 text-sm text-berenjena hover:text-miriam hover:underline underline-offset-2 font-semibold transition-colors">
                   GoFundMe<Icon name="ph:arrow-up-right-bold" class="w-3 h-3" aria-hidden="true" /><span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
                 </a>
               </li>
@@ -146,7 +148,7 @@
             <ul aria-labelledby="pie-legal" class="flex flex-col">
               <li v-for="l in LEGAL" :key="l.name">
                 <NuxtLink :to="localePath({ name: l.name })"
-                  class="inline-flex items-center min-h-[44px] text-sm text-tinta hover:text-miriam transition-colors"
+                  class="inline-flex items-center min-h-[44px] min-w-[44px] text-sm text-tinta hover:text-miriam transition-colors"
                   style="text-decoration: none">
                   {{ $t(l.etiqueta) }}
                 </NuxtLink>

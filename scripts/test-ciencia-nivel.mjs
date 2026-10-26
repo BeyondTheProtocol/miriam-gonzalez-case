@@ -9,6 +9,11 @@
 //   · los enlaces antiguos siguen llevando al lector a su sitio: el destino antiguo de /caso (…#mapa-acceso) y el botón de clínica de la
 //     home (…#snapshot-title) aterrizan con la ancla A LA VISTA y con el FOCO en ella;
 //   · la ficha (#snapshot-title), la franja de herramientas (#mapa-acceso), Imprimir y el botón de donar están ahí.
+//   · «Explicado sin tecnicismos» (#ciencia-llano, fase «llano» de la tanda 3, 25-oct-2026) está arriba, a la vista, y su enlace «Ir al detalle
+//     profesional» lleva a «Qué buscamos» (#ciencia-busca) con la ancla a la vista y el foco en ella.
+//   · en un móvil corto (375x667) la banda llana se REVELA con unos pocos píxeles de scroll (150): `v-reveal` (app/plugins/reveal.ts)
+//     pedía el 10 % de su alto, y una Banda de ~3.300 px no llegaba nunca a ese umbral en las primeras pantallas (el lector veía un
+//     hueco crema y de golpe el bloque). Es una CLASE: vale para cualquier Banda más alta que ~3 pantallas.
 //
 // Por qué contra el build y no con `nuxt dev`: el fallo del foco solo existe con la página prerenderizada. Nuxt la hidrata en la ruta del
 // payload (sin query ni hash) y aplica la URL real después; en dev la página se renderiza con ella y el bug no aparece (así se coló el
@@ -184,17 +189,22 @@ async function evaluate(expression) {
 // Lo que ve la persona, leído del DOM: sin conmutador, con los bloques visibles, y dónde está el foco.
 const STATE = `(() => {
   const visible = (id) => { const e = document.getElementById(id); return !!e && e.offsetParent !== null && e.getBoundingClientRect().height > 0 }
-  const ahora = document.querySelector('#ruta-title')?.closest('section')?.textContent ?? ''
+  const ruta = document.querySelector('#ruta-title')?.closest('section')?.textContent ?? ''
+  const q4 = document.querySelector('#ciencia-llano')?.closest('section')?.querySelector('.ci-llano__item:nth-child(4)')?.textContent ?? ''
   return {
     conmutador: document.querySelectorAll('.reading-level__btn').length,
     mapa: visible('mapa-acceso'),
     ficha: visible('snapshot-title'),
     porQue: visible('por-que-no-encaja'),
     molecular: visible('molecular-profile-title'),
+    llano: visible('ciencia-llano'),
     ruta: visible('ruta-title'),
     donar: !!document.querySelector('main a.btn-cta[href*="gofund.me"][rel~="noopener"]'),
     imprimir: [...document.querySelectorAll('main button')].some((b) => /Imprimir|Print/.test(b.textContent)),
-    enCuartaLinea: /En cuarta línea desde el 7 de octubre de 2026|In fourth line since 7 October 2026/.test(ahora),
+    // El tratamiento de hoy lo cuenta UNA vez en llano: la 4.ª respuesta lleva la fecha de la cuarta línea, y la ruta de debajo no repite la línea «Ahora»
+    // (otro nombre para el mismo fármaco, dosis y jerga; era lo más pesado de la banda). Las dos mitades: sin la primera, la banda no diría nada de hoy.
+    q4Fecha: /Desde el 7 de octubre de 2026 recibe Dato-DXd|Since 7 October 2026 she's been on Dato-DXd/.test(q4),
+    rutaSinAhora: ruta.length > 0 && !/En cuarta línea desde|In fourth line since|datopotamab|Ahora:|Now:/i.test(ruta),
     foco: document.activeElement?.id ?? '',
     // la ancla pedida está a la vista: dentro de la ventana y por debajo de la cabecera fija
   }
@@ -242,10 +252,12 @@ const TODO_VISIBLE = {
   ficha: true,
   porQue: true,
   molecular: true,
+  llano: true,
   ruta: true,
   donar: true,
   imprimir: true,
-  enCuartaLinea: true,
+  q4Fecha: true,
+  rutaSinAhora: true,
 }
 const EN_PANTALLA = (id) => `(() => { const e = document.getElementById('${id}'); if (!e) return false; const r = e.getBoundingClientRect(); const cab = document.querySelector('[data-cabecera-fija]')?.getBoundingClientRect().bottom ?? 0; return r.top >= cab - 2 && r.bottom <= innerHeight })()`
 async function esperar(expresion, ms = 4000) {
@@ -262,8 +274,8 @@ try {
 
   check('/ciencia: sin conmutador y con todo el contenido profesional a la vista', await load('/ciencia'), TODO_VISIBLE)
   check('/ciencia?nivel=pro: es lo mismo (el parámetro no hace nada)', await load('/ciencia?nivel=pro'), TODO_VISIBLE)
-  check('/ciencia?nivel=simple: también lo mismo (ya no hay capa llana aquí)', await load('/ciencia?nivel=simple'), TODO_VISIBLE)
-  check('/en/science: lo mismo en inglés, con la frase de la cuarta línea', await load('/en/science'), TODO_VISIBLE)
+  check('/ciencia?nivel=simple: también lo mismo (el parámetro ya no elige capa; el bloque llano está siempre)', await load('/ciencia?nivel=simple'), TODO_VISIBLE)
+  check('/en/science: lo mismo en inglés, con la fecha de la cuarta línea en la 4.ª respuesta', await load('/en/science'), TODO_VISIBLE)
   check('/en/science?nivel=pro: lo mismo', await load('/en/science?nivel=pro'), TODO_VISIBLE)
 
   check(
@@ -290,6 +302,15 @@ try {
     check(`${nombre} (${ruta.split('#')[0].split('?')[0]}): #${ancla} queda a la vista y con el foco`, { aVista, conFoco }, { aVista: true, conFoco: true })
   }
 
+  // «Ir al detalle profesional»: el enlace de debajo del titular de la banda llana lleva a «Qué buscamos» con la ancla a la vista y el foco en ella
+  for (const ruta of ['/ciencia', '/en/science']) {
+    await load(ruta)
+    const hay = await evaluate(`(() => { const a = document.getElementById('ciencia-llano')?.closest('section')?.querySelector('a[href$="#ciencia-busca"]'); if (!a) return false; a.click(); return true })()`)
+    const aVista = hay && (await esperar(EN_PANTALLA('ciencia-busca'), 6000))
+    const conFoco = hay && (await esperar(`document.activeElement?.id === 'ciencia-busca'`, 3000))
+    check(`${ruta}: el enlace al detalle profesional lleva a #ciencia-busca, a la vista y con el foco`, { hay, aVista, conFoco }, { hay: true, aVista: true, conFoco: true })
+  }
+
   // Imprimir y donar son botones de verdad (teclado) y el de donar abre GoFundMe en pestaña nueva con aviso para el lector de pantalla
   await load('/ciencia')
   check(
@@ -297,7 +318,26 @@ try {
     await evaluate(`(() => { const a = document.querySelector('main a.btn-cta[href*="gofund.me"]'); if (!a) return {}; return { rel: a.getAttribute('rel'), blank: a.target === '_blank', aviso: !!a.querySelector('.sr-only'), alto44: a.getBoundingClientRect().height >= 44 } })()`),
     { rel: 'noopener noreferrer', blank: true, aviso: true, alto44: true }
   )
+
+  // Móvil corto (iPhone SE/8, 375x667): la banda llana mide varias pantallas y lleva v-reveal. Con 150 px de scroll ya tiene que
+  // estar revelada (opacity 1, sin quedarse en reveal-init). Con el umbral fijo del 10 % de SU alto seguía en 0 hasta ~450 px.
+  // El viewport se pone ANTES de cargar (v-reveal decide al montar con la ventana que hay) y se quita en el finally.
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 375, height: 667, deviceScaleFactor: 2, mobile: true })
+  const LLANO_REVELADO = `(() => { const s = document.getElementById('ciencia-llano')?.closest('section'); if (!s) return { hay: false }; const c = s.classList; return { hay: true, opacidad: getComputedStyle(s).opacity, atascada: c.contains('reveal-init') && !c.contains('reveal-in') } })()`
+  for (const ruta of ['/ciencia', '/en/science']) {
+    await load(ruta)
+    const vp = await evaluate(`({ ancho: innerWidth, alto: innerHeight })`)
+    await evaluate('window.scrollTo(0, 150)')
+    const revelada = await esperar(`${LLANO_REVELADO}.opacidad === '1'`, 3000)
+    const estado = await evaluate(LLANO_REVELADO)
+    check(
+      `${ruta} a 375x667: con 150 px de scroll la banda llana ya está revelada (opacity 1)`,
+      { vp: `${vp.ancho}x${vp.alto}`, revelada, ...estado },
+      { vp: '375x667', revelada: true, hay: true, opacidad: '1', atascada: false }
+    )
+  }
 } finally {
+  await cdp('Emulation.clearDeviceMetricsOverride').catch(() => {})
   ws.close()
   chrome.kill()
   server.close()

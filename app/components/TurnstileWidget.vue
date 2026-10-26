@@ -1,7 +1,7 @@
 <template>
   <div v-if="enabled" class="turnstile-wrap">
     <div ref="container" class="turnstile-container" />
-    <p v-if="loadError" class="text-xs text-coral-deep" role="alert">
+    <p v-if="loadError" class="msg-atencion" role="alert">
       {{ $t('captcha.load_error') }}
     </p>
   </div>

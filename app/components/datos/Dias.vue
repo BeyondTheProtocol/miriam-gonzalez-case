@@ -102,7 +102,7 @@ const lineasLeyenda = computed(() => ordenLineas.filter((id) => { const s = tram
 const caja = ref<HTMLElement | null>(null)
 const lienzo = ref<HTMLCanvasElement | null>(null)
 const W = useAncho(caja)
-const IZQ = 40
+const IZQ = 46 // 12 px en mono: «FEB» mide 22 px y la marca de progresión o RT de «solo se sabe el mes» va justo detrás
 const FILA = 26
 // pistas dentro de la fila: trazos ▲ crecen hacia arriba desde ARR; banda de BAN a BAN+6; ▼ hacia abajo desde ABA
 const ARR = 11, BAN = 11, ABA = 17
@@ -134,11 +134,11 @@ function pintar() {
   cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, w, h)
   const tinta = css('--color-text'), violeta = css('--color-miriam'), suave = css('--color-text-soft'), fondo = css('--color-bg')
   const hasta = Math.floor(dias.value.length * progreso)
-  cx.font = '600 10px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'middle'
+  cx.font = '600 12px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'middle'
   meses.value.forEach(({ a, m }, fila) => {
     const y = fila * FILA + BAN + 3
     if (m === 0 || fila === 0) { cx.fillStyle = tinta; cx.fillText(String(a), 0, y) }
-    else { cx.fillStyle = suave; cx.fillText(mesCorto(m, props.lang), 4, y) }
+    else { cx.fillStyle = suave; cx.fillText(mesCorto(m, props.lang).toUpperCase(), 4, y) }
   })
   // rayado para la 3L: patrón de diagonales
   const rayas = (col: string) => {
@@ -199,7 +199,7 @@ function pintar() {
     }
   }
   // etiqueta de cada línea donde empieza, DESPUÉS de los trazos y con halo: antes un trazo tapaba «2L»
-  cx.font = '700 9px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'alphabetic'
+  cx.font = '700 12px "JetBrains Mono", ui-monospace, monospace'; cx.textBaseline = 'alphabetic'
   for (const [id, t] of inicioLinea) {
     if (t > (vis[vis.length - 1]?.t ?? -1)) continue
     const x = xDe(t) + 1, y = filaDe(t) * FILA + ARR - 2
@@ -211,9 +211,9 @@ function pintar() {
     if (!vis.length || Date.UTC(a, m, 1) > vis[vis.length - 1]!.t) return
     const y = fila * FILA + BAN + 3
     cx.strokeStyle = tinta; cx.fillStyle = tinta; cx.lineWidth = 1.3
-    if (progresionesMes.has(clave)) { cx.fillRect(28.4, y - 6, 1.3, 12); banderin(cx, 29, y - 6, 7); cx.stroke() }
+    if (progresionesMes.has(clave)) { cx.fillRect(34.4, y - 6, 1.3, 12); banderin(cx, 35, y - 6, 7); cx.stroke() }
     // RT sabida por mes: círculo DISCONTINUO (el anillo liso ya es «analítica sin nada fuera»)
-    if (rtMes.has(clave)) { cx.setLineDash([1.6, 1.4]); cx.beginPath(); cx.arc(progresionesMes.has(clave) ? 22 : 31, y, 3, 0, 7); cx.stroke(); cx.setLineDash([]) }
+    if (rtMes.has(clave)) { cx.setLineDash([1.6, 1.4]); cx.beginPath(); cx.arc(progresionesMes.has(clave) ? 29 : 37, y, 3, 0, 7); cx.stroke(); cx.setLineDash([]) }
   })
   if (sel.value) { // día elegido: marco
     const x = xDe(sel.value.t), y = filaDe(sel.value.t) * FILA
@@ -353,15 +353,15 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
 .dias { margin: 0; }
 .dias__cifra { font: var(--tipo-cifra); font-size: clamp(22px, 6vw, 32px); letter-spacing: var(--track-cifra); margin: 0; color: var(--color-text); }
 .dias__cifra .nums { color: var(--color-miriam); }
-.dias__sub { font: 500 13px/1.4 var(--font-body); color: var(--color-text-soft); margin: 4px 0 12px; }
+.dias__sub { font: 500 13px/1.4 var(--font-body); color: var(--color-text-soft); margin: 4px 0 12px; max-width: var(--measure); }
 .dias__caja { position: relative; }
 .dias__lienzo { display: block; touch-action: pan-y; cursor: crosshair; }
 .dias__lienzo:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; border-radius: 4px; }
-.dias__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; margin: 6px 0 0; font: 500 12.5px/1.4 var(--font-mono); color: var(--color-text); }
+.dias__lee { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; margin: 6px 0 0; font: 500 var(--texto-xs)/1.4 var(--font-mono); color: var(--color-text); }
 .dias__ir { font: 700 13px var(--font-body); color: var(--color-miriam); min-height: 44px; }
 .dias__ir:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
-.dias__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 0; font: 400 12px var(--font-body); color: var(--color-text-soft); }
-.dias__ley span { display: inline-flex; align-items: center; gap: 5px; }
+.dias__ley { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 6px 0 0; font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); }
+.dias__ley span { display: inline-flex; align-items: center; gap: 5px; max-width: var(--measure); }
 .dias__c { width: 16px; height: 6px; border-radius: 3px; display: inline-block; }
 .dias__c--solida { background: rgb(var(--color-miriam-rgb) / 0.9); }
 .dias__c--clara { background: rgb(var(--color-miriam-rgb) / 0.45); }

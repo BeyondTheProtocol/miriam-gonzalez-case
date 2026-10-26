@@ -99,7 +99,7 @@
   --curva-mover:    cubic-bezier(0.77, 0, 0.175, 1);
 
   /* ── Lectura ─────────────────────────────────────────────────── */
-  --measure: 68ch; /* valor mío para Hanken a 17 px (inferencia, sin probar con lectores) */
+  --measure: 68ch; /* valor mío para Hanken a 17 px (inferencia, sin probar con lectores). MEDIDO (26-oct-2026): da de 81 a 90 caracteres por línea con Hanken a 13 a 16 px, no los 75 o menos que daría 58ch; se baja a 58ch cuando entre el PR #290 (DS sección 8, punto d) */
 
   /* ── Retícula: el borde izquierdo del H1 cae siempre bajo el logo ─ */
   --shell-max:   75rem;  /* 1200 px: ancho único de cabecera, cuerpo y pie (.section-wide) */

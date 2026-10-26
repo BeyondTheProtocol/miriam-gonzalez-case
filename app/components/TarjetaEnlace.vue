@@ -106,7 +106,8 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
 .tarjeta-enlace--apoyo .tarjeta-enlace__titulo { color: var(--color-text); } /* .h4-tarjeta fuerza --texto-1 (crema en una banda oscura): sobre coral va berenjena */
 .tarjeta-enlace__texto { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
 .tarjeta-enlace__titulo { display: block; }
-.tarjeta-enlace__meta { font: var(--tipo-body-sm); color: var(--texto-2); }
+/* La meta tiene tope a la medida: la tarjeta destacada de la home mide 1104 px y su línea de apoyo llegaba a unos 150 caracteres. */
+.tarjeta-enlace__meta { font: var(--tipo-body-sm); color: var(--texto-2); max-width: var(--measure); }
 .tarjeta-enlace--apoyo .tarjeta-enlace__meta { color: var(--color-text); }
 .tarjeta-enlace__flecha { flex: none; width: 1rem; height: 1rem; transition: transform var(--dur-micro) var(--curva-salida); }
 /* Centrado óptico (revisión de P1): la tarjeta se estira a la altura de la fila de la rejilla y la .puerta de antes centraba su contenido; sin

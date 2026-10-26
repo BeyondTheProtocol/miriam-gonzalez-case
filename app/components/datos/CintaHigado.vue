@@ -194,8 +194,8 @@ function tocar(ev: PointerEvent) {
 .cinta__caja { position: relative; }
 .cinta__svg:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 .cinta__svg { display: block; overflow: visible; touch-action: pan-y; cursor: crosshair; }
-.cinta__fila { font: 700 10.5px var(--font-mono); fill: rgb(var(--color-bg-rgb) / 0.85); }
-.cinta__anio { font: 600 10px var(--font-mono); fill: rgb(var(--color-bg-rgb) / 0.6); }
+.cinta__fila { font: 700 var(--texto-xs) var(--font-mono); fill: rgb(var(--color-bg-rgb) / 0.85); }
+.cinta__anio { font: 600 var(--texto-xs) var(--font-mono); fill: rgb(var(--color-bg-rgb) / 0.6); }
 .cinta__prog { stroke: rgb(var(--color-bg-rgb) / 0.35); stroke-dasharray: 3 3; }
 .cinta__forma { fill: var(--color-text); stroke: rgb(var(--color-bg-rgb) / 0.55); stroke-width: 0.6; pointer-events: none; }
 .cinta--armado:not(.cinta--visto) .cinta__forma { opacity: 0; }
@@ -206,10 +206,10 @@ function tocar(ev: PointerEvent) {
 .cinta--visto .cinta__celda { animation: cinta-sube 520ms var(--curva-salida) both; }
 @keyframes cinta-sube { from { opacity: 0; transform: scaleY(0.1); } to { opacity: 1; transform: scaleY(1); } }
 @media (prefers-reduced-motion: reduce) { .cinta--visto .cinta__celda { animation: none; } .cinta--visto .cinta__forma { transition: none; } }
-.cinta__lectura { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font: 600 12.5px var(--font-mono); color: rgb(var(--color-bg-rgb) / 0.85); }
+.cinta__lectura { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font: 600 var(--texto-xs) var(--font-mono); color: rgb(var(--color-bg-rgb) / 0.85); }
 .cinta__fecha { color: var(--color-miriam-claro); }
 .cinta__alto { color: var(--color-bg); }
-.cinta__ley { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font: 400 11.5px var(--font-body); color: rgb(var(--color-bg-rgb) / 0.7); }
+.cinta__ley { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font: 400 var(--texto-xs) var(--font-body); color: rgb(var(--color-bg-rgb) / 0.7); }
 .cinta__ley { flex-wrap: wrap; gap: 4px 14px; }
 .cinta__paso { display: inline-flex; align-items: center; gap: 6px; }
 .cinta__paso i { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }

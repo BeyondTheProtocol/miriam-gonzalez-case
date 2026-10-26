@@ -4,7 +4,7 @@
        «Saltar a…» en móvil (variant="mobile"); etiquetas clínicas en sans bajo
        un rótulo mono; activo en berenjena + punto violeta (NUNCA coral); foco
        gestionado al saltar y respeto por prefers-reduced-motion. -->
-  <nav :aria-label="$t('sectionNav.aria')">
+  <nav :aria-label="copia ? undefined : $t('sectionNav.aria')" :aria-hidden="copia ? 'true' : undefined">
     <!-- Móvil: desplegable en el flujo (no pegajoso) -->
     <details v-if="variant === 'mobile'" class="cn-m">
       <summary class="cn-m__summary">
@@ -29,6 +29,7 @@
             class="cn-d__link"
             :class="{ 'is-active': activeId === c.id }"
             :aria-current="activeId === c.id ? 'location' : undefined"
+            :tabindex="copia ? -1 : undefined"
             @click="jumpTo($event, c.id)"
           >
             <span class="cn-d__dot" aria-hidden="true" />
@@ -41,13 +42,17 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile' }>(), {
+// `copia`: una segunda instancia del raíl (la de los ejes, en /ciencia) para el ratón. No es un segundo punto de referencia: sin nombre y fuera del árbol de
+// accesibilidad, con sus enlaces fuera del orden de tabulación (el primer raíl sigue ahí). No lleva `inert`: `inert` también quita el clic.
+const props = withDefaults(defineProps<{ variant?: 'rail' | 'mobile'; copia?: boolean }>(), {
   variant: 'rail',
+  copia: false,
 })
 const { t } = useI18n()
 
 // Capítulos mapeados a ids de título ya existentes en la página (orden de lectura; tanda 2, T2c, 24-oct-2026: una sola capa, sin
 // historia clínica ni imagen funcional, que pasaron a /datos). Las etiquetas, en i18n (sectionNav.ciencia.*): una sola fuente por etiqueta.
+// La ruta ya no es un capítulo de la hoja profesional (fase «llano», 25-oct-2026): está arriba, en «Explicado sin tecnicismos», fuera de este índice.
 const CAPITULOS = [
   { id: 'ciencia-busca', key: 'busca' },
   { id: 'mapa-acceso', key: 'tools' },
@@ -57,7 +62,6 @@ const CAPITULOS = [
   { id: 'molecular-profile-title', key: 'molecular' },
   { id: 'axes-title', key: 'axes' },
   { id: 'panel-title', key: 'panel' },
-  { id: 'ruta-title', key: 'route' },
 ]
 const chapters = computed(() => CAPITULOS.map((c) => ({ id: c.id, label: t(`sectionNav.ciencia.${c.key}`) })))
 

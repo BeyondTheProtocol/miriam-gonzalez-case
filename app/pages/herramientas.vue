@@ -61,6 +61,13 @@ function tarjeta(h: { key: string; name: string }): Tarjeta {
 
 const ahora = computed(() => herramientas.value.map(tarjeta))
 
+// Rejilla sin hueco (T3-LOTE2, A27; regla de retícula 2 del lote 0). Desde `lg` la destacada ocupa dos celdas si el número de tarjetas es impar, y
+// el grupo pasa a tres columnas desde `xl` solo si las celdas cuadran (con cinco tarjetas y la destacada a span 2, son seis: dos filas de tres).
+// Con cuatro (el explorador oculto), dos filas de dos, sin span. Se calcula del número real: el explorador sale solo si su puerta está abierta.
+const ahoraImpar = computed(() => ahora.value.length % 2 === 1)
+const ahoraCeldas = computed(() => ahora.value.length + (ahora.value.some((h) => h.ultimo) && ahoraImpar.value ? 1 : 0))
+const ahoraTres = computed(() => ahoraCeldas.value % 3 === 0)
+
 // Las dos pasadas: su descripción es la línea de Miriam (cuándo y para qué se hicieron), no la meta-description de su página.
 const pasadas = computed(() =>
   HERRAMIENTAS_PASADAS.map((h) => ({
@@ -110,8 +117,8 @@ defineOgImage('Default.takumi', {
 
     <Banda tono="crema" titular="h-ahora">
       <CabeceraSeccion id="h-ahora" :titulo="$t('herramientas.grupo_ahora')" />
-      <ul class="herr-rejilla" role="list">
-        <li v-for="h in ahora" :key="h.key">
+      <ul class="herr-rejilla" :class="{ 'herr-rejilla--tres': ahoraTres }" role="list">
+        <li v-for="h in ahora" :key="h.key" :class="{ 'herr-dest': h.ultimo && ahoraImpar }">
           <article class="card-base herr" :class="{ 'card-marked': h.ultimo }" :aria-labelledby="`herr-${h.key}-t`">
             <div class="herr__cab">
               <Icon :name="h.icono" class="herr__icono" aria-hidden="true" />
@@ -198,14 +205,17 @@ defineOgImage('Default.takumi', {
 .herr-grupo2 { margin-top: var(--sp-64); }
 .herr-rejilla { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-24); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .herr-rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1280px) { .herr-rejilla { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* A27: la destacada a span 2 desde `lg`, y las tres columnas de `xl` solo para el grupo al que le cuadran (antes, siempre: cinco tarjetas dejaban un hueco y las dos
+   «pasadas» también). */
+@media (min-width: 1024px) { .herr-dest { grid-column: span 2; } }
+@media (min-width: 1280px) { .herr-rejilla--tres { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .herr-rejilla > li { display: flex; }
 
 .herr { display: flex; flex-direction: column; gap: var(--sp-12); width: 100%; padding: var(--sp-24); }
 .herr__cab { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) var(--sp-12); }
 .herr__icono { flex: none; width: 1.5rem; height: 1.5rem; color: var(--identidad); }
 .herr__ultimo { color: var(--identidad); }
-.herr__desc { margin: 0; font: var(--tipo-body-sm); color: var(--texto-2); }
+.herr__desc { margin: 0; max-width: var(--measure); font: var(--tipo-body-sm); color: var(--texto-2); }
 .herr__busca { margin-top: auto; }
 .herr__busca--todas { margin-bottom: 0; }
 .herr__peticiones { padding-bottom: var(--sp-8); }
@@ -215,6 +225,9 @@ defineOgImage('Default.takumi', {
    `flex: 1 1 9rem`, en la rejilla de 3 columnas (1280 y 1440 px) «Escribir al equipo» se partía y «Abrir» se estiraba hasta los 78 px del vecino. */
 .herr__acciones { display: flex; flex-wrap: wrap; gap: var(--sp-12); }
 .herr__acciones > * { flex: 1 1 auto; justify-content: center; text-align: center; }
+/* T3-BARRIDO (L327): las tarjetas «históricas» no llevan el bloque «Qué buscamos» (que es lo que ancla con `margin-top: auto`), así que su botón subía con el texto
+   y quedaba 23 px más arriba que el de la vecina. Solo actúa cuando los botones siguen directamente a la descripción. */
+.herr__desc + .herr__acciones { margin-top: auto; }
 
 .herr-puertas { display: flex; flex-wrap: wrap; gap: var(--sp-12); }
 .herr-puertas > * { flex: 1 1 14rem; justify-content: center; text-align: center; }

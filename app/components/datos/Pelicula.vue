@@ -197,7 +197,7 @@ onBeforeUnmount(() => clearTimeout(aviso))
 .pl__reloj { font: var(--tipo-cifra); font-size: clamp(30px, 9vw, 52px); line-height: 1.1; letter-spacing: var(--track-cifra); color: var(--color-miriam); margin: 0; }
 .pl__cap { font: 600 14px/1.3 var(--font-body); color: var(--color-text); margin: 0; min-height: 1.3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pl__escena:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: -2px; border-radius: 6px; }
-.pl__pie { font: 400 12px/1.5 var(--font-body); color: var(--color-text-soft); margin: 8px 0 0; }
+.pl__pie { font: 400 var(--texto-xs)/1.5 var(--font-body); color: var(--color-text-soft); margin: 8px 0 0; }
 .pl__ctl { flex: none; padding: 6px 0 10px; border-top: 1px solid rgb(var(--color-text-rgb) / 0.1); background: var(--color-bg); }
 .pl__barra-caja { position: relative; height: 44px; display: flex; align-items: center; touch-action: none; cursor: pointer; }
 /* pulgar propio de 20 px: así las marcas de etapa caen donde cae el pulgar (el nativo mide distinto en cada navegador) */
@@ -226,6 +226,11 @@ onBeforeUnmount(() => clearTimeout(aviso))
   @keyframes pl-entra { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
 }
 @media (prefers-reduced-motion: reduce) { .pl__play, .pl__paso, .pl__vel, .pl__x { transition: none; } }
+/* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
+@media (min-width: 1024px) {
+  .pl__cap { font-size: var(--texto-sm); }
+  .pl__paso, .pl__vel, .pl__ver { font-size: var(--texto-xs); }
+}
 </style>
 
 <style>

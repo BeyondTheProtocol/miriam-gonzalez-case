@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="[--measure:58ch]">
+    <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
     <section class="section-spacing bg-cream" :aria-label="$t('expenses.title')">
       <div class="section-wide">
         <PageHeader :title="$t('expenses.title')" :subtitle="$t('money.transparencia')" />
@@ -17,19 +18,19 @@
         <!-- Informe de gastos: cifras reales reconstruidas desde los extractos bancarios -->
         <div class="card-base mb-8">
           <p class="eyebrow mb-3 block">{{ $t('expenses.report_eyebrow', { fecha: corte }) }}</p>
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-2">
             {{ $t('expenses.report_title') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-3 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-3 measure">
             {{ $t('expenses.report_intro', { fecha: corte }) }}
           </p>
           <!-- Línea de cuadre: lo recaudado (arriba, en directo y bruto) y este informe (lo gastado y lo disponible a su corte) son
                cifras distintas; sin esta línea parecería que no cuadran. Decisión de Miriam, 24-oct-2026. -->
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ $t('expenses.cuadre') }}
           </p>
 
-          <ul class="mb-5">
+          <ul class="mb-5 measure">
             <li
               v-for="item in DINERO.partidas"
               :key="item.clave"
@@ -61,16 +62,16 @@
           </ul>
 
           <div
-            class="rounded-card bg-cream p-4 flex items-baseline justify-between gap-4 flex-wrap"
+            class="rounded-card bg-cream p-4 flex items-baseline justify-between gap-4 flex-wrap measure"
             style="border: 1px solid rgba(45,27,61,0.08)"
           >
             <div>
               <p
-                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+                class="font-mono uppercase text-2xs tracking-[0.12em] font-medium text-tinta mb-1"
               >
                 {{ $t('expenses.report_available_label') }}
               </p>
-              <p class="text-sm text-tinta leading-relaxed">
+              <p class="text-sm text-tinta leading-relaxed measure">
                 {{ $t('expenses.report_available_desc', { fecha: corte }) }}
               </p>
             </div>
@@ -84,10 +85,10 @@
         </div>
 
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-2">
             {{ $t('expenses.phases_title') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ $t('expenses.phases_intro') }}
           </p>
           <ol class="space-y-4">
@@ -96,14 +97,14 @@
               :key="n"
               class="flex items-start gap-3 border-t border-berenjena/[0.07] pt-4 first:border-t-0 first:pt-0"
             >
-              <span class="font-mono text-[11px] uppercase tracking-[0.1em] text-tinta shrink-0 pt-0.5">
+              <span class="font-mono text-2xs uppercase tracking-[0.1em] text-tinta shrink-0 pt-0.5">
                 {{ String(n).padStart(2, '0') }}
               </span>
               <div>
                 <h3 class="text-sm font-semibold text-berenjena mb-1">
                   {{ $t(`expenses.phase${n}_title`) }}
                 </h3>
-                <p class="text-sm text-tinta leading-relaxed">
+                <p class="text-sm text-tinta leading-relaxed measure">
                   {{ $t(`expenses.phase${n}_desc`, { gastado: money(DINERO.rebiopsia.ejecutado), fecha: fechaRebiopsia }) }}
                 </p>
               </div>
@@ -115,10 +116,10 @@
 
         <!-- Coste de la rebiopsia: dos bloques (analizar ahora / preservar y bancar) -->
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-2">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-2">
             {{ $t('expenses.rebiopsy_title') }}
           </h2>
-          <p class="text-sm text-tinta leading-relaxed mb-5 max-w-2xl">
+          <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ $t('expenses.rebiopsy_intro') }}
           </p>
           <div class="grid sm:grid-cols-2 gap-4">
@@ -127,7 +128,7 @@
               style="border: 1px solid rgba(45,27,61,0.08)"
             >
               <p
-                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+                class="font-mono uppercase text-2xs tracking-[0.12em] font-medium text-tinta mb-1"
               >
                 {{ $t('expenses.rebiopsy_now_label', { fecha: fechaRebiopsia }) }}
               </p>
@@ -146,7 +147,7 @@
               style="border: 1px solid rgba(45,27,61,0.08)"
             >
               <p
-                class="font-mono uppercase text-[11px] tracking-[0.12em] font-medium text-tinta mb-1"
+                class="font-mono uppercase text-2xs tracking-[0.12em] font-medium text-tinta mb-1"
               >
                 {{ $t('expenses.rebiopsy_bank_label') }}
               </p>
@@ -161,7 +162,7 @@
               </p>
             </div>
           </div>
-          <p class="mt-5 flex items-start gap-2 text-sm text-berenjena font-medium">
+          <p class="mt-5 flex items-start gap-2 text-sm text-berenjena font-medium measure">
             <Icon
               name="ph:seal-check-fill"
               class="w-4 h-4 mt-0.5 shrink-0 text-miriam"
@@ -169,14 +170,14 @@
             />
             <span>{{ $t('expenses.rebiopsy_value') }}</span>
           </p>
-          <p class="mt-3 text-xs text-tinta italic">
+          <p class="mt-3 text-xs text-tinta italic measure">
             {{ $t('expenses.rebiopsy_note', { fecha: fechaRebiopsia, corte }) }}
           </p>
         </div>
 
         <!-- Desglose completo · cuenta itemizada -->
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-4">
             {{ $t('home.s4_list_intro') }}
           </h2>
           <ul class="grid sm:grid-cols-2 gap-x-10">
@@ -197,7 +198,7 @@
 
         <!-- Preguntas frecuentes de donantes -->
         <div class="card-base mb-8">
-          <h2 class="font-display font-semibold text-berenjena text-lg mb-4">
+          <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-lg lg:h2-seccion mb-4">
             {{ $t('expenses.faq_title') }}
           </h2>
           <div class="space-y-4">
@@ -209,7 +210,7 @@
               <h3 class="text-sm font-semibold text-berenjena mb-1">
                 {{ $t(`expenses.faq_q${n}`) }}
               </h3>
-              <div class="text-sm text-tinta leading-relaxed">
+              <div class="text-sm text-tinta leading-relaxed measure">
                 {{ $t(`expenses.faq_a${n}`) }}
                 <NuxtLink
                   v-if="n === 4"
@@ -228,7 +229,7 @@
           </p>
         </div>
 
-        <p class="text-sm text-tinta italic max-w-2xl">
+        <p class="text-sm text-tinta italic measure">
           {{ $t('expenses.note', { fecha: corte }) }}
         </p>
 

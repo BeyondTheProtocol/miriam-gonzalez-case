@@ -50,14 +50,14 @@ const geo = computed(() => {
 .rv { margin: 0; }
 .rv__svg { display: block; overflow: visible; }
 .rv__rej { stroke: var(--viz-rejilla); }
-.rv__tick { font: 500 10px var(--font-mono); fill: var(--color-text-soft); }
-.rv__fecha { font: 600 11.5px var(--font-mono); fill: var(--color-text); }
+.rv__tick { font: 500 var(--texto-xs) var(--font-mono); fill: var(--color-text-soft); }
+.rv__fecha { font: 600 var(--texto-xs) var(--font-mono); fill: var(--color-text); }
 .rv__margen { fill: var(--color-miriam); fill-opacity: 0.16; }
 .rv__portal { fill: var(--color-text); }
 .rv__cateter { stroke: var(--color-text); stroke-width: 3; stroke-linecap: round; }
 .rv__punta { fill: var(--color-miriam); }
 .rv__punta, .rv__val, .rv__margen { transform-box: fill-box; transform-origin: center; }
-.rv__val { font: 700 11px var(--font-mono); fill: var(--color-text); }
+.rv__val { font: 700 var(--texto-xs) var(--font-mono); fill: var(--color-text); }
 .rv--armado:not(.rv--visto) .rv__cateter { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .rv--armado:not(.rv--visto) :is(.rv__punta, .rv__val, .rv__margen) { opacity: 0; }
 .rv--visto .rv__cateter { stroke-dasharray: 1; animation: rv-traza 900ms var(--curva-salida) both; }
@@ -65,7 +65,7 @@ const geo = computed(() => {
 @keyframes rv-traza { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes rv-aparece { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .rv--visto :is(.rv__cateter, .rv__punta, .rv__val, .rv__margen) { animation: none; } }
-.rv__ley { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font: 400 12px var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
+.rv__ley { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font: 400 var(--texto-xs) var(--font-body); color: var(--color-text-soft); margin: 4px 0 0; }
 .rv__ley span { display: inline-block; margin-left: 6px; }
 .rv__ley-portal { width: 8px; height: 8px; border-radius: 50%; background: var(--color-text); }
 .rv__ley-punta { width: 7px; height: 7px; border-radius: 50%; background: var(--color-miriam); }

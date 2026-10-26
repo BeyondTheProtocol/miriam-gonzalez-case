@@ -1409,6 +1409,9 @@ onBeforeUnmount(() => {
   width: 17px;
   height: 17px;
 }
+/* Zona pulsable de 44 px con el ratón: el botón se dibuja a 30 px y la caja transparente de un ::after (inset de -8: el relleno mide 28, 30 menos el borde de 1 px por lado)
+   la completa, sin mover nada. Con el dedo el botón ya mide 44 (bloque táctil del final) y el ::after sobraría. */
+.btv-reframe::after { content: ''; position: absolute; inset: -8px; }
 @media (hover: hover) and (pointer: fine) {
   .btv-reframe:hover { background: var(--escena-velo); border-color: color-mix(in srgb, var(--escena-texto) 50%, transparent); }
 }
@@ -1665,6 +1668,7 @@ onBeforeUnmount(() => {
    El marcador 3D y su parpadeo NO se tocan; esto es solo dimensionado de la UI HTML. */
 @media (pointer: coarse) {
   .btv-reframe { width: var(--control-min); height: var(--control-min); }
+  .btv-reframe::after { content: none; }
   .btv-reframe__svg { width: 22px; height: 22px; }
   .btv-target-toggle,
   .btv-biopsy-toggle {
@@ -1673,6 +1677,13 @@ onBeforeUnmount(() => {
   }
   .btv-toggles { gap: 8px; }
   .btv-tab { min-height: 48px; }
+}
+
+/* Revisión del barrido: con el ratón, desde lg, los toggles de la diana y de la aguja miden 44 px de alto (27 hasta ahora; con el dedo ya los subía el bloque de arriba, y por
+   debajo de lg con ratón no se toca, como el resto de la tanda). No hay sitio para dos zonas invisibles de 44 px: entre los dos botones hay 6 px y se pisarían. */
+@media (min-width: 1024px) {
+  .btv-target-toggle,
+  .btv-biopsy-toggle { min-height: var(--control-min); }
 }
 
 /* ── MOTION · transiciones de estado del CHROME (pestañas, toggles, reencuadre) ──────

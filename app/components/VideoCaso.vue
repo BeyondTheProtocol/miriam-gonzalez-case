@@ -30,16 +30,16 @@
     <component :is="nivel" :id="idTitulo" class="font-display font-semibold text-berenjena text-xl leading-snug" style="letter-spacing: -0.01em" :lang="video.voz">
       {{ video.titulo }}
     </component>
-    <p :id="idDescripcion" class="text-sm text-tinta leading-relaxed" :lang="video.voz">
+    <p :id="idDescripcion" class="text-sm text-tinta leading-relaxed measure" :lang="video.voz">
       {{ video.descripcion }}
     </p>
-    <p v-if="video.voz !== idioma && video.resumenEn" class="text-sm text-tinta leading-relaxed" lang="en">
+    <p v-if="video.voz !== idioma && video.resumenEn" class="text-sm text-tinta leading-relaxed measure" lang="en">
       {{ video.resumenEn }}
     </p>
 
     <details class="notes-disclosure video-transcripcion">
       <summary>{{ $t('videos.transcript') }}</summary>
-      <div class="mt-3 space-y-3 text-sm text-tinta leading-relaxed max-w-prose" :lang="video.voz">
+      <div class="mt-3 space-y-3 text-sm text-tinta leading-relaxed measure [--measure:58ch]" :lang="video.voz">
         <p v-for="(parrafo, i) in video.transcripcion" :key="i">{{ parrafo }}</p>
       </div>
     </details>

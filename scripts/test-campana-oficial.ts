@@ -24,6 +24,8 @@ const support = readFileSync('app/composables/useSupport.ts', 'utf-8')
 ok(/<CampanaOficial\s+footer\b/.test(readFileSync('app/components/SiteFooter.vue', 'utf-8')), 'el pie monta el aviso (footer)')
 ok(/<CampanaOficial\b/.test(readFileSync('app/pages/index.vue', 'utf-8')), 'la home monta el aviso')
 ok(/<CampanaOficial\b/.test(readFileSync('app/pages/gastos.vue', 'utf-8')), '/gastos monta el aviso')
+// el pie se calla donde la página ya lo pinta (la home y /gastos), por nombre de ruta: vale igual en /gastos y en /en/expenses
+ok(/\['index', 'gastos'\]\.includes\(routeBaseName\(route\)/.test(comp) && /v-if="!\(footer && yaLoPinta\)"/.test(comp), 'el aviso del pie se calla en la home y en /gastos (por nombre de ruta)')
 
 // 2
 const canonica = support.match(/GOFUNDME_CANONICAL_URL\s*=\s*'([^']+)'/)?.[1] ?? ''

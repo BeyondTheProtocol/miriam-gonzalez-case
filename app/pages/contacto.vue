@@ -2,14 +2,18 @@
   <div>
     <section class="section-spacing" :aria-label="$t('contact.title')">
       <div class="section-wide">
+        <!-- Cabecera v3, como /datos (T3-CIERRE, 26-oct-2026, decisión B del DS sección 8: un solo rol de H1 en las dos páginas). El H1 pasa a `.h1-pagina` y la entradilla
+             a `.lede`: en el móvil el interlineado del H1 baja de 36 a 32,4 px y la entradilla sube de 18 a 19 px. Los textos son los de siempre. La doble entradilla
+             (`contact.subtitle` más `contact.message`) sigue: es la decisión G4 de Miriam. Sin eyebrow: sería copy nuevo. -->
         <PageHeader
+          variante="pagina"
           :title="$t('contact.title')"
           :subtitle="$t('contact.subtitle')"
         />
 
         <p
           v-if="roleLabel"
-          class="pathway-comfort mb-8 max-w-2xl"
+          class="pathway-comfort mb-8 measure"
           role="status"
           aria-live="polite"
         >
@@ -17,119 +21,37 @@
           {{ $t('a11y.role_detected', { role: roleLabel }) }}
         </p>
 
-        <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+        <div class="grid md:grid-cols-2 xl:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12">
           <div>
             <p class="text-tinta leading-relaxed mb-8">
               {{ $t('contact.message') }}
             </p>
 
-            <div class="space-y-4">
-              <a
-                href="https://x.com/miriamgonp"
-                target="_blank"
-                rel="noopener"
-                class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
-                style="text-decoration: none"
-              >
-                <span
-                  class="w-10 h-10 rounded-xl bg-berenjena flex items-center justify-center shrink-0"
-                >
-                  <Icon name="ph:x-logo-fill" class="w-5 h-5 text-cream" aria-hidden="true" />
-                </span>
-                <div>
-                  <p
-                    class="font-semibold text-berenjena text-sm group-hover:text-miriam transition-colors"
-                  >
-                    {{ $t('contact.twitter_label') }}
-                  </p>
-                  <p class="text-xs text-tinta">
-                    {{ $t('timeline.follow_twitter') }}
-                  </p>
-                </div>
-              </a>
-
-              <a
-                href="https://www.instagram.com/miriamgonp"
-                target="_blank"
-                rel="noopener"
-                class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
-                style="text-decoration: none"
-              >
-                <span
-                  class="w-10 h-10 rounded-xl bg-miriam flex items-center justify-center shrink-0"
-                >
-                  <Icon
-                    name="ph:instagram-logo-fill"
-                    class="w-5 h-5 text-cream"
-                    aria-hidden="true"
-                  />
-                </span>
-                <div>
-                  <p
-                    class="font-semibold text-berenjena text-sm group-hover:text-miriam transition-colors"
-                  >
-                    Instagram
-                  </p>
-                  <p class="text-xs text-tinta">{{'@'}}miriamgonp</p>
-                </div>
-              </a>
-
-              <a
-                href="https://www.linkedin.com/in/miriamgonp"
-                target="_blank"
-                rel="noopener"
-                class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
-                style="text-decoration: none"
-              >
-                <span
-                  class="w-10 h-10 rounded-xl bg-tinta flex items-center justify-center shrink-0"
-                >
-                  <Icon
-                    name="ph:linkedin-logo-fill"
-                    class="w-5 h-5 text-cream"
-                    aria-hidden="true"
-                  />
-                </span>
-                <div>
-                  <p
-                    class="font-semibold text-berenjena text-sm group-hover:text-miriam transition-colors"
-                  >
-                    {{ $t('contact.linkedin_label') }}
-                  </p>
-                  <p class="text-xs text-tinta">linkedin.com/in/miriamgonp</p>
-                </div>
-              </a>
-
-              <a
-                href="https://gofund.me/3e25cae99"
-                target="_blank"
-                rel="noopener"
-                @click="trackSupport('contacto')"
-                class="card-base flex items-center gap-4 hover:shadow-md transition-shadow group"
-                style="text-decoration: none"
-              >
-                <span
-                  class="w-10 h-10 rounded-xl bg-coral flex items-center justify-center shrink-0"
-                >
-                  <Icon name="ph:heart-fill" class="w-5 h-5 text-berenjena" aria-hidden="true" />
-                </span>
-                <div>
-                  <p
-                    class="font-semibold text-berenjena text-sm group-hover:text-coral transition-colors"
-                  >
-                    {{ $t('contact.gofundme_label') }}
-                    <span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
-                  </p>
-                  <p class="text-xs text-tinta">gofund.me/3e25cae99</p>
-                </div>
-              </a>
-            </div>
+            <!-- T3-LOTE2 (A26, 25-oct-2026): los cuatro canales pasan de cuatro cajas con baldosa de color a `TarjetaEnlace` (el mismo componente de /links y
+                 /prensa; mismas palabras, mismos enlaces, el mismo clic de «Apoyar»). Una columna hasta `xl`; en 1280, 2×2 (la columna mide ~530 px). -->
+            <ul class="ct-canales" role="list">
+              <li>
+                <TarjetaEnlace href="https://x.com/miriamgonp" icono="ph:x-logo-fill" :titulo="$t('contact.twitter_label')" :meta="$t('timeline.follow_twitter')" />
+              </li>
+              <li>
+                <TarjetaEnlace href="https://www.instagram.com/miriamgonp" icono="ph:instagram-logo-fill" titulo="Instagram" meta="@miriamgonp" />
+              </li>
+              <li>
+                <!-- `<wbr>` tras cada barra: en 2×2 la dirección se parte por la barra y no por la mitad de «miriamgonp». -->
+                <TarjetaEnlace href="https://www.linkedin.com/in/miriamgonp" icono="ph:linkedin-logo-fill" :titulo="$t('contact.linkedin_label')">linkedin.com/<wbr>in/<wbr>miriamgonp</TarjetaEnlace>
+              </li>
+              <li>
+                <TarjetaEnlace href="https://gofund.me/3e25cae99" icono="ph:heart-fill" :titulo="$t('contact.gofundme_label')" meta="gofund.me/3e25cae99" @click="trackSupport('contacto')" />
+              </li>
+            </ul>
 
             <div class="mt-10 card-base">
-              <h2 class="font-display font-semibold text-berenjena text-sm mb-2">
+              <!-- Titular de una tarjeta lateral de 530 px: `.h3-seccion` (24 px) y no `.h2-seccion` (36), que en dos líneas pesaba más que las tres de texto de la tarjeta
+                   (DS sección 8: /contacto está en la lista de `H2_COMO_H3`). -->
+              <h2 class="bajo-lg:font-display bajo-lg:font-semibold bajo-lg:text-berenjena bajo-lg:text-sm lg:h3-seccion mb-2">
                 {{ $t('contact.for_professionals') }}
               </h2>
-              <p class="text-xs text-tinta leading-relaxed">
+              <p class="text-xs text-tinta leading-relaxed measure">
                 {{ $t('contact.for_professionals_desc') }}
               </p>
             </div>
@@ -144,7 +66,7 @@
               aria-live="polite"
             >
               <Icon name="ph:heart-fill" class="heart-beat heart-beat--alive w-8 h-8 mx-auto text-coral" aria-hidden="true" />
-              <h2 class="heading-display text-2xl text-berenjena mt-4 mb-2">
+              <h2 class="heading-display bajo-lg:text-2xl lg:h2-seccion text-berenjena mt-4 mb-2">
                 {{ $t('contact.sent_title') }}
               </h2>
               <p class="text-sm text-tinta leading-relaxed max-w-xs mx-auto">
@@ -250,19 +172,19 @@
 
               <button
                 type="submit"
-                class="btn-cta w-full"
+                class="btn-secondary w-full"
                 :disabled="sending || (turnstileEnabled && !turnstileToken && !captchaUnavailable)"
               >
                 {{ sending ? $t('contact.sending') : $t('contact.submit') }}
               </button>
 
-              <p v-if="captchaFailed" class="text-xs text-coral-deep text-center" role="alert">
+              <p v-if="captchaFailed" class="msg-atencion" role="alert">
                 {{ turnstileToken ? $t('captcha.failed') : $t('captcha.required') }}
               </p>
-              <p v-if="failed" class="text-xs text-coral-deep text-center" role="alert">
+              <p v-if="failed" class="msg-atencion" role="alert">
                 {{ $t('contact.failed') }}
               </p>
-              <p class="text-[11px] text-tinta text-center">
+              <p class="text-xs text-tinta text-center">
                 {{ $t('contact.privacy_notice') }}
               </p>
             </form>
@@ -393,3 +315,11 @@ defineOgImage('Default.takumi', {
   description: metaDesc,
 })
 </script>
+
+<style scoped>
+/* Canales (A26): una columna hasta `xl`, 2×2 desde 1280. La tarjeta se estira a la altura de su fila. */
+.ct-canales { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-16); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1280px) { .ct-canales { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ct-canales > li { display: flex; }
+.ct-canales > li > :deep(*) { width: 100%; }
+</style>

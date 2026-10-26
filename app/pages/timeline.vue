@@ -6,7 +6,7 @@
            < lg la rejilla no aplica → se apila idéntico al móvil de hoy. -->
       <div class="section-wide lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16 xl:gap-24">
         <!-- Columna izquierda · cabecera + filtros (sticky en desktop) -->
-        <aside class="lg:sticky lg:top-24 lg:self-start">
+        <aside class="lg:sticky lg:sticky-bajo-cabecera lg:self-start">
         <PageHeader
           :title="$t('timeline.title')"
           :subtitle="$t('timeline.subtitle')"
@@ -19,11 +19,11 @@
           <!-- La escala de la cronología (hitos · años · red) en texto plano.
                Aquí vivía el contador de días sin tratamiento; se retiró al
                empezar el ensayo (ago-2026), ver SectionHero. -->
-          <div class="mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta">
+          <div class="mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-2xs uppercase tracking-[0.12em] text-tinta">
             <span>{{ $t('timeline.meta_milestones', { count: counts.all }) }}</span>
-            <span class="text-tinta/35" aria-hidden="true">·</span>
+            <span class="tl-sep" aria-hidden="true">·</span>
             <span>{{ $t('timeline.meta_span') }}</span>
-            <span class="text-tinta/35" aria-hidden="true">·</span>
+            <span class="tl-sep" aria-hidden="true">·</span>
             <span>{{ $t('timeline.meta_network', { countries: caseData.countries }) }}</span>
           </div>
         </PageHeader>
@@ -38,7 +38,7 @@
           <!-- Etiqueta de función: deja claro que estas píldoras son controles,
                no datos (evita confundirlas con la fila meta de arriba). -->
           <span
-            class="inline-flex items-center gap-1.5 mr-1 font-mono text-[11px] uppercase tracking-[0.12em] text-tinta"
+            class="inline-flex items-center gap-1.5 mr-1 font-mono text-2xs uppercase tracking-[0.12em] text-tinta"
             aria-hidden="true"
           >
             <Icon name="ph:funnel-simple" class="w-3.5 h-3.5" />
@@ -50,7 +50,7 @@
             type="button"
             class="tl-chip"
             :class="{ 'tl-chip--active': selected === opt.key }"
-            :style="selected === opt.key && opt.accent ? { borderColor: opt.accent, color: opt.accent } : null"
+            :style="selected === opt.key && opt.accent ? { borderColor: opt.accent } : null"
             :aria-pressed="selected === opt.key"
             @click="selected = opt.key"
           >
@@ -304,7 +304,7 @@ const groups = computed(() => {
 }
 .tl-chip__count {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: var(--texto-xs); /* 13 px: el suelo (antes 11 px) */
   font-weight: 600;
   color: #6b5d75;
   font-variant-numeric: tabular-nums;
@@ -313,6 +313,9 @@ const groups = computed(() => {
   color: inherit;
   opacity: 0.7;
 }
+
+/* Separador «·» de la fila de datos (decorativo, aria-hidden): `--texto-3` en lugar de `text-tinta/35` (1,94:1); el rol mide 4,9:1. */
+.tl-sep { color: var(--texto-3); }
 
 /* Cambio de filtro: el bloque (key=selected) se remonta y reproduce este fundido. */
 .tl-list {

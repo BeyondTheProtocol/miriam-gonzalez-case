@@ -50,6 +50,6 @@ const palabra = computed(() => (props.p.fuera === 'alto' ? L('por encima', 'abov
 .rb__v { fill: var(--color-bg); stroke: var(--color-text); stroke-width: 1.3; }
 .rb__v--marcado { fill: var(--color-bg); stroke: var(--color-miriam); stroke-width: 1.5; }
 .rb__v--fuera { fill: var(--color-miriam); stroke: var(--color-text); }
-.rb__txt { font: 600 11.5px var(--font-body); color: var(--color-text-soft); }
+.rb__txt { font: 600 var(--texto-xs) var(--font-body); color: var(--color-text-soft); }
 .rb__txt--fuera { color: var(--color-miriam); }
 </style>

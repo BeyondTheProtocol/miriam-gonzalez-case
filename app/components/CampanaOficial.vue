@@ -1,18 +1,18 @@
 <template>
   <div
-    v-if="!(footer && isHome)"
+    v-if="!(footer && yaLoPinta)"
     :id="footer ? 'campana-oficial' : undefined"
     role="note"
     :aria-label="$t('campanaOficial.titulo')"
     class="campana-oficial"
     :class="footer ? 'mt-10 pt-8 scroll-mt-24' : 'mt-8 pt-6'"
   >
-    <div class="max-w-2xl">
-      <p class="text-sm font-semibold text-berenjena">
+    <div>
+      <p class="text-sm font-semibold text-berenjena measure">
         <Icon name="ph:asterisk-bold" class="campana-oficial__mark" aria-hidden="true" />
         {{ $t('campanaOficial.titulo') }}
       </p>
-      <p class="mt-1 text-sm text-tinta leading-relaxed">
+      <p class="mt-1 text-sm text-tinta leading-relaxed measure">
         {{ $t('campanaOficial.intro') }}
       </p>
       <a
@@ -26,11 +26,11 @@
       >
         {{ slug }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span>
       </a>
-      <p class="text-sm text-tinta leading-relaxed">
+      <p class="text-sm text-tinta leading-relaxed measure">
         {{ $t('campanaOficial.otras') }}
       </p>
       <p
-        class="mt-2 font-mono text-xs leading-relaxed campana-oficial__meta"
+        class="mt-2 font-mono text-xs leading-relaxed campana-oficial__meta measure"
       >
         {{ $t('campanaOficial.actualizado') }}
       </p>
@@ -46,23 +46,25 @@
  * botón de donar. El enlace muestra el slug largo para que se pueda comprobar a
  * ojo, y no lleva data-support-cta ni trackSupport (no es un clic de «Apoyar»).
  *
- * Tres instancias: pie (todas las páginas salvo la home, con ancla
- * #campana-oficial), home bajo la barra de la campaña y /gastos.
+ * Tres instancias: pie (todas las páginas salvo la home y /gastos, con ancla
+ * #campana-oficial), home bajo la barra de la campaña y /gastos. El texto va a la
+ * medida de lectura (`.measure`, 68ch) y no a un `max-w-2xl` suelto. La medida va en cada `<p>` y no en el contenedor: `ch` se resuelve con la letra
+ * del elemento que lleva la regla, y el contenedor es de 17 px mientras los párrafos son de 15 (609 px frente a 563: 81 caracteres por línea en español y
+ * 93 en inglés, T3-BARRIDO).
  */
 withDefaults(defineProps<{ footer?: boolean; location: string }>(), {
   footer: false,
 })
 
 const route = useRoute()
+const routeBaseName = useRouteBaseName()
 const { GOFUNDME_CANONICAL_URL, trackOfficialCampaign } = useSupport()
 
 const slug = GOFUNDME_CANONICAL_URL.replace(/^https:\/\/www\./, '')
 
-// La home ya lo lleva bajo la barra de la campaña: el del pie se calla ahí.
-const isHome = computed(() => {
-  const path = route.path.replace(/\/+$/, '') || '/'
-  return path === '/' || path === '/en'
-})
+// La home lo lleva bajo la barra de la campaña y /gastos lo pinta en su propia tarjeta: el del pie se calla en las dos, porque
+// dos avisos iguales en la misma página son ruido (en /gastos salían los dos). Por nombre de ruta, igual en ES y EN.
+const yaLoPinta = computed(() => ['index', 'gastos'].includes(routeBaseName(route) ?? ''))
 </script>
 
 <style scoped>
@@ -87,5 +89,10 @@ const isHome = computed(() => {
 }
 .campana-oficial__meta {
   color: rgb(var(--color-text-soft-rgb) / 0.78);
+}
+/* T3-BARRIDO: la línea «Actualizado el…» es prosa y el mono es para datos tabulares (DS sección 1). Desde `lg` pasa al cuerpo pequeño del sistema; por
+   debajo conserva su mono de 13 px (el móvil no se toca en esta tanda: queda como excepción pendiente). */
+@media (min-width: 1024px) {
+  .campana-oficial__meta { font: var(--tipo-body-sm); }
 }
 </style>
