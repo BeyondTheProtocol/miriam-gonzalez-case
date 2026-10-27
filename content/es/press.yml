@@ -15,9 +15,12 @@
 #   5. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
 #      clip del pódcast Roca Project), por eso detrás de El País.
 #   6. El Español — gran nacional digital, titular fuerte y en mensaje.
-#   7. Corresponsables — medio de RSE; entrevista en exclusiva.
-#   8. La Opinión de Murcia — regional, ancla el ángulo local/humano.
-#   9. La 7 — TV regional (clip en Instagram), cierra la lista.
+#   7. Roca Project — pódcast con comunidad propia; tras la entrevista (programa 100, 15-jul)
+#      el formulario de contacto de la web se llena (timeline.yml). Puesto PROPUESTO el
+#      25-oct-2026: lo confirman Adri y Miriam. Sin `home`: la tira de la home no cambia.
+#   8. Corresponsables — medio de RSE; entrevista en exclusiva.
+#   9. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#  10. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     home: 2
@@ -47,6 +50,10 @@ articles:
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: 'Miriam, ingeniera, usa la IA para luchar contra su cáncer de mama único…'
     date: '2026-06-19'
+  - outlet: Roca Project
+    url: https://www.youtube.com/watch?v=zVUECrux6zA
+    title: El caso, en el programa 100 de Roca Project
+    date: '2026-07-15'
   - outlet: Corresponsables
     url: https://www.corresponsables.com/entrevistas/miriam-gonzalez-polaris-colaboracion-paciente-ciencia-empresa/
     title: 'Miriam González: «Cuando paciente, ciencia y empresa construyen juntos, las cosas se mueven bastante más rápido»'

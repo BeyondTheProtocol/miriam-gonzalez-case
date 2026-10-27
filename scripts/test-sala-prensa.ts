@@ -11,10 +11,8 @@
 // 4. La guía pública no nombra lo que nunca se dice en público («Olune») ni «científica» como SÍ.
 // 5. /prensa no lleva el contador de campaña ni la fecha fija «junio de 2026».
 // 5c. Bandas de /prensa (sistema v3): como mucho una oscura, nunca la última, y sin dos del mismo tono seguidas.
-// 5e. PRENSA2 (25-oct-2026): sin enlace al PDF del kit, una sola etiqueta para los botones a /contacto?role=journalist, «Diagnóstico» sin
-//     receptores y la cronología plegable hasta su última clave `tl_N`.
-// 5f. Con el plegable abierto, en Chrome y a 640/768/1280/1920 px: ninguna etiqueta de fecha de la cronología (ni la peor posible, «30 de septiembre
-//     de 2026») ocupa más de una línea ni se sale de su columna. Necesita .output/public; sin él, o con SIN_NAVEGADOR=1, se omite con aviso.
+// 5e. PRENSA2 (25-oct-2026) y capa B (27-oct-2026): sin enlace al PDF del kit, un solo botón a /contacto?role=journalist con la etiqueta común,
+//     «El caso» sin receptores y sin cronología propia (vive en /timeline; con ella se fue la medida de fechas 5f).
 // 6. `caseData.pressAsOf` es una fecha válida y no es futura.
 // 7. La tira de medios de la home se LEE de content/<idioma>/press.yml (rediseño F5, 23-oct-2026): ni un medio ni una URL escritos
 //    a mano en la página o en su componente. Desde el 24-oct-2026 la home enseña SOLO cuatro medios (Redacción Médica, El País,
@@ -118,79 +116,30 @@ for (const fichero of ['prensa.html', 'en/press.html']) {
   ok(dds.every((d) => /<svg\b|iconify/.test(d.slice(d.indexOf('link-action')))), `${fichero}: el enlace de cada respuesta lleva icono en el HTML generado`)
 }
 
-// 5e · PRENSA2 (25-oct-2026): lo que la revisión del comité dejó sin arreglar y que no debe volver.
+// 5e · PRENSA2 (25-oct-2026) y capa B (cuatro bandas, 27-oct-2026): lo que la revisión del comité dejó sin arreglar y que no debe volver.
 //  · El PDF del kit pedía financiar una rebiopsia y una revisión que ya estaban hechas, llevaba «vacuna» y la edad en la columna NO (vetos
 //    levantados) y 2 de 4 citas fuera del set aprobado: la sala no lo enlaza (el fichero sigue en public/, borrarlo es decisión de Miriam).
-//  · Dos botones al mismo destino (/contacto?role=journalist) con etiquetas distintas («Escribir a prensa» / «Escribir al equipo»): todos usan la misma clave.
-//  · «Diagnóstico» no lleva receptores (HR+/HER2−): la metástasis del hígado es RE 0 % (caso.json) y la guía de la sala veta las cifras moleculares.
-//  · La cronología plegable llega hasta la última clave `tl_N` que existe (una clave nueva sin sumar al rango nunca se pintaba).
+//  · Había dos botones al mismo destino (/contacto?role=journalist) con etiquetas distintas. Con las cuatro bandas queda UNO, bajo la entradilla,
+//    con la etiqueta común `press.contact_cta`: un segundo botón volvería a abrir la puerta a dos etiquetas.
+//  · «El caso» (antes «Diagnóstico») no lleva receptores (HR+/HER2−): la metástasis del hígado es RE 0 % (caso.json) y la guía veta las cifras moleculares.
+//  · La cronología plegable salió de /prensa (se paraba en el último `tl_N` que alguien sumara al rango): la cronología vive en /timeline y la sala
+//    la enlaza. Ninguna clave `press.tl_*` vuelve sin su página.
 ok(!/press-kit-miriam-gonzalez\.pdf|kit_download_/.test(pagina), '/prensa no enlaza el PDF del kit de prensa (desfasado)')
 const botonesPrensa = [...pagina.matchAll(/<NuxtLink\b[^>]*\?role=journalist[^>]*>([\s\S]*?)<\/NuxtLink>/g)].map((x) => x[1].match(/\$t\('(press\.[a-z_0-9]+)'\)/)?.[1])
-ok(botonesPrensa.length >= 2 && new Set(botonesPrensa).size === 1, `los botones a /contacto?role=journalist usan UNA sola etiqueta (${botonesPrensa.join(', ')})`)
+ok(botonesPrensa.length === 1 && botonesPrensa[0] === 'press.contact_cta', `un solo botón a /contacto?role=journalist, con \`press.contact_cta\` (${botonesPrensa.join(', ')})`)
 for (const [lang, d] of [['ES', es], ['EN', en]] as const) {
-  ok(!/HR\s*\+|HER2/i.test(d.fact_diagnosis_value ?? ''), `${lang}: «Diagnóstico» no lleva receptores (HR+/HER2)`)
+  ok(!/HR\s*\+|HER2/i.test(`${d.fact_diagnosis_value ?? ''} ${d.fact_case_value ?? ''}`), `${lang}: «El caso» no lleva receptores (HR+/HER2)`)
+  ok(!Object.keys(d).some((k) => /^tl_\d+_/.test(k)), `${lang}: sin claves press.tl_* (la cronología vive en /timeline)`)
 }
-const ultimaTl = Math.max(...Object.keys(es).map((k) => Number(k.match(/^tl_(\d+)_date$/)?.[1] ?? 0)))
-const rangoTl = pagina.match(/\[([\d, ]+)\]\.map\(\(i\) => \(\{ date: t\(`press\.tl_\$\{i\}_date`\)/)?.[1]?.split(',').map((n) => Number(n.trim())) ?? []
-ok(ultimaTl > 0 && Math.max(...rangoTl) === ultimaTl && rangoTl.length === ultimaTl, `la cronología de /prensa pinta tl_1 a tl_${ultimaTl} (el rango de la página es ${rangoTl.join(', ')})`)
+ok(!/press\.tl_|pr-cronologia/.test(pagina), '/prensa no pinta una cronología propia')
+ok(/localePath\('timeline'\)/.test(pagina), '/prensa enlaza la cronología de /timeline')
 for (const fichero of ['prensa.html', 'en/press.html']) {
   const ruta = join('.output/public', fichero)
   if (!existsSync(ruta)) { console.log(`  ⚠️  sin ${ruta}: se omite la comprobación del HTML del PDF y las etiquetas (ejecuta antes \`pnpm exec nuxt generate\`)`); continue }
   const h = readFileSync(ruta, 'utf-8').replace(/<script\b[\s\S]*?<\/script>/g, '')
   ok(!h.includes('press-kit-miriam-gonzalez.pdf'), `${fichero}: ningún enlace al PDF del kit`)
   const etiquetas = [...h.matchAll(/<a\b[^>]*href="[^"]*role=journalist"[^>]*>([\s\S]*?)<\/a>/g)].map((x) => x[1].replace(/<[^>]+>/g, '').trim())
-  ok(etiquetas.length >= 2 && new Set(etiquetas).size === 1, `${fichero}: los ${etiquetas.length} botones a /contacto?role=journalist dicen lo mismo («${etiquetas[0] ?? ''}»)`)
-}
-
-// 5f · las etiquetas de fecha de la cronología plegable no se parten ni se salen de su columna (revisión de PRENSA2, 25-oct-2026).
-// La columna de fecha es fija desde 640 px y la etiqueta es mono 12 px en mayúsculas: «16 DE OCTUBRE DE 2026» (21 caracteres) no cabía en 11rem y dejaba
-// «2026» huérfano en una segunda línea. El fuente no lo enseña: hay que mirarlo con la página pintada y el plegable ABIERTO (cerrado no mide nada).
-// Dos medidas por etiqueta, no una: una sola línea Y que el texto cabe en su caja. Con `white-space: nowrap` la falta de sitio ya no parte la fecha, la saca
-// de su columna y la monta sobre la frase, y un test que solo contase líneas saldría verde. Además de las fechas de hoy, mide una copia con la peor fecha
-// que puede escribir cada idioma (30 de septiembre, 24 caracteres en ES): así el freno cubre la clase «columna fija contra etiqueta más larga» y no solo
-// los datos de esta semana. Se mide a 640 (donde nace la segunda columna y es la más estrecha), 768, 1280 y 1920.
-if (process.env.SIN_NAVEGADOR) {
-  console.log('  ⚠️  SIN_NAVEGADOR=1: se omite la comprobación de las fechas de la cronología en Chrome')
-} else if (!existsSync('.output/public/prensa.html')) {
-  console.log('  ⚠️  sin .output/public/prensa.html: se omite la comprobación de las fechas de la cronología en Chrome (ejecuta antes `pnpm exec nuxt generate`)')
-} else {
-  const { abrirNavegador } = await import('./lib/navegador-cdp.mjs')
-  const nav = await abrirNavegador({ ancho: 1280, alto: 900, escala: 1 })
-  const PEOR_FECHA: Record<string, string> = { '/prensa': '30 de septiembre de 2026', '/en/press': 'September 30, 2026' }
-  const medirFechas = (peor: string) => `(async () => {
-    await document.fonts.ready
-    document.querySelectorAll('details').forEach((d) => { d.open = true })
-    const ol = document.querySelector('.pr-cronologia')
-    if (!ol) return null
-    const reales = ol.querySelectorAll(':scope > li').length
-    const copia = ol.lastElementChild.cloneNode(true)
-    copia.querySelector('.etiqueta').textContent = ${JSON.stringify(peor)}
-    ol.appendChild(copia)
-    const etiquetas = [...ol.querySelectorAll(':scope > li > .etiqueta')].map((e) => {
-      const r = document.createRange(); r.selectNodeContents(e)
-      const lineas = new Set([...r.getClientRects()].map((q) => Math.round(q.top))).size
-      const sobra = Math.max(r.getBoundingClientRect().width - e.getBoundingClientRect().width, e.scrollWidth - e.clientWidth)
-      return { texto: e.textContent.trim(), lineas, sobra: Math.round(sobra) }
-    })
-    return { reales, etiquetas }
-  })()`
-  try {
-    for (const ruta of ['/prensa', '/en/press']) {
-      for (const ancho of [640, 768, 1280, 1920]) {
-        await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: 900, deviceScaleFactor: 1, mobile: false })
-        await nav.cargar(ruta)
-        const r = (await nav.evaluate(medirFechas(PEOR_FECHA[ruta]))) as { reales: number; etiquetas: { texto: string; lineas: number; sobra: number }[] } | null
-        const mal = (r?.etiquetas ?? []).filter((e) => e.lineas !== 1 || e.sobra > 1)
-        ok(
-          !!r && r.reales === ultimaTl && r.etiquetas.length === ultimaTl + 1 && mal.length === 0,
-          `${ruta} a ${ancho} px, plegables abiertos: las ${r?.reales ?? 0} fechas de la cronología y la peor posible («${PEOR_FECHA[ruta]}») caben en una línea y dentro de su columna` +
-            (mal.length ? ` — mal: ${mal.map((e) => `«${e.texto}» (${e.lineas} líneas, se sale ${e.sobra} px)`).join('; ')}` : '')
-        )
-      }
-    }
-  } finally {
-    await nav.cerrar()
-  }
+  ok(etiquetas.length === 1 && etiquetas[0].length > 0, `${fichero}: un solo botón a /contacto?role=journalist («${etiquetas[0] ?? ''}»)`)
 }
 
 // 6

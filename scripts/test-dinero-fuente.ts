@@ -405,12 +405,13 @@ console.log('10. /gastos tiene un solo nombre en sus enlaces y títulos (lote 3 
 {
   const NOMBRE = { es: 'Destino del dinero', en: 'Where the money goes' } as const
   const CLAVES: [string, string][] = [
-    ['nav', 'expenses'], ['expenses', 'title'], ['press', 'resource_expenses'],
+    ['nav', 'expenses'], ['expenses', 'title'],
     ['collaborate', 'trust_transparency_title'], ['collaborate', 'trust_transparency_link'], ['collaborate', 'profile2_expenses_link'],
   ]
+  // `press.resource_expenses` salió con las 4 bandas de /prensa (capa B): allí /gastos se enlaza desde la FAQ con `expenses.title`, que ya está aquí.
   for (const [loc, d] of [['es', es], ['en', en]] as const) {
     const distintas = CLAVES.filter(([ns, k]) => d[ns]?.[k] !== NOMBRE[loc]).map(([ns, k]) => `${ns}.${k} = «${d[ns]?.[k]}»`)
-    ok(distintas.length === 0, `${loc}: los enlaces y títulos que nombran /gastos dicen «${NOMBRE[loc]}» (${distintas.join('; ') || 'los seis'})`)
+    ok(distintas.length === 0, `${loc}: los enlaces y títulos que nombran /gastos dicen «${NOMBRE[loc]}» (${distintas.join('; ') || 'los cinco'})`)
   }
 }
 
