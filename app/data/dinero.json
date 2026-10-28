@@ -16,10 +16,10 @@
     { "clave": "ops", "importe": 882.19 }
   ],
   "rebiopsia": {
-    "fecha": "2026-08-17",
-    "ejecutado": 4476.28,
+    "fecha": "2026-08-19",
+    "ejecutado": 8051.29,
     "biopsia": 2983.63,
-    "secuenciacion": 1041.92,
+    "secuenciacion": 4616.93,
     "imagen": 450.73
   },
   "fases": [
