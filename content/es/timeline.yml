@@ -336,3 +336,15 @@ entries:
     highlight: false
     link: /celula-a-celula
     linkLabel: 'Ver Célula a célula →'
+
+  - date: '27 oct 2026'
+    tag: Ensayos clínicos
+    title: Primera analítica de control con el ADC
+    description: >
+      Veinte días después del primer ciclo, antes del segundo. Frente a la analítica del 6 de
+      octubre, bajan el marcador tumoral CA 15-3, de 663 a 569 U/mL (lo normal, menos de 35), la
+      LDH, de 468 a 311, y la proteína C reactiva, de 1,52 a 0,15. Suben la fosfatasa alcalina, de
+      229 a 697 (lo normal, 46-116), y la ALT, de 43 a 88 (lo normal, 10-49). Los neutrófilos bajan
+      de 2,5 a 1,4 (lo normal, 2-7). Es una sola analítica tras un solo ciclo y ninguna de estas
+      cifras decide por sí sola cómo va el tratamiento. Lo valora su equipo médico.
+    highlight: false

@@ -332,3 +332,15 @@ entries:
     highlight: false
     link: /en/cell-by-cell
     linkLabel: 'See Cell by cell →'
+
+  - date: 'Oct 27, 2026'
+    tag: Clinical trials
+    title: First check-up blood test on the ADC
+    description: >
+      Twenty days after the first cycle, before the second. Compared with the October 6 test, the
+      tumor marker CA 15-3 falls from 663 to 569 U/mL (normal is under 35), LDH from 468 to 311,
+      and C-reactive protein from 1.52 to 0.15. Alkaline phosphatase rises from 229 to 697 (normal
+      is 46-116), and ALT from 43 to 88 (normal is 10-49). Neutrophils drop from 2.5 to 1.4 (normal
+      is 2-7). This is one blood test after one cycle, and no single one of these numbers settles
+      how the treatment is going. Her medical team is assessing it.
+    highlight: false
