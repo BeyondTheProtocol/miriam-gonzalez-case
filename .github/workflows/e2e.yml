@@ -27,6 +27,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Si un test muere a medias no queda ni Chrome ni su perfil (no necesita build).
+      - run: pnpm test:navegador-cdp-limpieza
+
       # `nuxt generate` a secas y no `pnpm generate`: este último antes pide los
       # datos a GoFundMe, y el test no los necesita (evita llamarles en cada PR).
       - run: pnpm exec nuxt generate

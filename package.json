@@ -13,6 +13,7 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "lint:github": "oxlint --format=github",
+    "test:navegador-cdp-limpieza": "node scripts/test-navegador-cdp-limpieza.mjs",
     "test:ciencia-nivel": "node scripts/test-ciencia-nivel.mjs",
     "test:ciencia-pro": "tsx scripts/test-ciencia-pro.ts",
     "test:afirmaciones-clinicas": "node scripts/test-afirmaciones-clinicas.mjs",
