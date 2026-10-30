@@ -89,6 +89,9 @@ jobs:
       # no matan el WebGL del mapa, «Volver» lo deja plegado, el tema oscuro repinta y a 375 px no hay scroll horizontal.
       - run: pnpm test:alphafold-visor
 
+      # Si test-ciencia-nivel, test-laminillas-visor o test-alphafold-visor mueren a medias, no queda ni Chrome ni su perfil.
+      - run: pnpm test:chrome-copias-limpieza
+
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       # /laminillas: contrato del manifest, privacidad (sin siglas de muestra ni términos vetados), orden de filas,

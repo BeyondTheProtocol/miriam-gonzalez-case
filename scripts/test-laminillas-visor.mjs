@@ -22,12 +22,11 @@
 //   LAMINILLAS_ORIGEN=https://deploy-preview-NNN--<sitio>.netlify.app pnpm test:laminillas-visor
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:laminillas-visor
-import { spawn } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
-import { tmpdir } from 'node:os'
 import { extname, join, normalize } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { lanzarChrome } from './lib/navegador-cdp.mjs'
 
 const ROOT = join(import.meta.dirname, '..', '.output', 'public')
 const REMOTO = (process.env.LAMINILLAS_ORIGEN || '').replace(/\/$/, '')
@@ -86,15 +85,14 @@ if (TESELAS) {
 // ── Chrome headless + CDP
 const CHROME = process.env.CHROME_PATH || ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome'].find(existsSync)
 if (!CHROME) { console.error('No encuentro Chrome. Define CHROME_PATH.'); process.exit(2) }
-let chrome, port, profile
+let port, profile, matarChrome
 for (let intento = 1; intento <= 2 && !port; intento++) {
-  profile = mkdtempSync(join(tmpdir(), 'laminillas-'))
-  chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
+  ;({ profile, matar: matarChrome } = lanzarChrome('laminillas-', CHROME, ['--headless=new', '--remote-debugging-port=0', '--no-first-run',
     '--no-default-browser-check', '--disable-gpu', '--hide-scrollbars',
-    ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []), 'about:blank'], { stdio: 'ignore' })
+    ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []), 'about:blank'], { stdio: 'ignore' }))
   const f = join(profile, 'DevToolsActivePort')
   for (let i = 0; i < 600 && !port; i++) { await sleep(100); if (existsSync(f)) port = readFileSync(f, 'utf8').split('\n')[0] }
-  if (!port) { chrome.kill(); rmSync(profile, { recursive: true, force: true }) }
+  if (!port) matarChrome()
 }
 if (!port) { console.error('Chrome no arrancó.'); process.exit(2) }
 const target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === 'page')
@@ -353,7 +351,7 @@ if (process.env.LAMINILLAS_ESPERA_FALLO === '1') {
     'sin teselas, cada panel avisa de que no se han podido cargar')
 }
 
-ws.close(); chrome.kill(); web.close(); teselas?.close()
-try { rmSync(profile, { recursive: true, force: true }) } catch {}
+ws.close(); web.close(); teselas?.close()
+matarChrome()
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ visor de laminillas en verde')
 process.exit(fallos ? 1 : 0)

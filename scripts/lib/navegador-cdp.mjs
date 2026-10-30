@@ -1,7 +1,8 @@
 // Arnés de navegador sin dependencias para los tests sobre el build ESTÁTICO (.output/public):
 // servidor estático con URLs limpias (como Netlify) + Chrome del sistema por CDP (WebSocket nativo
 // de Node ≥ 22). Es el mismo arnés de scripts/test-ciencia-nivel.mjs, sacado a un módulo para el
-// test de cifras de /datos (10-oct-2026); aquel conserva su copia para no tocar un test en verde.
+// test de cifras de /datos (10-oct-2026). test-ciencia-nivel, test-laminillas-visor y
+// test-alphafold-visor conservan su copia del resto, pero lanzan Chrome con lanzarChrome().
 //
 // Uso:  const nav = await abrirNavegador(); await nav.cargar('/datos'); await nav.evaluate('…'); await nav.cerrar()
 import { spawn } from 'node:child_process'
@@ -79,6 +80,19 @@ function vigilarSalida() {
   }
 }
 
+/** Crea un perfil temporal (`prefijo`), lanza Chrome con él y deja ambos a cargo de la limpieza de salida.
+ *  Devuelve `{ chrome, profile, matar }`; `matar()` los elimina ya (síncrona y repetible). Todo junto a
+ *  propósito: la vigilancia va antes que el perfil para que un SIGTERM en pleno arranque no deje nada, y
+ *  `detached` hace a Chrome jefe de su grupo, sin lo cual sus procesos ayudantes sobreviven. */
+export function lanzarChrome(prefijo, binario, args, opciones) {
+  vigilarSalida()
+  const profile = mkdtempSync(join(tmpdir(), prefijo))
+  const chrome = spawn(binario, [`--user-data-dir=${profile}`, ...args], { ...opciones, detached: true })
+  const vivo = { chrome, profile }
+  vivos.add(vivo)
+  return { chrome, profile, matar: () => matarChrome(vivo) }
+}
+
 /** `gl: true` da WebGL por software (SwiftShader) para probar el mapa del explorador; por defecto, sin GPU ni WebGL.
  *  `chromeArgs`: flags de Chrome extra, solo para el test que los pida (por defecto ninguno: el resto de tests no cambia). */
 export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl = false, chromeArgs = [] } = {}) {
@@ -141,17 +155,15 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
   let chrome
   let port
   let profile
-  let vivo // fuera del bucle: la limpieza del final mata el Chrome y borra el perfil del intento que arrancó
+  let matar // fuera del bucle: la limpieza del final mata el Chrome y borra el perfil del intento que arrancó
   let ultimoRuido = ''
-  vigilarSalida()
   for (let intento = 1; intento <= 2 && !port; intento++) {
-    profile = mkdtempSync(join(tmpdir(), 'navegador-cdp-'))
-    chrome = spawn(
+    ;({ chrome, profile, matar } = lanzarChrome(
+      'navegador-cdp-',
       CHROME,
       [
         '--headless=new',
         '--remote-debugging-port=0',
-        `--user-data-dir=${profile}`,
         '--no-first-run',
         '--no-default-browser-check',
         ...(gl ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--disable-gpu']),
@@ -161,11 +173,8 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
         ...chromeArgs,
         'about:blank',
       ],
-      { stdio: ['ignore', 'ignore', 'pipe'], detached: true }
-    )
-    // Antes de esperar a Chrome: un SIGTERM durante el arranque también tiene que limpiar.
-    vivo = { chrome, profile }
-    vivos.add(vivo)
+      { stdio: ['ignore', 'ignore', 'pipe'] }
+    ))
     chrome.stderr?.on('data', (b) => {
       ultimoRuido = (ultimoRuido + b.toString()).slice(-800)
     })
@@ -189,7 +198,7 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
       console.error(
         `Chrome no arrancó en el intento ${intento} (sin DevToolsActivePort en ${DEVTOOLS_MS / 1000} s).`
       )
-      matarChrome(vivo)
+      matar()
     }
   }
   if (!port) {
@@ -250,7 +259,7 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
   async function cerrar() {
     ws.close()
     server.close()
-    matarChrome(vivo)
+    matar()
   }
   return { cargar, evaluate, cdp, cerrar, sleep, ORIGIN }
 }
