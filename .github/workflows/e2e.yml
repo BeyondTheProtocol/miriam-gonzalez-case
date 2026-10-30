@@ -27,6 +27,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Si un test muere a medias no queda ni Chrome ni su perfil (no necesita build).
+      - run: pnpm test:navegador-cdp-limpieza
+
       # `nuxt generate` a secas y no `pnpm generate`: este último antes pide los
       # datos a GoFundMe, y el test no los necesita (evita llamarles en cada PR).
       - run: pnpm exec nuxt generate
@@ -85,6 +88,9 @@ jobs:
       # AlphaFold en el explorador, en navegador (con el modelo interceptado, sin red): plegado no pide nada, 20 aperturas
       # no matan el WebGL del mapa, «Volver» lo deja plegado, el tema oscuro repinta y a 375 px no hay scroll horizontal.
       - run: pnpm test:alphafold-visor
+
+      # Si test-ciencia-nivel, test-laminillas-visor o test-alphafold-visor mueren a medias, no queda ni Chrome ni su perfil.
+      - run: pnpm test:chrome-copias-limpieza
 
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links

@@ -20,12 +20,11 @@
 // AlphaFold DB NO se toca: las peticiones a alphafold.ebi.ac.uk se interceptan y se responden con un modelo sintético
 // (el test no depende de la red ni de su API, que además da 403 sin User-Agent).
 // Uso: pnpm build && pnpm test:alphafold-visor
-import { spawn } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
-import { tmpdir } from 'node:os'
 import { extname, join, normalize } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { lanzarChrome } from './lib/navegador-cdp.mjs'
 
 const ROOT = join(import.meta.dirname, '..', '.output', 'public')
 if (!existsSync(join(ROOT, 'celula-a-celula', 'explorar.html')) && !existsSync(join(ROOT, 'celula-a-celula', 'explorar', 'index.html'))) {
@@ -60,15 +59,14 @@ const ORIGIN = `http://127.0.0.1:${web.address().port}`
 // ── Chrome headless con WebGL por software (el mapa y el visor lo necesitan)
 const CHROME = process.env.CHROME_PATH || ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome'].find(existsSync)
 if (!CHROME) { console.error('No encuentro Chrome. Define CHROME_PATH.'); process.exit(2) }
-let chrome, port, profile
+let port, profile, matarChrome
 for (let intento = 1; intento <= 2 && !port; intento++) {
-  profile = mkdtempSync(join(tmpdir(), 'alphafold-'))
-  chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
+  ;({ profile, matar: matarChrome } = lanzarChrome('alphafold-', CHROME, ['--headless=new', '--remote-debugging-port=0', '--no-first-run',
     '--no-default-browser-check', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--hide-scrollbars',
-    ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []), 'about:blank'], { stdio: 'ignore' })
+    ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []), 'about:blank'], { stdio: 'ignore' }))
   const f = join(profile, 'DevToolsActivePort')
   for (let i = 0; i < 600 && !port; i++) { await sleep(100); if (existsSync(f)) port = readFileSync(f, 'utf8').split('\n')[0] }
-  if (!port) { chrome.kill(); rmSync(profile, { recursive: true, force: true }) }
+  if (!port) matarChrome()
 }
 if (!port) { console.error('Chrome no arrancó.'); process.exit(2) }
 const target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === 'page')
@@ -357,8 +355,8 @@ try {
 }
 catch (e) { console.error(e); fallos++ }
 finally {
-  ws.close(); chrome.kill(); web.close()
-  await sleep(300); rmSync(profile, { recursive: true, force: true })
+  ws.close(); web.close()
+  matarChrome()
 }
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ AlphaFold en el explorador, en verde')
 process.exit(fallos ? 1 : 0)

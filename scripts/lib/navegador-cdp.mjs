@@ -1,13 +1,14 @@
 // Arnés de navegador sin dependencias para los tests sobre el build ESTÁTICO (.output/public):
 // servidor estático con URLs limpias (como Netlify) + Chrome del sistema por CDP (WebSocket nativo
 // de Node ≥ 22). Es el mismo arnés de scripts/test-ciencia-nivel.mjs, sacado a un módulo para el
-// test de cifras de /datos (10-oct-2026); aquel conserva su copia para no tocar un test en verde.
+// test de cifras de /datos (10-oct-2026). test-ciencia-nivel, test-laminillas-visor y
+// test-alphafold-visor conservan su copia del resto, pero lanzan Chrome con lanzarChrome().
 //
 // Uso:  const nav = await abrirNavegador(); await nav.cargar('/datos'); await nav.evaluate('…'); await nav.cerrar()
 import { spawn } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeSync } from 'node:fs'
 import { createServer } from 'node:http'
-import { tmpdir } from 'node:os'
+import { constants, tmpdir } from 'node:os'
 import { extname, join, normalize } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 
@@ -18,6 +19,79 @@ const HYDRATED = `(() => {
   const n = document.querySelector('#__nuxt')?.__vue_app__?.config.globalProperties.$nuxt
   return !!n && !n.isHydrating && n.$router.currentRoute.value.fullPath === location.pathname + location.search + location.hash
 })()`
+
+// Chrome y perfil de cada navegador sin cerrar. Con solo cerrar(), un script que moría a medias (un
+// 'sin hidratar en 20 s', un timeout) dejaba Chrome huérfano al 100 % de CPU y el perfil en disco: 37
+// veces del 20 al 26-oct-2026 (deuda de Polaris `chrome_headless_huerfano`). Un SIGKILL al script
+// sigue sin poder atraparse; para eso está la red de Polaris, tools/bucles_colgados.py.
+const vivos = new Set()
+const PAUSA = new Int32Array(new SharedArrayBuffer(4)) // para esperar en síncrono (Atomics.wait)
+
+// Síncrono a propósito: en 'exit' no corre nada asíncrono. Y repetible: lo llaman cerrar() y la salida.
+function matarChrome(vivo) {
+  if (!vivos.delete(vivo)) return
+  const { chrome, profile } = vivo
+  // Chrome encabeza su grupo de procesos (detached): matar el grupo se lleva también sus pestañas.
+  try {
+    process.kill(-chrome.pid, 'SIGKILL')
+  } catch {}
+  try {
+    chrome.kill('SIGKILL')
+  } catch {}
+  // El SIGKILL no es instantáneo: un proceso que aún no ha muerto puede escribir en el perfil DESPUÉS
+  // del rmSync. Se reintenta hasta que la carpeta lleve 300 ms sin reaparecer, con tope de 5 s.
+  const fin = Date.now() + 5000
+  let ausenteDesde = 0
+  while (Date.now() < fin) {
+    try {
+      rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 })
+    } catch {}
+    if (existsSync(profile)) ausenteDesde = 0
+    else if (!ausenteDesde) ausenteDesde = Date.now()
+    else if (Date.now() - ausenteDesde >= 300) return
+    Atomics.wait(PAUSA, 0, 0, 100)
+  }
+  if (existsSync(profile)) {
+    // writeSync y no console: en una tubería, process.exit puede cortar lo que escribe console.
+    try {
+      writeSync(2, `aviso: no se pudo borrar el perfil temporal ${profile}\n`)
+    } catch {}
+  }
+}
+
+function matarTodos() {
+  for (const vivo of vivos) matarChrome(vivo)
+}
+
+// Una sola vez por proceso aunque se abran varios navegadores. 'uncaughtExceptionMonitor' y no
+// 'uncaughtException': este último haría que Node dejara de imprimir el error y de salir con 1, que
+// es lo que se lee en el log de CI. Las señales salen con su 128+n, como sin handler.
+let vigilando = false
+function vigilarSalida() {
+  if (vigilando) return
+  vigilando = true
+  process.on('exit', matarTodos)
+  process.on('uncaughtExceptionMonitor', matarTodos)
+  for (const senal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+    process.on(senal, () => {
+      matarTodos()
+      process.exit(128 + constants.signals[senal])
+    })
+  }
+}
+
+/** Crea un perfil temporal (`prefijo`), lanza Chrome con él y deja ambos a cargo de la limpieza de salida.
+ *  Devuelve `{ chrome, profile, matar }`; `matar()` los elimina ya (síncrona y repetible). Todo junto a
+ *  propósito: la vigilancia va antes que el perfil para que un SIGTERM en pleno arranque no deje nada, y
+ *  `detached` hace a Chrome jefe de su grupo, sin lo cual sus procesos ayudantes sobreviven. */
+export function lanzarChrome(prefijo, binario, args, opciones) {
+  vigilarSalida()
+  const profile = mkdtempSync(join(tmpdir(), prefijo))
+  const chrome = spawn(binario, [`--user-data-dir=${profile}`, ...args], { ...opciones, detached: true })
+  const vivo = { chrome, profile }
+  vivos.add(vivo)
+  return { chrome, profile, matar: () => matarChrome(vivo) }
+}
 
 /** `gl: true` da WebGL por software (SwiftShader) para probar el mapa del explorador; por defecto, sin GPU ni WebGL.
  *  `chromeArgs`: flags de Chrome extra, solo para el test que los pida (por defecto ninguno: el resto de tests no cambia). */
@@ -80,16 +154,16 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
   const DEVTOOLS_MS = Number(process.env.CHROME_ESPERA_MS || 60000)
   let chrome
   let port
-  let profile // fuera del bucle: la limpieza del final borra el perfil del intento que arrancó
+  let profile
+  let matar // fuera del bucle: la limpieza del final mata el Chrome y borra el perfil del intento que arrancó
   let ultimoRuido = ''
   for (let intento = 1; intento <= 2 && !port; intento++) {
-    profile = mkdtempSync(join(tmpdir(), 'navegador-cdp-'))
-    chrome = spawn(
+    ;({ chrome, profile, matar } = lanzarChrome(
+      'navegador-cdp-',
       CHROME,
       [
         '--headless=new',
         '--remote-debugging-port=0',
-        `--user-data-dir=${profile}`,
         '--no-first-run',
         '--no-default-browser-check',
         ...(gl ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--disable-gpu']),
@@ -100,7 +174,7 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
         'about:blank',
       ],
       { stdio: ['ignore', 'ignore', 'pipe'] }
-    )
+    ))
     chrome.stderr?.on('data', (b) => {
       ultimoRuido = (ultimoRuido + b.toString()).slice(-800)
     })
@@ -124,8 +198,7 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
       console.error(
         `Chrome no arrancó en el intento ${intento} (sin DevToolsActivePort en ${DEVTOOLS_MS / 1000} s).`
       )
-      chrome.kill()
-      limpiarPerfil()
+      matar()
     }
   }
   if (!port) {
@@ -167,13 +240,6 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
     return r.result.value
   }
 
-  function limpiarPerfil() {
-    try {
-      rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
-    } catch (e) {
-      console.warn(`aviso: no se pudo borrar el perfil temporal ${profile}: ${e.code || e.message}`)
-    }
-  }
   await cdp('Page.enable')
   await cdp('Runtime.enable')
   await cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: alto, deviceScaleFactor: escala, mobile: false })
@@ -192,10 +258,8 @@ export async function abrirNavegador({ ancho = 390, alto = 844, escala = 2, gl =
   }
   async function cerrar() {
     ws.close()
-    chrome.kill()
     server.close()
-    await sleep(200)
-    limpiarPerfil()
+    matar()
   }
   return { cargar, evaluate, cdp, cerrar, sleep, ORIGIN }
 }

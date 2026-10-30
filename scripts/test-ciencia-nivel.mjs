@@ -23,18 +23,15 @@
 // ruta de macOS, o `google-chrome` en Linux.
 //
 // Uso:  pnpm exec nuxt generate && pnpm test:ciencia-nivel   (CI: .github/workflows/e2e.yml)
-import { spawn } from 'node:child_process'
 import {
   existsSync,
-  mkdtempSync,
   readFileSync,
-  rmSync,
   statSync,
 } from 'node:fs'
 import { createServer } from 'node:http'
-import { tmpdir } from 'node:os'
 import { extname, join, normalize } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { lanzarChrome } from './lib/navegador-cdp.mjs'
 
 const ROOT = join(import.meta.dirname, '..', '.output', 'public')
 if (!existsSync(join(ROOT, 'ciencia.html'))) {
@@ -100,16 +97,16 @@ if (!CHROME) {
 const DEVTOOLS_MS = Number(process.env.CHROME_ESPERA_MS || 60000)
 let chrome
 let port
-let profile // fuera del bucle: la limpieza del final borra el perfil del intento que arrancó
+let profile
+let matarChrome // fuera del bucle: la limpieza del final mata el Chrome y borra el perfil del intento que arrancó
 let ultimoRuido = ''
 for (let intento = 1; intento <= 2 && !port; intento++) {
-  profile = mkdtempSync(join(tmpdir(), 'ciencia-nivel-'))
-  chrome = spawn(
+  ;({ chrome, profile, matar: matarChrome } = lanzarChrome(
+    'ciencia-nivel-',
     CHROME,
     [
       '--headless=new',
       '--remote-debugging-port=0',
-      `--user-data-dir=${profile}`,
       '--no-first-run',
       '--no-default-browser-check',
       '--disable-gpu',
@@ -119,7 +116,7 @@ for (let intento = 1; intento <= 2 && !port; intento++) {
       'about:blank',
     ],
     { stdio: ['ignore', 'ignore', 'pipe'] }
-  )
+  ))
   chrome.stderr?.on('data', (b) => {
     ultimoRuido = (ultimoRuido + b.toString()).slice(-800)
   })
@@ -143,8 +140,7 @@ for (let intento = 1; intento <= 2 && !port; intento++) {
     console.error(
       `Chrome no arrancó en el intento ${intento} (sin DevToolsActivePort en ${DEVTOOLS_MS / 1000} s).`
     )
-    chrome.kill()
-    limpiarPerfil()
+    matarChrome()
   }
 }
 if (!port) {
@@ -339,21 +335,8 @@ try {
 } finally {
   await cdp('Emulation.clearDeviceMetricsOverride').catch(() => {})
   ws.close()
-  chrome.kill()
   server.close()
-  await sleep(200)
-  limpiarPerfil()
-}
-
-// Chrome puede seguir escribiendo en el perfil unos ms tras kill(): en CI el
-// borrado fallaba con ENOTEMPTY y ponía el check en rojo con los tests en verde.
-// La limpieza reintenta y, si aun así no puede, avisa sin tumbar el resultado.
-function limpiarPerfil() {
-  try {
-    rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
-  } catch (e) {
-    console.warn(`aviso: no se pudo borrar el perfil temporal ${profile}: ${e.code || e.message}`)
-  }
+  matarChrome()
 }
 
 const failed = results.filter((r) => !r).length
