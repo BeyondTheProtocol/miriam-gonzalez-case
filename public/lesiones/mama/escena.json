@@ -5,18 +5,19 @@
  },
  "referencias": {
   "pezon": [
-   0.65,
-   44.39,
-   7.77
+   4.07,
+   51.95,
+   5.35
   ]
  },
  "lesiones": [
   {
-   "malla": "tumor.ply",
-   "diametro_auto_mm": 17.6,
-   "diana": "tumor primario",
-   "mm_informe": 15
+   "malla": "foco.ply",
+   "diana": "foco de realce (lectura automática de Polaris)",
+   "estado": "sin confirmar por un radiólogo",
+   "diametro_auto_mm": null,
+   "mm_informe": null
   }
  ],
- "fuente": "tejido fibroglandular: fracción agua/grasa de la RM Dixon, con la piel erosionada 4 mm; tumor: modelo:MAMA-MIA, sin validación radiológica. La medida es la del informe."
+ "fuente": "tejido fibroglandular: fracción agua/grasa de la RM Dixon, con la piel erosionada 4 mm; foco: crecimiento de región sobre la resta Ph2 menos pre de la RM del 8-sep-2026, umbral a media altura entre fondo y pico, sin validación radiológica. La medida es la del informe."
 }

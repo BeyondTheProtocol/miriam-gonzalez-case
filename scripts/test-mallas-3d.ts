@@ -7,8 +7,9 @@
 // malla exportada en otro marco (sin centrar, sin rotar a los ejes de three) falla.
 //
 //   hígado      → las lesiones de escena.json, dentro de higado.ply
-//   mama        → tumor, tejido fibroglandular y vasos, dentro de mama.ply. El tejido se
-//                 recortó al plano de la pared torácica de la envoltura el 27-sep (sobresalía 22 mm).
+//   mama        → tejido fibroglandular, foco y vasos, dentro de mama.ply. El tejido se recortó
+//                 al plano de la pared torácica de la envoltura el 27-sep (sobresalía 22 mm).
+//                 La marca automática del tumor no puede volver: ver abajo.
 //   reservorio  → portal, catéter medido e interpolado y tráquea, dentro del hueso de su fecha
 //
 // Uso:  pnpm test:mallas-3d
@@ -51,7 +52,16 @@ for (const les of JSON.parse(readFileSync(H + 'escena.json', 'utf-8')).lesiones 
   dentro(H + les.malla, H + 'higado.ply')
 
 const M = 'public/lesiones/mama/'
-for (const f of ['tumor.ply', 'fgt.ply', 'vasos.ply']) if (existsSync(M + f)) dentro(M + f, M + 'mama.ply')
+for (const f of ['fgt.ply', 'foco.ply', 'vasos.ply']) if (existsSync(M + f)) dentro(M + f, M + 'mama.ply')
+
+// La lesión de la mama es foco.ply, el foco de realce medido sobre la RM (31-oct-2026). La marca
+// automática de antes se publicó como «tumor primario» y no coincidía con la lesión: volver a
+// exportar con visor3d.py la traería de vuelta en silencio, y el render cargaría sin errores.
+const lesionesMama = (JSON.parse(readFileSync(M + 'escena.json', 'utf-8')).lesiones as { malla: string }[]).map((l) => l.malla)
+if (lesionesMama.join() !== 'foco.ply' || existsSync(M + 'tumor.ply')) {
+  console.log(`  ❌ mama: lesiones en escena.json [${lesionesMama.join()}] y tumor.ply ${existsSync(M + 'tumor.ply') ? 'presente' : 'ausente'}; la única lesión dibujada es foco.ply`)
+  process.exitCode = 1
+} else console.log('  ✅ mama: la lesión dibujada es foco.ply y la marca automática no está')
 
 const R = 'public/reservorio/'
 for (const fecha of readdirSync(R).filter((d) => existsSync(R + d + '/hueso.ply')))

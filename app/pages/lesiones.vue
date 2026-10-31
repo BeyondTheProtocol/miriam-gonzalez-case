@@ -16,6 +16,8 @@ const localePath = useLocalePath()
 const { trackDatos, trackMapa, trackSupport, GOFUNDME_URL } = useSupport()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
+/* Qué es lo dorado de la mama (31-oct-26): una sola fuente para el rótulo del visor, el texto alternativo y el párrafo de la tarjeta. */
+const avisoFoco = computed(() => L('Foco de realce situado por Polaris, no por un radiólogo', 'Enhancing focus placed by Polaris, not by a radiologist'))
 /* Frase sellada del hígado (26-sep-26): una sola fuente para sus dos sitios. Texto sin tocar. */
 const fraseRadiologo = computed(() => L('Un radiólogo, en lectura informal por DM y sin informe firmado, marcó 55 medidas en el hígado de este TC y las considera 55 lesiones distintas, muy sugestivas de metástasis, con dos salvedades suyas: en la imagen 127 hay tres lesiones que se tocan entre sí y él las cuenta como tres, y en la imagen 123 hay una pegada a la cápsula del hígado, que limita su crecimiento y la hace más difícil de valorar. Las 20 lesiones automáticas de Polaris están entre sus marcas; las otras 35 se ven abajo como puntos. El informe oficial dice M1 múltiples.', 'A radiologist, in an informal DM read and without a signed report, marked 55 measurements on the liver in this CT and considers them 55 distinct lesions, highly suggestive of metastases, with two caveats of his own: in image 127 there are three lesions touching each other, which he counts as three, and in image 123 there is one right against the liver capsule, which limits its growth and makes it harder to assess. Polaris’s 20 automatic lesions are among his marks; the other 35 are shown below as points. The official report says multiple M1.'))
 
@@ -93,8 +95,8 @@ const biopsia = computed(() =>
             <!-- data-visor / data-visor-accion: medición «Visor» (T2d; plugins/umami-visor.client.ts): la primera vez que alguien toca un visor. Solo atributos. -->
             <div class="mb-3" data-visor="lesiones" data-visor-accion="mama">
               <ClientOnly>
-                <BreastView base="/lesiones/mama/" fallback="/lesiones/mama-2026-09-08.webp"
-                  :fallback-alt="L('Reconstrucción 3D del tumor primario de mama de Miriam desde su resonancia del 8 de septiembre de 2026, dentro del tejido fibroglandular de la mama derecha', '3D reconstruction of Miriam’s primary breast tumour from her 8 September 2026 MRI, inside the fibroglandular tissue of the right breast')" />
+                <BreastView base="/lesiones/mama/" fallback="/lesiones/mama-2026-09-08.webp" :aviso="avisoFoco"
+                  :fallback-alt="`${L('Reconstrucción 3D de la mama derecha de Miriam desde su resonancia del 8 de septiembre de 2026, con el contorno, el tejido fibroglandular y un foco en dorado.', '3D reconstruction of Miriam’s right breast from her 8 September 2026 MRI, with the outline, the fibroglandular tissue and a focus in gold.')} ${avisoFoco}.`" />
                 <template #fallback>
                   <div class="visor rounded-btn flex flex-col items-center justify-center gap-2 text-xs" data-tema="oscuro" style="aspect-ratio:1/1">
                     <span class="visor__carga anima-esencial" aria-hidden="true" />
@@ -104,7 +106,7 @@ const biopsia = computed(() =>
               </ClientOnly>
             </div>
             <p class="text-sm text-tinta leading-relaxed">
-              {{ L('Tumor primario, medido en RM (13-jul → 8-sep-2026): 14 → 15 mm.', 'Primary tumor, measured on MRI (13 Jul → 8 Sep 2026): 14 → 15 mm.') }}
+              {{ L('Tumor primario en el informe de RM (13-jul → 8-sep-2026): 14\u00a0→\u00a015\u00a0mm. El foco dibujado lo sitúa Polaris, no un radiólogo, en la RM del 8-sep; esa medida no se ha tomado sobre el dibujo.', 'Primary tumor in the MRI report (13 Jul → 8 Sep 2026): 14\u00a0→\u00a015\u00a0mm. The drawn focus was placed by Polaris, not by a radiologist, on the 8 Sep MRI; that measurement was not taken on the drawing.') }}
             </p>
           </section>
           <section class="card-base" aria-labelledby="higado-titulo">

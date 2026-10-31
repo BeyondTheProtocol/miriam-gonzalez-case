@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * BreastView — el tumor primario de mama en 3D, girable, dentro de su tejido fibroglandular.
+ * BreastView — la mama derecha en 3D, girable: su contorno y su tejido fibroglandular.
  *
  * Por qué NO se dibuja la mama entera: la mama como ÓRGANO es el tejido fibroglandular, que es
  * lo que mira el radiólogo y lo que se cuantifica como densidad mamaria. La piel, la areola y
@@ -8,36 +8,40 @@
  * comprueba), así que aquí no hay nada que ocultar con opacidad. Lo que se ve es un árbol
  * glandular, el mismo lenguaje visual que el hígado o el hueso.
  *
- * Copia la escena de LiverView: mismos materiales de lesión, mismas luces, mismo anillo con
- * rótulo, misma interacción (arrastrar = girar, rueda = acercar, botón de reencuadre, gira solo
- * hasta que se toca y nunca con prefers-reduced-motion). Si WebGL falla, queda la imagen fija.
+ * Copia la escena de LiverView: mismas luces, misma interacción (arrastrar = girar, rueda =
+ * acercar, botón de reencuadre, gira solo hasta que se toca y nunca con prefers-reduced-motion).
+ * Si WebGL falla, queda la imagen fija.
  *
  * El pezón no se marca: Miriam lo probó en la preview y estorbaba más de lo que orientaba.
  *
- * Diferencia de encuadre: un tumor de 15 mm es un punto al lado de un hígado, así que la cámara
- * arranca MIRANDO HACIA ÉL (azimut calculado desde el centro del tejido hacia la lesión), no en
- * una posición fija. Así se ve desde el primer fotograma, sin esperar a que gire.
+ * La lesión (31-oct-2026): la malla de antes era una marca automática que no coincidía con ella.
+ * Lo que se dibuja ahora es el foco de realce de la RM del 8-sep, medido sobre las imágenes y sin
+ * validar por un radiólogo: lleva el rótulo `aviso`, que dice qué es. Sin anillo, a propósito:
+ * en esta misma página, en el hígado, el anillo significa «medida del radiólogo». Ninguna cifra
+ * automática: la medida es la del informe y va escrita en la tarjeta de /lesiones.
+ *
+ * Diferencia de encuadre: una lesión así es un punto al lado de un hígado, así que la cámara
+ * arranca del lado de la lesión (el signo lo da su posición), no en una posición fija.
  *
  * Mallas: public/lesiones/mama/ (visor3d.py web --organo mama: centradas, sin coordenadas del
- * escáner ni metadatos) + escena.json. La medida que se enseña es SIEMPRE la del informe.
+ * escáner ni metadatos) + escena.json.
  */
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
-const props = defineProps<{ base: string; fallback: string; fallbackAlt: string }>()
+const props = defineProps<{ base: string; fallback: string; fallbackAlt: string; aviso: string }>()
 const { locale } = useI18n()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
-interface Lesion { malla: string; diametro_auto_mm: number | null; diana: string | null; mm_informe: number | null }
+interface Lesion { malla: string }
 interface Escena { mallas: Record<string, string>; lesiones: Lesion[] }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
 const failed = ref(false)
-const rotulos = ref<{ texto: string; x: number; y: number; r: number; tx: number; ty: number; visible: boolean }[]>([])
 const hayVasos = ref(false)
 
 let sueltaRueda: () => void = () => {}
@@ -53,7 +57,6 @@ let raf = 0
 let enVista = true
 let radio = 100
 let haciaLesion: THREE.Vector3 | null = null
-const dianas: { malla: THREE.Mesh; texto: string }[] = []
 
 /* ── materiales ───────────────────────────────────────────────────────────────────── */
 function fresnel(mat: THREE.Material, min: number, max: number, pot: number) {
@@ -68,7 +71,7 @@ function fresnel(mat: THREE.Material, min: number, max: number, pot: number) {
 }
 // Pergamino, nunca un tono piel: el translúcido tiene que leerse como tejido en una imagen
 // médica, no como carne. Y más transparente que el hígado (0,10-0,92): aquí el tejido es
-// contexto de densidad, la lesión es la protagonista y se mira a través de él casi siempre.
+// contexto de densidad y se mira a través de la envoltura casi siempre.
 const tejidoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
   color: 0xe8dcc8, roughness: 0.45, clearcoat: 0.5, clearcoatRoughness: 0.3,
   sheen: 0.25, sheenRoughness: 0.7, sheenColor: new THREE.Color(0xfff6e4),
@@ -76,7 +79,7 @@ const tejidoMat = (lado: THREE.Side) => fresnel(new THREE.MeshPhysicalMaterial({
 // La ENVOLTURA de la mama: la superficie del pecho. Miriam, 20-sep: «a mí no me importa que se
 // vea la mama». Así que se ve — es la pieza, y una pieza que no se distingue no informa de nada.
 // Lo que se cuida no es taparla, es que se lea como una reconstrucción médica y no como una
-// fotografía: mate, sin brillo especular de piel, y traslúcida para que el tumor de dentro no
+// fotografía: mate, sin brillo especular de piel, y traslúcida para que el tejido de dentro no
 // quede escondido detrás de ella.
 // Translucidez por grosor + halo (render, 27-sep-26, igual que la cápsula del hígado): mama.ply
 // trae su DELGADEZ en el color de vértice (scripts/hornea-ao.py). Donde el tejido es fino, un
@@ -100,12 +103,12 @@ const envolturaMat = (lado: THREE.Side) => {
   return mat
 }
 // Los vasos de la mama, en el mismo azul que los del hígado: una sola gramática de color en
-// toda la página. Salen del mismo realce que el tumor y son justo lo que estorbaba al buscarlo
-// (finos y brillantísimos); aquí dejan de ser ruido y pasan a ser anatomía.
+// toda la página. Salen del realce de la resonancia (finos y brillantísimos); aquí dejan de ser
+// ruido y pasan a ser anatomía.
 const vasoMat = () => new THREE.MeshPhysicalMaterial({
   color: 0x2d63d6, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
 // El mismo dorado brillante de las lesiones del hígado: una sola gramática de color en la página.
-// vertexColors: el tumor trae su oclusión ambiental horneada (scripts/hornea-ao.py)
+// vertexColors: la lesión trae su oclusión ambiental horneada (scripts/hornea-ao.py)
 const lesionMat = () => new THREE.MeshPhysicalMaterial({
   vertexColors: true, color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
   emissive: 0x7a4a08, emissiveIntensity: 0.35 })
@@ -136,31 +139,13 @@ function reencuadra() {
   const fov = THREE.MathUtils.degToRad(camera.fov / 2)
   const ajuste = Math.min(1, camera.aspect)
   const d = (radio * 1.08) / Math.sin(fov) / ajuste
-  // Mirando hacia la lesión, no desde una posición fija: con 15 mm dentro de un bloque de
-  // tejido, empezar por el lado contrario sería empezar sin nada que ver.
   // Vista LATERAL con algo de frente: mirando de cara, una mama es un óvalo y no se reconoce;
-  // de perfil aparece la forma. Se mira desde el lado de la lesión (el signo lo da su propia
-  // posición), así que además queda delante y no escondida detrás del tejido.
+  // de perfil aparece la forma. Se mira desde el lado de la lesión, así que además queda delante
+  // y no escondida detrás del tejido.
   const lat = Math.sign(haciaLesion?.x ?? -1) || -1
   const dir = new THREE.Vector3(lat * 0.74, 0.14, 0.66).normalize()
   camera.position.copy(dir.multiplyScalar(d))
   controls.target.set(0, 0, 0); controls.update()
-}
-
-const p3 = new THREE.Vector3()
-function actualizaRotulos() {
-  const { w, h } = tamano()
-  rotulos.value = dianas.map((D) => {
-    const bs = D.malla.geometry.boundingSphere!
-    p3.copy(bs.center).project(camera)
-    const x = (p3.x + 1) / 2 * w, y = (1 - p3.y) / 2 * h
-    const dist = camera.position.distanceTo(bs.center)
-    const r = Math.max(14, (bs.radius / (dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))) * h / 2 * 1.25)
-    const medio = (D.texto.length * 7.3 + 12) / 2 + 6
-    const tx = Math.min(Math.max(x, medio), w - medio)
-    const ty = Math.max(y - r - 6, 26)
-    return { texto: D.texto, x, y, r, tx, ty, visible: p3.z < 1 }
-  })
 }
 
 async function init() {
@@ -199,11 +184,8 @@ async function init() {
   const tareas: Promise<unknown>[] = []
   for (const les of esc.lesiones) {
     tareas.push(geo(props.base + les.malla).then((g) => {
-      const m = malla(g, lesionMat(), 1)
+      malla(g, lesionMat(), 1)
       haciaLesion = g.boundingSphere!.center.clone()
-      if (les.mm_informe) {
-        dianas.push({ malla: m, texto: L('Informe', 'Report') + ' · ' + les.mm_informe + ' mm' })
-      }
     }))
   }
   hayVasos.value = !!esc.mallas.vasos
@@ -232,7 +214,7 @@ async function init() {
   const tick = () => {
     raf = requestAnimationFrame(tick)
     if (!enVista) return   // fuera de pantalla no se pinta (batería)
-    controls.update(); renderer!.render(scene, camera); actualizaRotulos()
+    controls.update(); renderer!.render(scene, camera)
   }
   tick()
 }
@@ -271,15 +253,11 @@ onBeforeUnmount(() => {
         v-else
         ref="host"
         role="img"
-        :aria-label="L('Reconstrucción en 3D de la mama derecha de Miriam, girable. Se ve el contorno de la mama en translúcido; dentro, el tejido fibroglandular como un árbol; y el tumor primario en dorado, rodeado por un anillo con la medida del informe, 15 milímetros, en el cuadrante superoexterno. Arrástralo para girar; todas las cifras están escritas debajo.', 'Rotatable 3D reconstruction of Miriam’s right breast. You can see the outline of the breast in translucent form; inside it, the fibroglandular tissue like a tree; and the primary tumour in gold, ringed and labelled with the figure from the report, 15 millimetres, in the upper outer quadrant. Drag to rotate; all the figures are written below.')"
+        :aria-label="`${L('Reconstrucción en 3D de la mama derecha de Miriam, girable. Se ve el contorno translúcido de la mama; dentro, el tejido fibroglandular como un árbol y un foco en dorado.', 'Rotatable 3D reconstruction of Miriam’s right breast. You can see the translucent outline of the breast; inside it, the fibroglandular tissue like a tree and a focus in gold.')} ${aviso}. ${L('Arrastra para girar; las cifras están escritas debajo.', 'Drag to rotate; the figures are written below.')}`"
         class="absolute inset-0 cursor-grab active:cursor-grabbing"
       />
-      <div v-if="!loading && !failed" class="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <template v-for="(r, i) in rotulos" :key="i">
-          <span v-if="r.visible" class="bv-anillo" :style="{ left: r.x + 'px', top: r.y + 'px', width: 2 * r.r + 'px', height: 2 * r.r + 'px' }" />
-          <span v-if="r.visible" class="bv-rotulo" :style="{ left: r.tx + 'px', top: r.ty + 'px' }">{{ r.texto }}</span>
-        </template>
-      </div>
+      <!-- Sin v-if a propósito: cargando, en 3D y sobre la imagen fija. El dorado solo se leería «esto es el tumor», y una captura no arrastra el párrafo de la tarjeta. -->
+      <div class="bv-rotulo" aria-hidden="true">{{ aviso }}</div>
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-xs" style="color:var(--escena-texto)">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
       </div>
@@ -303,7 +281,7 @@ onBeforeUnmount(() => {
     <ul v-if="!loading && !failed" class="mt-2 space-y-1 text-xs text-tinta">
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena" style="background:#f2b23c" aria-hidden="true" />
-        {{ L('Tumor primario, con anillo: la medida es la del radiólogo', 'Primary tumour, ringed: the measurement is the radiologist’s') }}
+        {{ L('Foco de realce situado por Polaris: probable lesión del informe, sin confirmar por un radiólogo', 'Enhancing focus placed by Polaris: probable lesion in the report, not confirmed by a radiologist') }}
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#e8dcc8" aria-hidden="true" />
@@ -311,11 +289,11 @@ onBeforeUnmount(() => {
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#d8cfc4;opacity:0.55" aria-hidden="true" />
-        {{ L('Contorno de la mama, para situar el tumor dentro de ella', 'Outline of the breast, to place the tumour inside it') }}
+        {{ L('Contorno de la mama, para ver el foco dentro de ella', 'Outline of the breast, to see the focus inside it') }}
       </li>
       <li v-if="hayVasos" class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#2d63d6" aria-hidden="true" />
-        {{ L('Vasos de la mama, los que le llevan la sangre (y el contraste) al tumor', 'Vessels of the breast, the ones carrying blood (and contrast) to the tumour') }}
+        {{ L('Vasos de la mama', 'Vessels of the breast') }}
       </li>
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-xs text-tinta leading-snug">
@@ -329,15 +307,18 @@ onBeforeUnmount(() => {
 <style scoped>
 /* El escenario oscuro y sus controles salen de los tokens --escena-* (sistema v3, P1): antes llevaban hex y grises azulados. */
 .bv-caja { aspect-ratio: 1 / 1; background: var(--escena-fondo); border-radius: var(--radius-btn); overflow: hidden; }
-.bv-anillo {
-  position: absolute; transform: translate(-50%, -50%); border-radius: var(--radius-pill);
-  border: 2px solid color-mix(in srgb, var(--color-bg-card) 92%, transparent);
-}
+/* Aviso fijo de la escena. Prosa, no dato: fuente del cuerpo y no mono (criterio de .btv-biopsy-cap). Placa y filete: los del botón de reencuadre.
+   16,5em: dos renglones en ES y EN de 262 a 474 px de visor, a 13 y a 15 px. */
 .bv-rotulo {
-  position: absolute; transform: translate(-50%, -100%); white-space: nowrap;
-  font: 600 var(--texto-xs)/1.2 var(--font-mono); color: var(--color-bg-card);
-  background: color-mix(in srgb, var(--escena-fondo) 72%, transparent); padding: 2px 6px; border-radius: var(--radius-sm);
+  position: absolute; top: var(--sp-16); left: var(--sp-16);
+  max-width: min(calc(100% - 2 * var(--sp-16)), 16.5em);
+  padding: var(--sp-4) var(--sp-8);
+  font: 500 var(--texto-xs)/1.35 var(--font-body); color: var(--color-bg-card);
+  background: color-mix(in srgb, var(--escena-fondo) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--escena-texto) 30%, transparent);
+  border-radius: var(--radius-sm); text-wrap: balance; pointer-events: none;
 }
+@media (pointer: coarse) { .bv-rotulo { font-size: var(--texto-sm); } } /* como .btv-probe: un punto más en táctil */
 .bv-reencuadre {
   position: absolute; bottom: 10px; right: 10px; width: var(--control-min); height: var(--control-min);
   display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-btn);
