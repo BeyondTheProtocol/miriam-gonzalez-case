@@ -5,7 +5,7 @@
     "R1": {
       "app/assets/css/main.css": 9,
       "app/components/BoneTriView.client.vue": 28,
-      "app/components/BreastView.client.vue": 4,
+      "app/components/BreastView.client.vue": 3,
       "app/components/celula/CelulaProximosPasos.vue": 1,
       "app/components/Constellation.vue": 11,
       "app/components/datos/Cielo.vue": 10,

@@ -1131,6 +1131,11 @@ if (existsSync('seed/fundraiser.json')) {
         ? ['Un radiólogo, en lectura informal por DM y sin informe firmado, marcó 55 medidas en el hígado de este TC y las considera 55 lesiones distintas', 'El informe oficial dice M1 múltiples.', 'Herramienta de APOYO a la decisión. No es diagnóstico ni consejo médico.', 'La mama, el hígado y las lesiones óseas.']
         : ['A radiologist, in an informal DM read and without a signed report, marked 55 measurements on the liver in this CT and considers them 55 distinct lesions', 'The official report says multiple M1.', 'A decision-SUPPORT tool. Not a diagnosis or medical advice.', 'The breast, the liver and the bone lesions.']
       ok(SELLADO.every((f) => txt.includes(f)), `${lesiones}: el texto sellado de la página sigue entero (${SELLADO.length} frases)`)
+      // la mama sin lesión dibujada (31-oct-2026): una mama sin nada se leería «no hay tumor». El aviso va en el HTML estático de la tarjeta, junto a
+      // la medida, para que se lea también sin WebGL y sin JS; y el rótulo del visor no lleva v-if, para que salga cargando y sobre la imagen fija.
+      const mama = main.match(/<section[^>]*aria-labelledby="mama-titulo"[\s\S]*?<\/section>/)?.[0] ?? ''
+      ok(visible(mama).includes(loc === 'es' ? '14 → 15 mm. Lesión no dibujada, pendiente de revisión por un radiólogo.' : '14 → 15 mm. Lesion not drawn, pending review by a radiologist.'), `${lesiones}: la tarjeta de la mama lleva la medida y el aviso de lesión no dibujada`)
+      if (loc === 'es') ok(readFileSync('app/components/BreastView.client.vue', 'utf-8').includes('<div class="bv-rotulo" aria-hidden="true">{{ aviso }}</div>'), 'BreastView: el rótulo del aviso va sin v-if')
       // orden del DOM = orden visual: título · «En corto» · aviso · …; y el aviso va DESPUÉS de «En corto»
       // (sistema v3, P1: el aviso de apoyo es <Aviso tipo="apoyo">, que pinta class="aviso aviso--apoyo"; antes era .alert-callout)
       const pos = ['<h1', 'id="en-corto-titulo"', 'class="aviso aviso--apoyo', 'id="mama-titulo"', 'id="hueso-titulo"', 'id="cierre-apoyo-titulo"'].map((m) => main.indexOf(m))

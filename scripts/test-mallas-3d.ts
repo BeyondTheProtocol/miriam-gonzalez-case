@@ -7,8 +7,9 @@
 // malla exportada en otro marco (sin centrar, sin rotar a los ejes de three) falla.
 //
 //   hígado      → las lesiones de escena.json, dentro de higado.ply
-//   mama        → tumor, tejido fibroglandular y vasos, dentro de mama.ply. El tejido se
-//                 recortó al plano de la pared torácica de la envoltura el 27-sep (sobresalía 22 mm).
+//   mama        → tejido fibroglandular y vasos, dentro de mama.ply. El tejido se recortó al
+//                 plano de la pared torácica de la envoltura el 27-sep (sobresalía 22 mm). Y
+//                 ninguna lesión: ver abajo.
 //   reservorio  → portal, catéter medido e interpolado y tráquea, dentro del hueso de su fecha
 //
 // Uso:  pnpm test:mallas-3d
@@ -51,7 +52,16 @@ for (const les of JSON.parse(readFileSync(H + 'escena.json', 'utf-8')).lesiones 
   dentro(H + les.malla, H + 'higado.ply')
 
 const M = 'public/lesiones/mama/'
-for (const f of ['tumor.ply', 'fgt.ply', 'vasos.ply']) if (existsSync(M + f)) dentro(M + f, M + 'mama.ply')
+for (const f of ['fgt.ply', 'vasos.ply']) if (existsSync(M + f)) dentro(M + f, M + 'mama.ply')
+
+// La lesión de la mama no se dibuja hasta que la revise un radiólogo (31-oct-2026): una marca
+// automática sin validar llegó a publicarse como «tumor primario». Volver a exportar la mama con
+// visor3d.py la traería de vuelta en silencio, y el render cargaría sin errores.
+const lesionesMama = JSON.parse(readFileSync(M + 'escena.json', 'utf-8')).lesiones as unknown[]
+if (lesionesMama.length || existsSync(M + 'tumor.ply')) {
+  console.log(`  ❌ mama: ${lesionesMama.length} lesiones en escena.json y tumor.ply ${existsSync(M + 'tumor.ply') ? 'presente' : 'ausente'}; sin revisión de un radiólogo no se publica ninguna`)
+  process.exitCode = 1
+} else console.log('  ✅ mama sin ninguna lesión dibujada')
 
 const R = 'public/reservorio/'
 for (const fecha of readdirSync(R).filter((d) => existsSync(R + d + '/hueso.ply')))
