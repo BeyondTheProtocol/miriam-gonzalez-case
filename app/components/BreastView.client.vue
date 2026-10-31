@@ -14,9 +14,14 @@
  *
  * El pezón no se marca: Miriam lo probó en la preview y estorbaba más de lo que orientaba.
  *
- * La lesión NO se dibuja (31-oct-2026): la malla que había aquí era una marca automática sin
- * validar y se retiró hasta que la revise un radiólogo. Por eso este visor no carga lesiones, ni
- * pinta anillos ni cifras: lleva el rótulo `aviso` y la medida va escrita en la tarjeta de /lesiones.
+ * La lesión (31-oct-2026): la malla de antes era una marca automática que no coincidía con ella.
+ * Lo que se dibuja ahora es el foco de realce de la RM del 8-sep, medido sobre las imágenes y sin
+ * validar por un radiólogo: lleva el rótulo `aviso`, que dice qué es. Sin anillo, a propósito:
+ * en esta misma página, en el hígado, el anillo significa «medida del radiólogo». Ninguna cifra
+ * automática: la medida es la del informe y va escrita en la tarjeta de /lesiones.
+ *
+ * Diferencia de encuadre: una lesión así es un punto al lado de un hígado, así que la cámara
+ * arranca del lado de la lesión (el signo lo da su posición), no en una posición fija.
  *
  * Mallas: public/lesiones/mama/ (visor3d.py web --organo mama: centradas, sin coordenadas del
  * escáner ni metadatos) + escena.json.
@@ -31,7 +36,8 @@ const { locale } = useI18n()
 const lang = computed<'es' | 'en'>(() => (locale.value === 'en' ? 'en' : 'es'))
 const L = (es: string, en: string) => (lang.value === 'en' ? en : es)
 
-interface Escena { mallas: Record<string, string> }
+interface Lesion { malla: string }
+interface Escena { mallas: Record<string, string>; lesiones: Lesion[] }
 
 const host = ref<HTMLDivElement | null>(null)
 const loading = ref(true)
@@ -50,6 +56,7 @@ let sueltaCarga: () => void = () => {}
 let raf = 0
 let enVista = true
 let radio = 100
+let haciaLesion: THREE.Vector3 | null = null
 
 /* ── materiales ───────────────────────────────────────────────────────────────────── */
 function fresnel(mat: THREE.Material, min: number, max: number, pot: number) {
@@ -100,6 +107,11 @@ const envolturaMat = (lado: THREE.Side) => {
 // ruido y pasan a ser anatomía.
 const vasoMat = () => new THREE.MeshPhysicalMaterial({
   color: 0x2d63d6, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.15 })
+// El mismo dorado brillante de las lesiones del hígado: una sola gramática de color en la página.
+// vertexColors: la lesión trae su oclusión ambiental horneada (scripts/hornea-ao.py)
+const lesionMat = () => new THREE.MeshPhysicalMaterial({
+  vertexColors: true, color: 0xf2b23c, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.1,
+  emissive: 0x7a4a08, emissiveIntensity: 0.35 })
 
 /* RAS (mm) → ejes de three, igual que en el hígado: x = izquierda del paciente a la derecha de
    la pantalla (vista anterior), y = arriba, z = hacia quien mira. */
@@ -128,8 +140,10 @@ function reencuadra() {
   const ajuste = Math.min(1, camera.aspect)
   const d = (radio * 1.08) / Math.sin(fov) / ajuste
   // Vista LATERAL con algo de frente: mirando de cara, una mama es un óvalo y no se reconoce;
-  // de perfil aparece la forma.
-  const dir = new THREE.Vector3(-0.74, 0.14, 0.66).normalize()
+  // de perfil aparece la forma. Se mira desde el lado de la lesión, así que además queda delante
+  // y no escondida detrás del tejido.
+  const lat = Math.sign(haciaLesion?.x ?? -1) || -1
+  const dir = new THREE.Vector3(lat * 0.74, 0.14, 0.66).normalize()
   camera.position.copy(dir.multiplyScalar(d))
   controls.target.set(0, 0, 0); controls.update()
 }
@@ -168,6 +182,12 @@ async function init() {
 
   const esc: Escena = await (await fetch(props.base + 'escena.json')).json()
   const tareas: Promise<unknown>[] = []
+  for (const les of esc.lesiones) {
+    tareas.push(geo(props.base + les.malla).then((g) => {
+      malla(g, lesionMat(), 1)
+      haciaLesion = g.boundingSphere!.center.clone()
+    }))
+  }
   hayVasos.value = !!esc.mallas.vasos
   if (esc.mallas.vasos) {
     tareas.push(geo(props.base + esc.mallas.vasos).then((g) => malla(g, vasoMat(), 2)))
@@ -182,8 +202,8 @@ async function init() {
     malla(ge, envolturaMat(THREE.FrontSide), 6)
   }
   await Promise.all(tareas)
-  // Se encuadra con la pieza MÁS GRANDE que haya: con envoltura se ve la mama entera; sin ella,
-  // el árbol glandular llena el cuadro.
+  // Se encuadra con la pieza MÁS GRANDE que haya: con envoltura se ve la mama entera y la
+  // lesión situada dentro; sin ella, el árbol glandular llena el cuadro.
   radio = (ge ?? gt).boundingSphere!.radius
   controls.minDistance = radio * 1.2; controls.maxDistance = radio * 12
 
@@ -233,10 +253,10 @@ onBeforeUnmount(() => {
         v-else
         ref="host"
         role="img"
-        :aria-label="`${L('Reconstrucción en 3D de la mama derecha de Miriam, girable. Se ve el contorno translúcido de la mama y, dentro, el tejido fibroglandular como un árbol.', 'Rotatable 3D reconstruction of Miriam’s right breast. You can see the translucent outline of the breast and, inside it, the fibroglandular tissue like a tree.')} ${aviso}. ${L('Arrastra para girar; las cifras están escritas debajo.', 'Drag to rotate; the figures are written below.')}`"
+        :aria-label="`${L('Reconstrucción en 3D de la mama derecha de Miriam, girable. Se ve el contorno translúcido de la mama; dentro, el tejido fibroglandular como un árbol y un foco en dorado.', 'Rotatable 3D reconstruction of Miriam’s right breast. You can see the translucent outline of the breast; inside it, the fibroglandular tissue like a tree and a focus in gold.')} ${aviso}. ${L('Arrastra para girar; las cifras están escritas debajo.', 'Drag to rotate; the figures are written below.')}`"
         class="absolute inset-0 cursor-grab active:cursor-grabbing"
       />
-      <!-- Sin v-if a propósito: cargando, en 3D y sobre la imagen fija. Una mama sin nada se leería «no hay tumor», y una captura no arrastra el párrafo de la tarjeta. -->
+      <!-- Sin v-if a propósito: cargando, en 3D y sobre la imagen fija. El dorado solo se leería «esto es el tumor», y una captura no arrastra el párrafo de la tarjeta. -->
       <div class="bv-rotulo" aria-hidden="true">{{ aviso }}</div>
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-xs" style="color:var(--escena-texto)">
         {{ L('reconstruyendo 3D…', 'rebuilding 3D…') }}
@@ -260,12 +280,16 @@ onBeforeUnmount(() => {
     </p>
     <ul v-if="!loading && !failed" class="mt-2 space-y-1 text-xs text-tinta">
       <li class="flex items-start gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full border border-berenjena" style="background:#f2b23c" aria-hidden="true" />
+        {{ L('Foco de realce situado por Polaris: probable lesión del informe, sin confirmar por un radiólogo', 'Enhancing focus placed by Polaris: probable lesion in the report, not confirmed by a radiologist') }}
+      </li>
+      <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#e8dcc8" aria-hidden="true" />
         {{ L('Tejido fibroglandular de la mama derecha (lo que en radiología se llama densidad mamaria)', 'Fibroglandular tissue of the right breast (what radiology calls breast density)') }}
       </li>
       <li class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#d8cfc4;opacity:0.55" aria-hidden="true" />
-        {{ L('Contorno de la mama', 'Outline of the breast') }}
+        {{ L('Contorno de la mama, para ver el foco dentro de ella', 'Outline of the breast, to see the focus inside it') }}
       </li>
       <li v-if="hayVasos" class="flex items-start gap-1.5">
         <span class="inline-block w-2.5 h-2.5 mt-[3px] shrink-0 rounded-full" style="background:#2d63d6" aria-hidden="true" />
@@ -274,8 +298,8 @@ onBeforeUnmount(() => {
     </ul>
     <p v-if="!loading && !failed" class="mt-1.5 text-xs text-tinta leading-snug">
       {{ L(
-        'El contorno es el de su mama, sacado de su resonancia por IA en local y sin revisar por un radiólogo. El PET de galio del 26-may describe además una captación en la cola de mama derecha (SUVmáx 2,64), a valorar en estudio dirigido; no se dibuja porque sale de otro estudio.',
-        'The outline is her own breast, taken from her MRI by AI running locally and not reviewed by a radiologist. The 26 May gallium PET also describes uptake in the right axillary tail of the breast (SUVmax 2.64), to be assessed in a dedicated study; it is not drawn because it comes from a different study.') }}
+        'El contorno es el de su mama, sacado de su resonancia por IA en local y sin revisar por un radiólogo. La medida que vale es la del informe. El PET de galio del 26-may describe además una captación en la cola de mama derecha (SUVmáx 2,64), a valorar en estudio dirigido; no se dibuja porque sale de otro estudio.',
+        'The outline is her own breast, taken from her MRI by AI running locally and not reviewed by a radiologist. The measurement that counts is the one in the report. The 26 May gallium PET also describes uptake in the right axillary tail of the breast (SUVmax 2.64), to be assessed in a dedicated study; it is not drawn because it comes from a different study.') }}
     </p>
   </div>
 </template>
