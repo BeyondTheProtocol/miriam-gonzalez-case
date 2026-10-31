@@ -106,7 +106,7 @@ const biopsia = computed(() =>
               </ClientOnly>
             </div>
             <p class="text-sm text-tinta leading-relaxed">
-              {{ L('Tumor primario en el informe de RM (13-jul → 8-sep-2026): 14 → 15 mm.', 'Primary tumor in the MRI report (13 Jul → 8 Sep 2026): 14 → 15 mm.') }} {{ lesionNoDibujada }}.
+              {{ L('Tumor primario en el informe de RM (13-jul → 8-sep-2026): 14 → 15 mm.', 'Primary tumor in the MRI report (13 Jul → 8 Sep 2026): 14 → 15 mm.') }} {{ lesionNoDibujada }}.
             </p>
           </section>
           <section class="card-base" aria-labelledby="higado-titulo">
