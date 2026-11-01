@@ -130,7 +130,7 @@
       {{ $t(deExpertos ? 'expertos.failed' : 'contact.failed') }}
     </p>
     <!-- /expertos lleva la información de primera capa de la protección de datos, con enlace a la política. Son cuatro frases: a la izquierda, que centradas cuestan de leer. -->
-    <i18n-t v-if="deExpertos" keypath="expertos.privacidad" tag="p" class="text-xs text-tinta leading-relaxed">
+    <i18n-t v-if="deExpertos" keypath="expertos.privacidad" tag="p" class="measure text-xs text-tinta leading-relaxed">
       <template #politica>
         <NuxtLink :to="localePath({ name: 'privacidad' })" class="link-inline">{{ $t('expertos.politica') }}</NuxtLink>
       </template>
