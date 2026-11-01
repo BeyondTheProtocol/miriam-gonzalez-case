@@ -16,11 +16,11 @@ entries:
       consultations with no clear answer. Until she requests an MRI herself.
     highlight: false
 
-  - date: 'Jan 11, 2024'
+  - date: 'Jan 12, 2024'
     tag: Diagnosis
     title: The result arrives by email
     description: >
-      The MRI report arrives by email on a Thursday morning. The conclusion: "probable
+      The MRI report arrives by email on a Friday morning. The conclusion: "probable
       vertebral metastases." No doctor present. No context. Just a screen. That same day,
       Miriam is admitted to the emergency room. The following Tuesday she receives the full
       diagnosis: stage IV breast cancer with neuroendocrine differentiation, multiple bone
@@ -236,7 +236,6 @@ entries:
       Both personalized vaccines under exploration fall through in the same week. One, because it
       requires measurable disease and Miriam's metastases are bone-only: an entry criterion that
       leaves out many patients like her. The other, because its last slot had just been filled.
-      One of the two stays open should the situation change.
     highlight: true
 
   - date: 'Jul 8, 2026'
