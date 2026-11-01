@@ -16,11 +16,11 @@ entries:
       consultas sin una respuesta clara. Hasta que ella misma solicita una resonancia magnética.
     highlight: false
 
-  - date: '11 ene 2024'
+  - date: '12 ene 2024'
     tag: Diagnóstico
     title: El resultado llega por email
     description: >
-      El informe de la resonancia llega por email, un jueves por la mañana. La conclusión:
+      El informe de la resonancia llega por email, un viernes por la mañana. La conclusión:
       "probable metástasis vertebrales". Sin nadie del equipo médico al lado. Sin contexto. Solo una pantalla.
       Ese mismo día, Miriam ingresa por urgencias. El martes siguiente tiene el diagnóstico
       completo: carcinoma de mama con diferenciación neuroendocrina estadio IV, con metástasis
@@ -238,7 +238,7 @@ entries:
       Las dos vacunas personalizadas que se estaban explorando se caen la misma semana. Una,
       porque exige enfermedad medible y las metástasis de Miriam son solo óseas: un criterio de
       entrada que deja fuera a muchas pacientes como ella. La otra, porque acababa de cubrirse
-      la última plaza. Una de las dos queda abierta por si la situación cambia.
+      la última plaza.
     highlight: true
 
   - date: '8 jul 2026'
