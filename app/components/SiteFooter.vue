@@ -1,6 +1,6 @@
 <template>
   <footer :aria-label="$t('footer.site_footer')" class="bg-cream-card" style="border-top: 1px solid rgb(var(--color-text-rgb) / 0.08)">
-    <!-- Chrome mínimo (/links, /gracias; useChromeMinimo): la marca, el aviso, las redes y lo legal, en una sola
+    <!-- Chrome mínimo (/links, /gracias, /expertos; useChromeMinimo): la marca, el aviso, las redes y lo legal, en una sola
          columna centrada. Sin el muro de logos ni las columnas de navegación: son páginas de una sola acción. -->
     <div v-if="minimo" class="section-wide py-8 sm:py-10">
       <div class="flex flex-col items-center gap-3 text-center">

@@ -21,6 +21,15 @@ export function useSupportBarRoute() {
     () => path.value === '/marcas' || path.value === '/en/brands'
   )
 
+  // /expertos (· /en/experts): una sola acción, escribir, sin ninguna llamada a
+  // donar. El layout tampoco monta aquí la barra ni el aviso de retorno.
+  const isExpertsRoute = computed(
+    () => path.value === '/expertos' || path.value === '/en/experts'
+  )
+
+  // Rutas donde el layout no monta nada de la campaña.
+  const sinCampana = computed(() => isBrandsRoute.value || isExpertsRoute.value)
+
   // SUB-página de Ciencia (lectura técnica de inmersión): /ciencia/evidencia y
   // /ciencia/[slug] en ES, /en/science/... en EN. El índice (/ciencia ·
   // /en/science) queda FUERA a propósito: tiene sus propios cierres de apoyo y
@@ -55,11 +64,11 @@ export function useSupportBarRoute() {
 
   const hasSupportBar = computed(
     () =>
-      !isBrandsRoute.value &&
+      !sinCampana.value &&
       !isThanks.value &&
       !isDeepScience.value &&
       !isDeepTool.value
   )
 
-  return { isBrandsRoute, hasSupportBar }
+  return { sinCampana, hasSupportBar }
 }

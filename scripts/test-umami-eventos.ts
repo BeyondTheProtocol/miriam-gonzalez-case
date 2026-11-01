@@ -290,11 +290,12 @@ olvidarVisores()
 console.log('\nB · los eventos que ya existían')
 const soporte = readFileSync('app/composables/useSupport.ts', 'utf-8')
 const contacto = readFileSync('app/pages/contacto.vue', 'utf-8')
+const formulario = readFileSync('app/components/FormularioContacto.vue', 'utf-8')
 // F5 (23-oct-2026): «PathwayCurioso» se fue de esta lista porque su única emisora, la tarjeta «Acabo de llegar» de las siete de la home,
 // desapareció con ellas (la home pinta ahora cuatro puertas). Sigue «Pathway»: lo emiten los chips «por perfil» de /colabora hasta F10.
 const ANTIGUOS = ['Donar', 'VerCiencia', 'Clic-prensa', 'Contacto', 'Pathway', 'VerMapa', 'VerLesiones', 'VerDatos', 'VerCelula', 'VerExplorador', 'VerLaminillas', 'VerUltimo', 'Navegar', 'Error404', 'Compartir', 'Bio-link', 'VerVideo']
 for (const nombre of ANTIGUOS) ok(soporte.includes(`trackUmami('${nombre}'`), `useSupport.ts sigue emitiendo «${nombre}»`)
-ok(/trackUmami\('Contacto-enviado',\s*\{\s*rol:/.test(contacto), 'contacto.vue sigue emitiendo «Contacto-enviado» con su rol')
+ok(/trackUmami\('Contacto-enviado',\s*\{\s*rol:/.test(formulario), 'FormularioContacto.vue sigue emitiendo «Contacto-enviado» con su rol')
 const NUEVOS = [EVENTO_GOFUNDME, EVENTO_PETICION, EVENTO_CONTACTO_CLIC, EVENTO_SCROLL, EVENTO_HERO_VISTO, EVENTO_CAMPANA_VISIBLE, EVENTO_PRENSA_VISIBLE]
 ok(NUEVOS.every((n) => ![...ANTIGUOS, 'Contacto-enviado'].includes(n)), `los siete nombres nuevos (${NUEVOS.join(', ')}) no pisan ninguno de los de siempre`)
 ok(new Set(NUEVOS).size === NUEVOS.length, 'y no se repiten entre sí')
@@ -388,9 +389,9 @@ const fueraDeLista = enUso.filter((u) => !esRolContacto(/(?:trackContact\('|role
 ok(enUso.length >= 8 && fueraDeLista.length === 0, `los ${enUso.length} roles que escriben los enlaces y las tarjetas del código son del vocabulario único${fueraDeLista.length ? ` (fuera: ${fueraDeLista.join('; ')})` : ''}`)
 const rolesHerramienta = [...(/ROL_HERRAMIENTA[^{]*\{([\s\S]*?)\n\}/.exec(readFileSync('app/utils/navegacion.ts', 'utf-8'))?.[1] ?? '').matchAll(/:\s*'([a-z_]+)'/g)].map((m) => m[1])
 ok(rolesHerramienta.length >= 5 && rolesHerramienta.every(esRolContacto), `y los de ROL_HERRAMIENTA (${rolesHerramienta.join(', ')})`)
-const opcionesRol = [...(/<select id="role"[\s\S]*?<\/select>/.exec(contacto)?.[0] ?? '').matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]).sort()
+const opcionesRol = [...(/<select id="role"[\s\S]*?<\/select>/.exec(formulario)?.[0] ?? '').matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]).sort()
 igual(opcionesRol, [...ROLES_CONTACTO].sort(), 'el selector del formulario ofrece justo esos seis roles')
-ok(/esRolContacto\(r\)/.test(contacto) && /rolDeContacto\(role\.value\)/.test(contacto) && !/\|\| 'otro'/.test(contacto), 'el formulario lee el ?role= y manda «Contacto-enviado» por el vocabulario único (sin «otro»)')
+ok(/esRolContacto\(r\)/.test(contacto) && /rolDeContacto\(rol\.value\)/.test(formulario) && !/\|\| 'otro'/.test(formulario), 'el formulario lee el ?role= y manda «Contacto-enviado» por el vocabulario único (sin «otro»)')
 ok(/function trackContact\(role: RolContacto\)/.test(soporte), 'trackContact solo acepta un rol del vocabulario')
 
 // ── C. en Chrome, sobre el build estático ────────────────────────────────────────────────────

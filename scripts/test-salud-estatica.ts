@@ -639,8 +639,8 @@ if (existsSync('seed/fundraiser.json')) {
     ok(REDES.every((r) => c.some((e) => e.href === r.url && e.texto === `@miriamgonp · ${r.nombre}`)), '/colabora: sus enlaces rápidos a las 5 redes, con el rótulo de siempre («@miriamgonp · X»…)')
   }
 
-  // — chrome mínimo: /links y /gracias
-  for (const [pagina, loc] of [['links.html', 'es'], ['en/links.html', 'en'], ['gracias.html', 'es'], ['en/thank-you.html', 'en']] as const) {
+  // — chrome mínimo: /links, /gracias y /expertos
+  for (const [pagina, loc] of [['links.html', 'es'], ['en/links.html', 'en'], ['gracias.html', 'es'], ['en/thank-you.html', 'en'], ['expertos.html', 'es'], ['en/experts.html', 'en']] as const) {
     const h = limpio(pagina)
     const cab = cabecera(h), f = pie(h)
     ok(!/<nav\b/.test(cab) && !cab.includes('aria-controls="mobile-nav"'), `${pagina}: la cabecera no lleva menú ni botón de menú`)
@@ -660,6 +660,22 @@ if (existsSync('seed/fundraiser.json')) {
   {
     const h = limpio('datos.html')
     ok(/<nav\b/.test(cabecera(h)) && h.includes('latest-bar') && h.includes('id="pie-caso"') && h.includes('logo-wall'), 'control: /datos conserva el chrome completo (menú, barra «lo último», pie de 5 columnas y logos)')
+  }
+
+  // — /expertos: una sola acción y nada de la campaña, ni siquiera dentro de los <script>. El perfil sale marcado en el HTML, no solo tras hidratar.
+  for (const [pagina, loc] of [['expertos.html', 'es'], ['en/experts.html', 'en']] as const) {
+    const crudo = html(pagina), h = limpio(pagina)
+    const D = JSON.parse(readFileSync(`i18n/locales/${loc}.json`, 'utf-8'))
+    ok(!/gofund/i.test(crudo), `${pagina}: ni rastro de GoFundMe, tampoco en los <script>`)
+    ok(!enlaces(h).some((e) => /^\/(en\/)?(colabora|collaborate|gastos|expenses|datos|data|ciencia|science)\b/.test(e.href)), `${pagina}: sin enlaces a /colabora, /gastos, /datos ni /ciencia, que llevan la campaña`)
+    ok(!h.includes('campana-oficial') && !h.includes('mobile-support-bar') && !h.includes('class="drp"'), `${pagina}: sin el bloque «Campaña oficial», sin barra y sin aviso de retorno`)
+    ok(h.includes(D.expertos.peticion.replace(/'/g, '&#39;')), `${pagina}: la petición, literal`)
+    ok(h.includes(D.campanaOficial.otras.replace(/'/g, '&#39;')), `${pagina}: el aviso, literal`)
+    ok(h.includes(D.expertos.aviso.replace(/'/g, '&#39;')), `${pagina}: el descargo, literal`)
+    ok(enlaces(bloque(h, /<form\b[\s\S]*?<\/form>/)).some((e) => e.href === RUTA[loc].privacidad), `${pagina}: la nota del formulario enlaza la política de privacidad`)
+    ok(/<form\b[^>]*name="contact"[^>]*data-netlify="true"/.test(h), `${pagina}: el formulario \`contact\` de Netlify está en el HTML`)
+    const opciones = [...(h.match(/<select id="role"[\s\S]*?<\/select>/)?.[0] ?? '').matchAll(/<option\b[^>]*>/g)].map((m) => m[0])
+    ok(opciones.length === 7 && opciones.filter((o) => /\bselected\b/.test(o)).length === 1 && opciones.some((o) => o.includes('value="researcher"') && /\bselected\b/.test(o)), `${pagina}: «researcher» sale marcado en el HTML generado`)
   }
 }
 

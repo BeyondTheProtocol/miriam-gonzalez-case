@@ -64,7 +64,7 @@ The website has two audiences: scientists/physicians (science page, molecular pr
 - Provides VueUse composables as Nuxt auto-imports. Currently used in `SiteNav.vue` via `useWindowScroll()` for scroll-aware header styling.
 
 ### Contact Form
-- Netlify Forms integrated (no backend, no Formspree). The form lives in `app/pages/contacto.vue`.
+- Netlify Forms integrated (no backend, no Formspree). The form lives in `app/components/FormularioContacto.vue`, mounted by `/contacto` and `/expertos`.
 
 ### GoFundMe Data Sync (live endpoints)
 - `/fundraiser.json` (total) and `/donations.json` (donor list → stars + table) are served by **on-request Netlify Functions** that query GoFundMe live and are cached at Netlify's CDN (`Netlify-CDN-Cache-Control` with `stale-while-revalidate`/`stale-if-error`), so the data refreshes **without a redeploy**. Those paths are routed to the functions via **`routeRules` in `nuxt.config.ts`** (302), NOT `netlify.toml`: a `netlify.toml` redirect — even `force = true` — loses to the `/*` catch-all in the generated `dist/_redirects` (processed first), the same trap as the short links. The build seed lives in `seed/` (NOT `public/`) so no `dist/*.json` static file shadows the routeRule. The Vue components keep fetching the same URLs on mount.

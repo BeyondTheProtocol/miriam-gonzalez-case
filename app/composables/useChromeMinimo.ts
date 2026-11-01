@@ -1,15 +1,17 @@
 /**
  * ¿Lleva ESTA ruta el chrome mínimo? (rediseño de arquitectura, F3 y F6, 23-oct-2026)
  *
- * /links (la página de la bio de las redes) y /gracias (lo que ve quien acaba de donar) son embudos de una sola
- * acción: quien llega no va a recorrer el sitio, y un menú de cinco ítems, la barra «lo último» y un pie de cinco
- * columnas compiten con lo único que la página le pide. Con el chrome mínimo la cabecera lleva solo el logo y el
- * selector de idioma; el pie, la marca, el aviso, las redes y lo legal; y la barra «lo último» no sale.
+ * /links (la página de la bio de las redes), /gracias (lo que ve quien acaba de donar) y /expertos (el formulario para
+ * quien trabaja en esto) son embudos de una sola acción: quien llega no va a recorrer el sitio, y un menú de cinco
+ * ítems, la barra «lo último» y un pie de cinco columnas compiten con lo único que la página le pide. Con el chrome
+ * mínimo la cabecera lleva solo el logo y el selector de idioma; el pie, la marca, el aviso, las redes y lo legal; y
+ * la barra «lo último» no sale.
  *
- * Tampoco lleva el botón «Apoyar a Miriam» de la cabecera, en ninguna de las dos:
+ * Tampoco lleva el botón «Apoyar a Miriam» de la cabecera, en ninguna de las tres:
  * · /gracias: quien llega ya ha donado.
  * · /links (desde F6): el apoyo es la 2.ª fila de la propia página (GoFundMe directo), así que la cabecera no repite
  *   el enlace. Entre F3 y F6 la cabecera de /links conservaba el botón, por si la página aún no lo llevaba.
+ * · /expertos: la página no lleva ninguna llamada a donar (la barra y el aviso de retorno los quita useSupportBarRoute).
  *
  * Es un composable propio y no una rama más de useSupportBarRoute: ese fichero decide solo la barra «Donar» del
  * móvil, y es el que tocan los PR abiertos de célula a célula. Aquí, como allí, la decisión es por RUTA y se
@@ -26,7 +28,10 @@ export function useChromeMinimo() {
   // /gracias (· /en/thank-you): la ruta EN no contiene «gracias», así que se comprueban las dos.
   const esGracias = computed(() => path.value === '/gracias' || path.value === '/en/thank-you')
 
-  const minimo = computed(() => esLinks.value || esGracias.value)
+  // /expertos (· /en/experts): la ruta EN tampoco contiene el slug español.
+  const esExpertos = computed(() => path.value === '/expertos' || path.value === '/en/experts')
+
+  const minimo = computed(() => esLinks.value || esGracias.value || esExpertos.value)
 
   return { minimo }
 }

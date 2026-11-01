@@ -93,6 +93,7 @@ export default defineNuxtConfig({
       '/mapa-metastasis.md', '/en/mapa-metastasis.md',
       '/guia-de-estilo', '/en/style-guide',
       '/contacto', '/en/contact',
+      '/expertos', '/en/experts',
       '/gracias', '/en/thank-you',
       '/aviso-legal', '/en/legal-notice',
       '/privacidad', '/en/privacy',
@@ -213,6 +214,7 @@ export default defineNuxtConfig({
       'equipo': { en: '/team' },
       'prensa': { en: '/press' },
       'contacto': { en: '/contact' },
+      'expertos': { en: '/experts' },
       'colabora': { en: '/collaborate' },
       'marcas': { en: '/brands' },
       'reservorio': { en: '/reservorio' },
@@ -342,8 +344,10 @@ export default defineNuxtConfig({
       // T2a: /herramientas, /reservorio e /historia (y sus rutas inglesas) también van aquí. El selector de idioma es un botón y
       // no un enlace, así que el rastreo no descubre las rutas /en/…; y /historia no tiene enlace interno (su tráfico llega de
       // Google). Lo que `crawlLinks` no ve, se lista.
+      // /expertos tampoco tiene enlace desde la navegación: se llega por un enlace externo.
       routes: [
         '/marcas', '/en/brands', '/guia-de-estilo', '/en/style-guide',
+        '/expertos', '/en/experts',
         '/herramientas', '/en/tools', '/reservorio', '/en/reservorio', '/historia', '/en/story',
       ],
       // /design-system/ es un export estático en public/, no una ruta de Nuxt.

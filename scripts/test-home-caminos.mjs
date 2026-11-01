@@ -426,7 +426,7 @@ try {
     ok(ext.some((a) => a.donde === 'hero' && a.href === 'https://gofund.me/3e25cae99') && ext.filter((a) => a.donde === 'prensa').length === 4, `${loc}: el botón del hero y los 4 medios también avisan`)
   }
 
-  console.log('\n10. Chrome mínimo en /links y /gracias')
+  console.log('\n10. Chrome mínimo en /links, /gracias y /expertos')
   // Qué hay en la cabecera y el pie de la página cargada.
   const CHROME = `(() => {
     const cab = document.querySelector('[data-cabecera-fija]')
@@ -471,6 +471,8 @@ try {
     { loc: 'es', ruta: '/gracias', home: '/', gracias: true },
     { loc: 'en', ruta: '/en/links', home: '/en', gracias: false },
     { loc: 'en', ruta: '/en/thank-you', home: '/en', gracias: true },
+    { loc: 'es', ruta: '/expertos', home: '/', gracias: false, expertos: true },
+    { loc: 'en', ruta: '/en/experts', home: '/en', gracias: false, expertos: true },
   ]
   for (const w of [320, 375, 420, 1280]) {
     await ancho(w)
@@ -485,8 +487,8 @@ try {
       ok(m.cabeceraOrdenada && m.logoNombre, `${t}: cabecera sin solapes y con el nombre del logo accesible (${m.cabeceraOrdenada}, ${m.logoNombre})`)
       // Sin «Apoyar» en la cabecera, el nombre del logo cabe entero a todos los anchos (en /links, hasta F6, bajo 420 px pasaba a sr-only).
       ok(m.logoTexto, `${t}: el nombre del logo sigue a la vista (${m.logoTexto})`)
-      ok(!m.apoyoCabecera, `${t}: ${c.gracias ? '/gracias' : '/links'} no lleva «Apoyar» en la cabecera`)
-      if (c.gracias) ok(m.apoyoPagina === null, `${t}: /gracias no lleva ningún enlace a GoFundMe en la página`)
+      ok(!m.apoyoCabecera, `${t}: no lleva «Apoyar» en la cabecera`)
+      if (c.gracias || c.expertos) ok(m.apoyoPagina === null, `${t}: no lleva ningún enlace a GoFundMe en la página`)
       else ok(!!m.apoyoPagina && m.apoyoPagina.orden === 2 && m.apoyoPagina.alto >= 44 && m.apoyoPagina.rel === 'noopener noreferrer' && m.apoyoPagina.supportCta, `${t}: /links lleva «Apoyar» (GoFundMe) como 2.ª fila de la página, de ${m.apoyoPagina?.alto} px, con rel="noopener noreferrer" y data-support-cta`)
       ok(m.sw <= m.vw, `${t}: sin scroll horizontal (${m.sw} ≤ ${m.vw})`)
     }
@@ -546,6 +548,66 @@ try {
     ok(m.menu && m.apoyoCabecera, `${c.ruta} → ${destino}: vuelven el menú y «Apoyar» (${m.menu}, ${m.apoyoCabecera})`)
     ok(await evaluate(`location.hash === '#lo-ultimo'`), `${c.ruta} → ${destino}: el hash #lo-ultimo llega`)
     ok(await evaluate(`window.__sinRecarga === true`), `${c.ruta} → ${destino}: sin recargar`)
+  }
+
+  console.log('\n10 bis. /expertos: sin nada de la campaña, y el formulario llega con el perfil marcado y envía a su propia ruta')
+  // La barra «Donar» y el aviso «¿Has donado?» son de cliente: en el HTML no están nunca, así que aquí se prueba que no aparecen de verdad.
+  const FORZAR_RETORNO = `(() => {
+    sessionStorage.removeItem('hm_prompt_done')
+    sessionStorage.setItem('hm_support_ts', String(Date.now() - 60000))
+    document.dispatchEvent(new Event('visibilitychange'))
+  })()`
+  await ancho(375, 568)
+  await cargar('/contacto')
+  await evaluate(`window.scrollTo(0, 700)`)
+  ok(await hasta(`!!document.querySelector('.mobile-support-bar')`, 4000), 'control: en /contacto a 375 px la barra «Donar» sí sale al bajar')
+  await evaluate(FORZAR_RETORNO)
+  ok(await hasta(`!!document.querySelector('.drp')`, 2000), 'control: en /contacto el aviso de retorno sí sale')
+  await evaluate(`sessionStorage.removeItem('hm_support_ts'); sessionStorage.removeItem('hm_prompt_done')`)
+  for (const ruta of ['/expertos', '/en/experts']) {
+    await cargar(ruta)
+    const alto = await evaluate('document.documentElement.scrollHeight')
+    let barra = false
+    for (let y = 0; y <= alto; y += 200) {
+      await evaluate(`window.scrollTo(0, ${y})`)
+      await sleep(150)
+      barra ||= await evaluate(`!!document.querySelector('.mobile-support-bar')`)
+    }
+    ok(!barra, `${ruta} a 375 px: la barra «Donar» no aparece en todo el recorrido`)
+    ok(!(await evaluate(`document.querySelector('main').classList.contains('has-support-bar')`)), `${ruta}: <main> no reserva el hueco de la barra`)
+    await evaluate(FORZAR_RETORNO)
+    await sleep(500)
+    ok(!(await evaluate(`!!document.querySelector('.drp')`)), `${ruta}: el aviso de retorno no sale, aunque se venga de pulsar «Apoyar»`)
+    await evaluate(`sessionStorage.removeItem('hm_support_ts'); sessionStorage.removeItem('hm_prompt_done')`)
+    ok(await evaluate(`document.querySelector('#role').value === 'researcher'`), `${ruta}: tras hidratar el perfil sigue marcado`)
+    ok(await evaluate(`[...document.querySelectorAll('a[href]')].every((a) => !/gofund|^\\/(en\\/)?(colabora|collaborate|gastos|expenses|datos|data|ciencia|science)\\b/.test(a.getAttribute('href')))`), `${ruta}: ningún enlace a la campaña ni a las páginas que la llevan (/colabora, /gastos, /datos, /ciencia)`)
+  }
+  // Con `fetch` interceptado: no sale nada, y se ve lo que se habría enviado.
+  const ENVIAR = `(() => {
+    window.__urls = []
+    const real = window.fetch
+    window.fetch = (url, op) => {
+      window.__urls.push(String(url))
+      if (String(op && op.method).toUpperCase() !== 'POST') return real(url, op)
+      window.__post = { url: String(url), body: String(op && op.body), method: op.method }
+      return Promise.resolve(new Response('', { status: 200 }))
+    }
+    const poner = (id, v) => { const el = document.getElementById(id); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })) }
+    poner('name', 'Prueba'); poner('email', 'prueba@example.com'); poner('message', 'Prueba')
+    document.querySelector('form[name=contact]').requestSubmit()
+  })()`
+  for (const [ruta, asunto, corazon] of [['/expertos', 'Nuevo mensaje de contacto (expertos) — helpmiriam.com', false], ['/en/experts', 'Nuevo mensaje de contacto (expertos) — helpmiriam.com', false], ['/contacto', 'Nuevo mensaje de contacto — helpmiriam.com', true]]) {
+    await cargar(ruta)
+    await evaluate(ENVIAR)
+    ok(await hasta(`!!window.__post && !document.querySelector('form[name=contact]')`, 4000), `${ruta}: al enviar se ve el agradecimiento`)
+    const p = await evaluate(`window.__post`)
+    const campos = Object.fromEntries(new URLSearchParams(p?.body ?? ''))
+    ok(p?.url === ruta && p?.method === 'POST', `${ruta}: el POST va a su propia ruta (${p?.url})`)
+    ok(campos['form-name'] === 'contact' && campos.subject === asunto, `${ruta}: formulario \`contact\` y asunto «${asunto}» (${campos['form-name']} · ${campos.subject})`)
+    ok(await evaluate(`document.activeElement?.tagName === 'H2'`), `${ruta}: el foco pasa al titular del agradecimiento`)
+    ok((await evaluate(`!!document.querySelector('main .heart-beat')`)) === corazon, `${ruta}: ${corazon ? 'conserva' : 'sin'} el corazón coral que late`)
+    await sleep(500)
+    ok(!(await evaluate(`window.__urls.some((u) => /iconify/.test(u))`)), `${ruta}: el agradecimiento no pide nada a un tercero (${await evaluate(`window.__urls.join(' ')`)})`)
   }
 
   console.log('\n11. El selector de idioma está en la cabecera a todos los anchos (T2a, 24-oct-2026)')

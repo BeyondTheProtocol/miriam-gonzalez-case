@@ -4,7 +4,7 @@
       $t('nav.skip_to_content')
     }}</a>
     <div class="sticky top-0 z-50" data-cabecera-fija>
-      <!-- Chrome mínimo (/links, /gracias): sin la barra «lo último» (useChromeMinimo). -->
+      <!-- Chrome mínimo (/links, /gracias, /expertos): sin la barra «lo último» (useChromeMinimo). -->
       <LatestUpdateBar v-if="!minimo" />
       <SiteNav />
     </div>
@@ -22,20 +22,21 @@
     <SiteFooter />
     <!-- /marcas (· /en/brands) negocia colaboración, NO donativo: ahí no se monta
          ningún CTA de donación global (ni la barra "Donar" móvil ni el aviso de
-         retorno). En esa ruta la página monta su propio MarcasContactPrompt. -->
-    <MobileSupportBar v-if="!isBrandsRoute" />
-    <DonationReturnPrompt v-if="!isBrandsRoute" />
+         retorno). En esa ruta la página monta su propio MarcasContactPrompt.
+         /expertos (· /en/experts), igual: su única acción es escribir. -->
+    <MobileSupportBar v-if="!sinCampana" />
+    <DonationReturnPrompt v-if="!sinCampana" />
   </div>
 </template>
 
 <script setup lang="ts">
 const { locale } = useI18n()
 
-// ¿Estamos en la landing de marcas? (es: /marcas · en: /en/brands). Guarda por
-// ruta: NO afecta al resto del sitio, donde los CTA de donación se mantienen.
+// ¿Estamos en una ruta sin campaña? (/marcas · /en/brands, /expertos · /en/experts). Guarda
+// por ruta: NO afecta al resto del sitio, donde los CTA de donación se mantienen.
 // hasSupportBar: ¿puede aparecer la barra en esta ruta? Decide si <main> reserva
 // su hueco (por ruta, no por visibilidad: sin saltos de layout al hacer scroll).
-const { isBrandsRoute, hasSupportBar } = useSupportBarRoute()
+const { sinCampana, hasSupportBar } = useSupportBarRoute()
 const { minimo } = useChromeMinimo()
 
 // ¿Cierra esta ruta con la salida común de las herramientas? Por nombre de ruta (SALIDA_HERRAMIENTA, utils/navegacion.ts), igual en ES y EN.
