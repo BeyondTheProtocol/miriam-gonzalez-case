@@ -25,7 +25,7 @@
             <span class="nav-dominio font-mono tracking-[0.04em] text-miriam mt-1">helpmiriam.com</span>
           </span>
         </NuxtLink>
-      <!-- Desktop nav. Chrome mínimo (/links, /gracias): sin menú, ver useChromeMinimo. -->
+      <!-- Desktop nav. Chrome mínimo (/links, /gracias, /expertos): sin menú, ver useChromeMinimo. -->
       <nav
         v-if="!minimo"
         :aria-label="$t('nav.main_label')"
@@ -77,9 +77,9 @@
           >EN</button>
         </div>
 
-        <!-- Donate CTA. Con el chrome mínimo (/links, /gracias) no hay botón en la cabecera (useChromeMinimo): en
-             /gracias quien llega ya ha donado, y /links lleva el apoyo como su 2.ª fila (F6). Bajo `sm` el botón
-             vive dentro del menú desplegable. -->
+        <!-- Donate CTA. Con el chrome mínimo (/links, /gracias, /expertos) no hay botón en la cabecera (useChromeMinimo):
+             en /gracias quien llega ya ha donado, /links lleva el apoyo como su 2.ª fila (F6) y /expertos no lleva
+             ninguna llamada a donar. Bajo `sm` el botón vive dentro del menú desplegable. -->
         <a
           v-if="!minimo"
           href="https://gofund.me/3e25cae99"

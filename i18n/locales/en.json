@@ -1116,6 +1116,18 @@
     "otras": "If you see any other campaign, fundraiser or initiative in my name, I didn't create it and I don't manage it.",
     "actualizado": "Updated 23 October 2026. If it changes, I'll let you know here."
   },
+  "expertos": {
+    "titulo": "For anyone working on this",
+    "peticion": "If you have experience with personalized vaccines under a single patient IND or compassionate use, or you work with neoantigens and immunogenomics, write me:",
+    "conoces": "If you know someone who works on this, send them this page.",
+    "aviso": "A note: this is my experience, not a recommendation or medical advice. My medical team makes the decisions about my treatment.",
+    "privacidad": "Controller: Beyond the Protocol. We process your data to reply to your message and, where relevant, to assess a possible collaboration. You can exercise your rights and find the rest of the information in the {politica}. Please don't include data that could identify patients.",
+    "politica": "privacy policy",
+    "meta_title": "If you work on personalized vaccines",
+    "meta_description": "If you have experience with personalized vaccines under a single patient IND or compassionate use, or you work with neoantigens and immunogenomics, write me.",
+    "sent_body": "Thank you. I'll try to get back to you as soon as I can.",
+    "failed": "Couldn't send. Try again or write me on social."
+  },
   "expenses": {
     "title": "Where the money goes",
     "intro": "This is the breakdown, by category, of what the money can go to, in whatever order is needed.",

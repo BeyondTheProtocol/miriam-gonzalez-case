@@ -81,6 +81,8 @@ export const RUTAS = [
   '/celula-a-celula/explorar', '/aviso-legal', '/privacidad', '/cookies', '/guia-de-estilo',
   // T2a (24-oct-2026): las tres páginas que volvieron a la vida (el mapa ya estaba)
   '/herramientas', '/reservorio', '/historia',
+  // La página de una sola acción para quien trabaja en esto, en los dos idiomas: lleva el formulario en una sola columna.
+  '/expertos', '/en/experts',
   // T3-BARRIDO: las páginas en inglés más largas y el pie, que se pinta en todas (la palabra inglesa del pie es más corta: «Team», «Press», «Slides»)
   '/en', '/en/science', '/en/science/evidence', '/en/data', '/en/tools', '/en/team',
   // T3-BARRIDO (revisión): el espejo EN de cada página que toca la tanda. Un chip «All» de 37 px de ancho en /en/mapa-metastasis (en español, «Todos», mide más de 44)

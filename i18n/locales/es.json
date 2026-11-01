@@ -1116,6 +1116,18 @@
     "otras": "Si ves otra campaña, recaudación o iniciativa a mi nombre, no la he creado ni la gestiono yo.",
     "actualizado": "Actualizado el 23 de octubre de 2026. Si cambia, te aviso aquí."
   },
+  "expertos": {
+    "titulo": "Si trabajas en esto",
+    "peticion": "Si tienes experiencia con vacunas personalizadas bajo IND de paciente único o uso compasivo, o trabajas con neoantígenos e inmunogenómica, escríbeme:",
+    "conoces": "Si conoces a alguien que trabaje en esto, pásale esta página.",
+    "aviso": "Un aviso: esto es mi experiencia, no una recomendación ni un consejo médico. Las decisiones de mi tratamiento las toma mi equipo médico.",
+    "privacidad": "Responsable: Beyond the Protocol. Tratamos tus datos para responder a tu mensaje y, en su caso, valorar una colaboración. Puedes ejercer tus derechos y ver el resto de la información en la {politica}. No incluyas datos que identifiquen a pacientes.",
+    "politica": "política de privacidad",
+    "meta_title": "Si trabajas en vacunas personalizadas",
+    "meta_description": "Si tienes experiencia con vacunas personalizadas bajo IND de paciente único o uso compasivo, o trabajas con neoantígenos e inmunogenómica, escríbeme.",
+    "sent_body": "Gracias. Intentaré contestarte en cuanto pueda.",
+    "failed": "No se pudo enviar. Inténtalo de nuevo o escríbeme por redes."
+  },
   "expenses": {
     "title": "Destino del dinero",
     "intro": "Este es el desglose por categorías de a qué puede destinarse el dinero, en el orden que haga falta.",

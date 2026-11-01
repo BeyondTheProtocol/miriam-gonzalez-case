@@ -13,7 +13,7 @@
 
   REGLAS
   - Los `name` de los campos deben COINCIDIR exactamente con los del form real
-    (app/pages/contacto.vue y app/components/CaseFollowSignup.vue). Si añades o
+    (app/components/FormularioContacto.vue y app/components/CaseFollowSignup.vue). Si añades o
     renombras un campo allí, actualízalo aquí también.
   - No se enlaza desde ningún sitio y lleva noindex: es solo para el detector.
 -->
@@ -24,7 +24,7 @@
     <title>Netlify form detection</title>
   </head>
   <body>
-    <!-- Formulario de contacto · app/pages/contacto.vue -->
+    <!-- Formulario de contacto · app/components/FormularioContacto.vue -->
     <form name="contact" netlify netlify-honeypot="bot-field" hidden>
       <input type="hidden" name="form-name" value="contact" />
       <input type="hidden" name="subject" />
