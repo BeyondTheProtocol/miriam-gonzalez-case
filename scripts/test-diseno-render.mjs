@@ -73,6 +73,12 @@
 //                       La inyección pone los valores EXACTOS del criterio y no un «al menos»: donde la web ya pone más (cejas en mono a
 //                       0,2em, titulares a 1,6 de interlineado) los BAJA, y un texto más corto o más bajo no puede crear un recorte que no
 //                       existiera. Subestima, nunca infla, que es el lado seguro de un ratchet.
+//                       Tampoco mide el texto que, en el momento de medir, está a opacidad 0: la portada de la home entra animándose y el
+//                       gate apaga las animaciones, así que 84 de sus 149 nodos de texto se quedan en opacidad 0 (medido el 2-nov-2026).
+//                       Es el mismo punto ciego que ya tiene `contraste`, que también se salta lo que no se pinta.
+//                       El canario (`--canario`, ver `CANARIO_ESPERADO`) corre TAMBIÉN en el CI, sobre /mapa-metastasis a 390 px, que no
+//                       está en cero (3 → 8 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
+//                       ratchet, porque un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y alguien lo absorbería.
 //                       Nació de la deuda `web-r10-metrica-recortes-wcag-1412`: el encargo del PR #344 la pedía «si cabe» y se dejó fuera a
 //                       propósito (es una métrica NUEVA en las 210 claves y su deuda se revisa aparte de la tipografía de V1).
 //   sticky_tapado       elementos `position: sticky` (fuera de la cabecera) cuyo `top` queda por encima del borde de abajo de la cabecera fija:
