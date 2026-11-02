@@ -672,15 +672,16 @@
      fuera de la paleta. Se quedan tal cual porque la ruta de la home (BADGE_RUTA en utils/rutaPasos.ts) pinta con --active,
      --firma, --pending y --candidate, y la home no cambia en esta fase. Las sustituyen las variantes de estado de abajo
      cuando RutaPasos (P1) y las páginas migren; entonces salen estas. */
-  /* V1 (2-nov-2026): era mono en mayúsculas de 10 px con 0,08em de tracking, el texto más pequeño del sitio
-     (ocho insignias en la home, cinco en /ciencia). Al dejar de ser mono en mayúsculas pierde el permiso del
-     12 px y pasa al suelo de 13 en Hanken, sin versales; el texto de cada estado no cambia. El relleno baja de
-     4/9 a 2/8 px para que la insignia no crezca de alto en la ruta (13 px con 2/8 mide lo mismo que 10 con 4/9). */
+  /* V1 (2-nov-2026): al dejar de ser mono en mayúsculas pierde el permiso del 12 px y pasa al suelo de 13 en
+     Hanken, sin versales; el texto de cada estado no cambia. Las variantes de legado venían de 10 px, el texto
+     más pequeño del sitio y el único que estaba bajo el suelo. El relleno NO se toca: lo bajé a 2/8 cuando el
+     suelo iba a ser 14 y, retirado aquello, el apaño sobraba (con 2/8 la insignia medía 22,2 px frente a los
+     24,8 de producción). Con 4/9 mide 26,2: crece 1,4 px, que es lo que cuesta la letra más grande. */
   .status-badge {
     @apply inline-flex items-center font-body font-semibold;
     font-size: var(--texto-xs);
     letter-spacing: 0;
-    padding: 2px 8px;
+    padding: 4px 9px;
     border-radius: 6px;
     line-height: 1.4;
     white-space: nowrap;
