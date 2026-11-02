@@ -324,10 +324,10 @@
       }
     },
     "estado": {
-      "hecha": "hecha",
-      "hecho": "hecho",
-      "en_curso": "en curso",
-      "presupuesto": "presupuesto en curso"
+      "hecha": "Hecha",
+      "hecho": "Hecho",
+      "en_curso": "En curso",
+      "presupuesto": "Presupuesto en curso"
     }
   },
   "press": {

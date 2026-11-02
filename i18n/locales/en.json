@@ -324,10 +324,10 @@
       }
     },
     "estado": {
-      "hecha": "done",
-      "hecho": "done",
-      "en_curso": "in progress",
-      "presupuesto": "budget in progress"
+      "hecha": "Done",
+      "hecho": "Done",
+      "en_curso": "In progress",
+      "presupuesto": "Budget in progress"
     }
   },
   "press": {
