@@ -989,6 +989,12 @@ if (args.includes('--canario')) {
   for (const e of sembrado.ej) console.log(`   ${e}`)
   const esperado = Object.values(CANARIO_ESPERADO).reduce((a, b) => a + b, 0)
   const fallos = []
+  // Autotest del propio canario: cada motivo que la métrica sabe contar tiene que tener una siembra que lo pruebe. Sin
+  // esto, quitar una siembra (o añadir un motivo nuevo sin la suya) deja ese camino sin vigilar y el canario sigue en
+  // verde diciendo que todo bien, que es exactamente el agujero que el canario viene a tapar. Le pasó al motivo
+  // «ancho», que estuvo a 0 hasta que se le puso la siembra (f).
+  const sinSiembra = Object.keys(CANARIO_ESPERADO).filter((k) => !(CANARIO_ESPERADO[k] > 0))
+  if (sinSiembra.length) fallos.push(`sin siembra que lo pruebe: ${sinSiembra.join(', ')} (CANARIO_ESPERADO los deja en 0, así que ese camino del detector no lo vigila nadie)`)
   if (vuelta.cuenta !== limpio.cuenta) fallos.push(`al quitar la siembra el recuento no vuelve: ${limpio.cuenta} → ${vuelta.cuenta}`)
   for (const [k, v] of Object.entries(CANARIO_ESPERADO)) {
     const d = sembrado.tipos[k] - limpio.tipos[k]
