@@ -98,7 +98,7 @@
 //                       abrirlo no es poner un atributo: hay que pulsar su control. Queda anotado en
 //                       `web-recortes-1412-mapa-y-explorador`.
 //                       El canario (`--canario`, ver `CANARIO_ESPERADO`) corre TAMBIÉN en el CI, sobre /mapa-metastasis a 390 px, que no
-//                       está en cero (3 → 9 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
+//                       está en cero (3 → 10 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
 //                       ratchet, porque un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y alguien lo absorbería.
 //                       Nació de la deuda `web-r10-metrica-recortes-wcag-1412`: el encargo del PR #344 la pedía «si cabe» y se dejó fuera a
 //                       propósito (es una métrica NUEVA en las 210 claves y su deuda se revisa aparte de la tipografía de V1).

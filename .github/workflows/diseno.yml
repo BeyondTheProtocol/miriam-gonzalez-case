@@ -56,7 +56,7 @@ jobs:
       # alguien lo absorbería como una mejora. Va ANTES del ratchet a propósito: si fuera después, la pasada que falla
       # —que es exactamente ese caso— se saltaría este paso y el canario no correría nunca (medido: en la pasada de
       # cosecha, con el ratchet rojo, este paso salió «skipped»). Corre en /mapa-metastasis, que NO está en cero
-      # (3 → 9 → 3): así prueba la resta antes/después con hallazgos ya presentes, y no solo contar desde 0.
+      # (3 → 10 → 3): así prueba la resta antes/después con hallazgos ya presentes, y no solo contar desde 0.
       - run: pnpm test:diseno-render --canario --rutas /mapa-metastasis --ancho 390
 
       - run: pnpm test:diseno-render
