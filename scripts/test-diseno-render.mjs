@@ -74,7 +74,12 @@
 //                       deslizan: lo que está fuera de la vista de un `.tabla-scroll` no se pinta encima de lo que hay debajo de la caja.
 //                       La inyección pone los valores EXACTOS del criterio y no un «al menos»: donde la web ya pone más (cejas en mono a
 //                       0,2em, titulares a 1,6 de interlineado) los BAJA, y un texto más corto o más bajo no puede crear un recorte que no
-//                       existiera. Subestima, nunca infla, que es el lado seguro de un ratchet.
+//                       existiera. Subestima, nunca infla, que es el lado seguro de un ratchet. MEDIDO, y no solo razonado (2-nov-2026):
+//                       frente a una inyección de SOLO SUBIR (por elemento, el máximo entre lo que hay y lo que pide el criterio), los
+//                       recuentos salen IDÉNTICOS en 11 combinaciones de ruta y ancho —el mapa a 320, 390 y 768, su espejo EN a 360,
+//                       /datos a 360 y 390, /guia-de-estilo a 320, /ciencia, /, /timeline y /colabora—, y eso con 249 a 1242 elementos por
+//                       página que ya van por encima del criterio en algo. Así que la elección entre valores exactos y «al menos» no cambia
+//                       lo que cuenta esta métrica; se queda la exacta porque es la prueba de referencia de WCAG.
 //                       Tampoco mide el texto que, en el momento de medir, está a opacidad 0: la portada de la home entra animándose y el
 //                       gate apaga las animaciones, así que 84 de sus 149 nodos de texto se quedan en opacidad 0 (medido el 2-nov-2026).
 //                       Es el mismo punto ciego que ya tiene `contraste`, que también se salta lo que no se pinta.
@@ -359,7 +364,8 @@ const RECORTE_1412 = `(async () => {
   // reflúa como una caja CSS (su suelo lo mira texto_svg_bajo_suelo).
   // Son los valores EXACTOS de la prueba de referencia de WCAG y no un «al menos»: donde la web ya pone más (las cejas en
   // mono a 0,2em de letra, los titulares a 1,6 de interlineado) esto BAJA el valor, y un texto más corto o más bajo no
-  // puede crear un recorte que no existiera. Subestima, nunca infla, que es el lado seguro de un ratchet.
+  // puede crear un recorte que no existiera. Subestima, nunca infla, que es el lado seguro de un ratchet. Y está MEDIDO:
+  // contra una inyección de solo subir, los recuentos son idénticos en 11 pares de ruta y ancho (ver la cabecera).
   const CSS = 'main, header, footer, main *:not(svg, svg *), header *:not(svg, svg *), footer *:not(svg, svg *) { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important } main p, header p, footer p { margin-bottom: 2em !important }'
   const raices = [...document.querySelectorAll('main, header, footer')]
   if (!raices.length) return { cuenta: 0, ej: [], tipos: { alto: 0, ancho: 0, elipsis: 0, solape: 0 } }
