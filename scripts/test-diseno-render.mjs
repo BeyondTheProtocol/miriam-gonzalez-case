@@ -84,7 +84,7 @@
 //                       `open` en cada <details> antes del «antes») cambiaría lo que la métrica promete y obligaría a cosechar otra
 //                       baseline: queda anotado en `web-recortes-1412-mapa-y-explorador` y no se hace aquí.
 //                       El canario (`--canario`, ver `CANARIO_ESPERADO`) corre TAMBIÉN en el CI, sobre /mapa-metastasis a 390 px, que no
-//                       está en cero (3 → 8 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
+//                       está en cero (3 → 9 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
 //                       ratchet, porque un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y alguien lo absorbería.
 //                       Nació de la deuda `web-r10-metrica-recortes-wcag-1412`: el encargo del PR #344 la pedía «si cabe» y se dejó fuera a
 //                       propósito (es una métrica NUEVA en las 210 claves y su deuda se revisa aparte de la tipografía de V1).
@@ -521,10 +521,11 @@ const RECORTE_1412 = `(async () => {
     return { cajas, pares }
   }
 
-  // Canario (--canario): cinco siembras, una por camino del detector. Sin él no hay prueba de que la métrica mida algo.
+  // Canario (--canario): seis siembras, una por camino del detector. Sin él no hay prueba de que la métrica mida algo.
   // (a) alto fijo que cabe justo con overflow: hidden → cuenta  (b) igual con clip → cuenta
-  // (c) nowrap + ellipsis con el ancho justo + 2 px → cuenta   (d) caja de alto fijo con overflow visible seguida de un
-  // párrafo → cuenta como solape (los DOS elementos)           (e) igual que (a) con overflow: auto → NO cuenta
+  // (c) nowrap + ellipsis con el ancho justo + 2 px → cuenta    (d) caja de alto fijo con overflow visible seguida de un
+  // párrafo → cuenta como solape (los DOS elementos)            (e) igual que (a) con overflow: auto → NO cuenta
+  // (f) nowrap + overflow: hidden y SIN elipsis → cuenta como «ancho», que es una rama distinta de la de la elipsis
   if (CANARIO) {
     const madre = raices.find((r) => r.tagName === 'MAIN') || raices[0]
     const linea = 'Palabras de relleno para que la caja del canario lleve varias líneas de texto de verdad y se pueda medir el recorte. '
@@ -547,6 +548,15 @@ const RECORTE_1412 = `(async () => {
     elip.textContent = linea
     madre.appendChild(elip)
     elip.style.width = Math.ceil(elip.getBoundingClientRect().width) + 2 + 'px'
+    // (f) nowrap + overflow: hidden y SIN text-overflow: es el camino «ancho», que no tenía siembra. Sin ella, una
+    // regresión que solo rompiera esa rama no la cazaba el canario: saldría como una BAJA en la única clave que hoy
+    // trae un «ancho» (la cabecera de /mapa-metastasis), y el ratchet avisa, pero el canario decía que todo bien.
+    const anc = document.createElement('div')
+    anc.className = 'canario-1412'
+    anc.style.cssText = 'font-size:16px;white-space:nowrap;overflow:hidden;width:max-content'
+    anc.textContent = linea
+    madre.appendChild(anc)
+    anc.style.width = Math.ceil(anc.getBoundingClientRect().width) + 2 + 'px'
     const sol = document.createElement('div')
     sol.className = 'canario-1412'
     sol.style.cssText = 'width:300px'
@@ -853,11 +863,12 @@ async function medirVisor3D() {
   }
 }
 
-// El canario de recorte_1412 (--canario). Siembra cinco recortes de verdad en `main`, uno por camino del detector, y
-// comprueba que la métrica cuenta los cuatro que PIERDEN texto, no el que se desliza, y que al quitarlos vuelve a su
+// El canario de recorte_1412 (--canario). Siembra seis recortes de verdad en `main`, uno por camino del detector, y
+// comprueba que la métrica cuenta los cinco que PIERDEN texto, no el que se desliza, y que al quitarlos vuelve a su
 // recuento. Sin canario no hay prueba de que la métrica mida algo. Son los dos números que va en el PR.
-// Esperado: hidden +1 y clip +1 (alto), la elipsis +1, el solape +2 (los dos elementos que se pisan) y overflow: auto +0.
-const CANARIO_ESPERADO = { alto: 2, ancho: 0, elipsis: 1, solape: 2 }
+// Esperado: hidden +1 y clip +1 (alto), el recorte horizontal sin elipsis +1 (ancho), la elipsis +1, el solape +2 (los
+// dos elementos que se pisan) y overflow: auto +0.
+const CANARIO_ESPERADO = { alto: 2, ancho: 1, elipsis: 1, solape: 2 }
 async function medirCanario(ruta, ancho) {
   const nav = await abrirNavegador({ ancho, alto: 900, escala: 1, chromeArgs: ['--font-render-hinting=none'] })
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: SIN_WEBGL })
@@ -973,7 +984,7 @@ if (args.includes('--canario')) {
   const linea = (x) => `${x.cuenta} (${Object.entries(x.tipos).map(([k, v]) => `${k} ${v}`).join(', ')})`
   console.log(`\ncanario de recorte_1412 en ${ruta} a ${ancho} px`)
   console.log(`  sin sembrar:          ${linea(limpio)}`)
-  console.log(`  con las 5 siembras:   ${linea(sembrado)}`)
+  console.log(`  con las 6 siembras:   ${linea(sembrado)}`)
   console.log(`  al quitarlas:         ${linea(vuelta)}`)
   for (const e of sembrado.ej) console.log(`   ${e}`)
   const esperado = Object.values(CANARIO_ESPERADO).reduce((a, b) => a + b, 0)
@@ -988,7 +999,7 @@ if (args.includes('--canario')) {
     console.log(`\n✘ canario de recorte_1412:\n   ${fallos.join('\n   ')}`)
     process.exit(1)
   }
-  console.log(`\n✔ canario: la métrica cuenta los cuatro recortes sembrados que pierden texto (+${esperado} elementos), no el que se desliza, y vuelve a ${limpio.cuenta} al quitarlos.`)
+  console.log(`\n✔ canario: la métrica cuenta las cinco siembras que pierden texto (+${esperado} elementos), no la que se desliza, y vuelve a ${limpio.cuenta} al quitarlos.`)
   process.exit(0)
 }
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
