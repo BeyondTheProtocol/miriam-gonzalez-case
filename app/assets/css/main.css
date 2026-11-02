@@ -429,7 +429,7 @@
   }
   /* Las versalitas espaciadas, cuando se piden a propósito: el ÚNICO recurso «de sistema» para ellas, con tope de
      6 por página (V1). Se escribe junto al rol: `class="eyebrow eyebrow--versal"`. Hoy no las pide ninguna página:
-     la home pasó de 29 a 3, /prensa de 22 a 3 y /ciencia de 36 a 4, y las que quedan son del pie y de la cabecera. */
+     la home pasó de 29 a 3, /prensa de 20 a 2 y /ciencia de 34 a 2, y las que quedan son de la cabecera y del pie. */
   .eyebrow--versal {
     text-transform: uppercase;
     letter-spacing: var(--track-eyebrow);
@@ -673,8 +673,9 @@
      --firma, --pending y --candidate, y la home no cambia en esta fase. Las sustituyen las variantes de estado de abajo
      cuando RutaPasos (P1) y las páginas migren; entonces salen estas. */
   /* V1 (2-nov-2026): era mono en mayúsculas de 10 px con 0,08em de tracking, el texto más pequeño del sitio
-     (ocho insignias en la home, cinco en /ciencia). Pasa al suelo de 14 px en Hanken y sin versales; el texto de
-     cada estado no cambia. El relleno baja de 4/9 a 2/8 px para que la insignia no crezca de alto en la ruta. */
+     (ocho insignias en la home, cinco en /ciencia). Al dejar de ser mono en mayúsculas pierde el permiso del
+     12 px y pasa al suelo de 13 en Hanken, sin versales; el texto de cada estado no cambia. El relleno baja de
+     4/9 a 2/8 px para que la insignia no crezca de alto en la ruta (13 px con 2/8 mide lo mismo que 10 con 4/9). */
   .status-badge {
     @apply inline-flex items-center font-body font-semibold;
     font-size: var(--texto-xs);
@@ -695,8 +696,8 @@
   .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
   /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex y con icono delante.
-     V1 (2-nov-2026): al suelo de 14 px, como el rol. Los 12 px de antes solo valían por ser mono en mayúsculas, y el
-     rol dejó de serlo: sin esto quedaban ocho insignias de la home en Hanken de 12 px en caja baja, por debajo del suelo. */
+     V1 (2-nov-2026): al suelo de 13 px, como el rol. Los 12 de antes solo valían por ser mono en mayúsculas, y el rol
+     dejó de serlo: sin esto quedaban ocho insignias de la home en Hanken de 12 px en caja baja, bajo el suelo. */
   .status-badge--hecho, .status-badge--curso, .status-badge--pendiente, .status-badge--nopuede, .status-badge--atencion {
     font-size: var(--texto-xs);
   }

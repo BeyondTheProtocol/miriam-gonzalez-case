@@ -78,15 +78,6 @@ const isHome = computed(() => {
    así que lo que sobresaliera por arriba no se podría tocar: la zona arranca en el borde de arriba de la barra (el relleno de `__inner`) y baja 44 px, unos 5 px por
    debajo de la barra. Ahí está el aire de la cabecera y no sus controles (empiezan a 10 px de la barra o más). `scripts/test-diseno-render.mjs` lo comprueba con
    `elementFromPoint`: la zona mide 44 y no tapa el borde de ningún enlace ni botón de la cabecera. Sin `pointer-events: none`: tiene que recibir el toque. */
-/* V1: el alto de la barra lo manda la pieza más alta de la fila, y cada una trae su propio interlineado
-   (la `.etiqueta` lo lleva en el atajo `font:` de su rol, 1,4; la fecha en mono, en el par de `text-xs`,
-   1,25rem), así que uno heredado del padre no los gana. Con el suelo en 14 px la barra pasaba de 38,7 a
-   40,3 px, por encima del tope de 39 que firmó la decisión del 26-oct-2026 («la barra no crece»; lo vigila
-   BARRA_ULTIMO en R10, sin baseline). Toda la fila es una sola línea truncada: 1,3 es su interlineado.
-   El relleno y la zona pulsable de 44 px no se tocan. */
-.latest-bar__link > span {
-  line-height: 1.3;
-}
 .latest-bar__link::after {
   content: '';
   position: absolute;

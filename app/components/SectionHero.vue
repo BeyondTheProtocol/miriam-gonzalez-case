@@ -486,11 +486,11 @@ const { latest, latestAgo } = useLatestUpdate()
 }
 
 /* V1 (2-nov-2026): el titular de «Lo último» es un TITULAR, no un dato, y el mono es solo para datos
-   tabulares (sección 1 de los tokens). Hanken al suelo de 14 px; el subrayado, el color y el icono no
-   cambian. La fecha de al lado sí se queda en mono: es una fecha de actualización, como la de `Nota`. */
+   tabulares (sección 1 de los tokens). Pasa a Hanken y conserva su tamaño, el subrayado, el color y el
+   icono. La fecha de al lado sí se queda en mono: es una fecha de actualización, como la de `Nota`. */
 .hero__latest-title {
   display: block;
-  font-size: var(--texto-xs);
+  font-size: 0.875rem;
   line-height: 1.45;
   color: var(--color-miriam);
   text-decoration: underline;
