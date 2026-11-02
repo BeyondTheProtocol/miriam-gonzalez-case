@@ -14,7 +14,11 @@ permissions: {}
 jobs:
   ciencia-nivel:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 30 y no 20: la suite tarda hoy entre 15 y 19,5 minutos y el tope la cancelaba sin que fallara ningún test
+    # (medido el 2-nov-2026: dos pasadas canceladas en `v1-canon-y-turnstile` con TODOS sus pasos en verde, y una
+    # verde en `r10-recortes-1412` que acabó a 40 segundos del tope). El tope está para pillar un cuelgue, no para
+    # imponer un presupuesto de tiempo; que la suite se acerque a 20 minutos es deuda aparte.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
 
