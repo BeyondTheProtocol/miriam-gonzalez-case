@@ -48,7 +48,9 @@ jobs:
         env:
           NUXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
 
-      - run: pnpm test:diseno-render
+      # TEMPORAL (pasada 1 de recorte_1412): --detalle imprime los ejemplos de cada recuento, que es de donde sale la
+      # lista de deuda del PR y la baseline de la métrica nueva. Se quita antes de fusionar.
+      - run: pnpm test:diseno-render --detalle
 
       # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.
       - run: pnpm test:componentes-texto

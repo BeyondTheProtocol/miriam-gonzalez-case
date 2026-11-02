@@ -434,10 +434,16 @@ const RECORTE_1412 = `(async () => {
         const ancho = cx && el.scrollWidth > el.clientWidth + 1
         if (!alto && !ancho) continue
         const caja = relleno(el, cs)
+        // La geometría primero y el parentesco después: comparar dos flotantes es mucho más barato que recorrer el
+        // árbol, y la gran mayoría de las líneas de la página no asoman por esta caja.
         for (const { el: te, q } of lineas) {
+          const porAlto = alto && q.bottom > caja.bottom + 1
+          const porAncho = ancho && q.right > caja.right + 1
+          if (!porAlto && !porAncho) continue
           if (te !== el && !el.contains(te)) continue
-          if (alto && q.bottom > caja.bottom + 1) { cajas.set(el, { tipo: 'alto', detalle: el.scrollHeight + ' > ' + el.clientHeight + ' px de alto' }); break }
-          if (ancho && q.right > caja.right + 1) { cajas.set(el, { tipo: cs.textOverflow === 'ellipsis' ? 'elipsis' : 'ancho', detalle: el.scrollWidth + ' > ' + el.clientWidth + ' px de ancho' }); break }
+          if (porAlto) { cajas.set(el, { tipo: 'alto', detalle: el.scrollHeight + ' > ' + el.clientHeight + ' px de alto' }); break }
+          cajas.set(el, { tipo: cs.textOverflow === 'ellipsis' ? 'elipsis' : 'ancho', detalle: el.scrollWidth + ' > ' + el.clientWidth + ' px de ancho' })
+          break
         }
       }
     }
