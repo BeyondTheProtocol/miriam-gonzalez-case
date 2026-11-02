@@ -52,6 +52,10 @@ function tamanoQueCabe(): keyof typeof TAMANOS {
 const RESOLVE_TIMEOUT_MS = 8000
 let resolveTimer: ReturnType<typeof setTimeout> | undefined
 let settled = false
+/** Solo lo pone el callback del token. `settled` lo pone también el temporizador de cuelgue mudo, y
+ *  con él no se puede distinguir «ya resuelto» (repintar tiraría el token) de «se dio por no
+ *  disponible» (repintar es gratis y puede salvar el captcha). */
+let tieneToken = false
 function clearResolveTimer() {
   if (resolveTimer) {
     clearTimeout(resolveTimer)
@@ -102,6 +106,7 @@ function renderWidget() {
     language: 'auto',
     callback: (token: string) => {
       settled = true
+      tieneToken = true
       clearResolveTimer()
       emit('token', token)
     },
@@ -115,16 +120,27 @@ function renderWidget() {
   })
 }
 
-// Girar el teléfono o cambiar el zoom cambia el hueco. Si el tamaño que cabe ya no es el pintado, se
-// vuelve a pintar, pero solo mientras nadie haya resuelto el reto (`settled`): repintar tira el token.
+// El hueco cambia por más cosas que un `resize` de la ventana: `LaminillasPeticion` monta este
+// componente dentro de un <dialog> CERRADO, donde la medida inicial es 0, y al abrirlo con
+// showModal() no hay ningún resize (su caja da 248 px a 320 px de ventana: 560 → 100vw − 32, menos
+// 20 de relleno a cada lado). Por eso se vigila el contenedor con un ResizeObserver, que cubre
+// también girar el teléfono y el zoom. Se repinta solo si nadie ha RESUELTO el reto: repintar
+// tiraría el token. Y solo cuando cambia el tamaño que cabe, así que el propio repintado no se
+// realimenta.
 let temporizadorHueco: ReturnType<typeof setTimeout> | undefined
+let observador: ResizeObserver | undefined
 function alCambiarHueco() {
-  if (settled || !widgetId) return
+  if (tieneToken || !widgetId) return
   if (temporizadorHueco) clearTimeout(temporizadorHueco)
   temporizadorHueco = setTimeout(() => {
-    if (settled || !widgetId) return
+    if (tieneToken || !widgetId) return
     if (tamanoQueCabe() !== tamano.value) renderWidget()
-  }, 250)
+  }, 150)
+}
+function vigilarHueco() {
+  if (typeof ResizeObserver === 'undefined' || !container.value) return
+  observador = new ResizeObserver(alCambiarHueco)
+  observador.observe(container.value)
 }
 
 onMounted(async () => {
@@ -140,7 +156,7 @@ onMounted(async () => {
   try {
     await loadScript()
     renderWidget()
-    window.addEventListener('resize', alCambiarHueco)
+    vigilarHueco()
   } catch {
     settled = true
     clearResolveTimer()
@@ -151,7 +167,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   clearResolveTimer()
-  window.removeEventListener('resize', alCambiarHueco)
+  observador?.disconnect()
   if (temporizadorHueco) clearTimeout(temporizadorHueco)
   if (widgetId && window.turnstile) {
     window.turnstile.remove(widgetId)
