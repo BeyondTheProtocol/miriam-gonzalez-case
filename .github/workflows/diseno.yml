@@ -1,7 +1,8 @@
 name: Diseño
 
 # Regla R10 del lint de diseño (sistema v3) y test del texto de los componentes base: lo que solo se ve con la página pintada. Corre en Chrome sobre el build
-# ESTÁTICO, en 22 rutas a 390 y 1280 px: desborde horizontal, borde del H1 bajo el logo, texto por debajo de 13 px,
+# ESTÁTICO, en 42 rutas a 320, 360, 390, 768 y 1280 px (320 es el reflow de WCAG 1.4.10 y el zoom del 400 % sobre
+# 1280): desborde horizontal, borde del H1 bajo el logo, texto por debajo de 13 px,
 # controles de menos de 44 px, contraste y foco que queda tapado por la cabecera fija. Mismo ratchet que test:diseno:
 # scripts/diseno-render-baseline.json solo puede bajar.
 #
@@ -18,7 +19,7 @@ permissions: {}
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45 # 5 anchos × 42 rutas (eran 2 × 42)
     steps:
       - uses: actions/checkout@v6
 
@@ -32,7 +33,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # `nuxt generate` a secas, como en e2e.yml: no hace falta pedir los datos a GoFundMe.
+      # La clave de PRUEBAS de Cloudflare (documentada: siempre pasa, widget visible) es lo único que hace que el
+      # <div> del captcha se pinte: sin ella `useTurnstile().enabled` es false y R10 no veía el widget que
+      # ensanchaba /contacto, /expertos y /ciencia a 320 y 360 px. No sale a la red: el test inyecta un doble de
+      # `window.turnstile` con las medidas de la documentación (STUB_TURNSTILE).
       - run: pnpm exec nuxt generate
+        env:
+          NUXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
 
       - run: pnpm test:diseno-render
 

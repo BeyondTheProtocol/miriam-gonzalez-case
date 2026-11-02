@@ -89,7 +89,14 @@ export const RUTAS = [
   // no lo veía ninguna ruta de esta lista.
   '/en/mapa-metastasis', '/en/timeline', '/en/collaborate', '/en/contact', '/en/expenses', '/en/brands', '/en/press', '/en/lesiones', '/en/reservorio',
 ]
-const ANCHOS = [390, 1280]
+// 320 es el ancho que pide WCAG 1.4.10 (reflow) y el que da un zoom del 400 % sobre 1280; 360 y 390 son los dos teléfonos
+// reales más comunes y 768, la tableta en vertical. Con solo 390 y 1280, el desborde del captcha de /contacto a 360 px
+// (54 px fuera a 320, 14 a 360; medido el 2-nov-2026 en helpmiriam.com) pasaba el CI en verde.
+const ANCHOS = [320, 360, 390, 768, 1280]
+// Las comprobaciones sin baseline que nacieron con dos anchos (T3-CIERRE) siguen con los suyos: miran un alto y un
+// interlineado, no el reflow, y repetirlas en cinco anchos solo alargaría el CI.
+const ANCHO_MOVIL = 390
+const ANCHOS_AUX = [ANCHO_MOVIL, 1280]
 const METRICAS = ['desborde', 'desborde_oculto', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
 const PASOS_TAB = 14
 // Nombre corto de cada métrica en la línea de salida (con slice(0, 8), «desborde» y «desborde_oculto», u «objetivos_pequenos» y «objetivos_svg», salían iguales).
@@ -354,6 +361,35 @@ const STUB_DONACIONES = `(() => {
   }
 })()`
 
+// El captcha de Cloudflare, con las medidas que publica su documentación (consultada el 2-nov-2026:
+// normal 300 × 65, compact 150 × 140, flexible 100 % con un MÍNIMO de 300, × 65). Sin este doble, R10 no ve
+// el widget: el build de CI no lleva `NUXT_PUBLIC_TURNSTILE_SITE_KEY`... y con clave haría falta salir a la red.
+// El workflow pone la clave de PRUEBAS de Cloudflare (1x00000000000000000000AA) para que el <div> se pinte, y esto
+// sustituye al script: `loadScript()` vuelve en cuanto existe `window.turnstile`, así que no hay ninguna petición.
+// Lo que importa medir es el ANCHO FIJO: es lo que ensancha la pista que lo contiene y, con ella, la página entera.
+// La caja no lleva texto ni controles ni contraste que medir, así que no mueve ningún otro recuento. `flex: none`
+// porque el widget de verdad tampoco encoge (su mínimo automático es su propio ancho).
+const STUB_TURNSTILE = `(() => {
+  const MEDIDAS = { normal: [300, 65, 0], compact: [150, 140, 0], flexible: ['100%', 65, 300] }
+  let n = 0
+  window.turnstile = {
+    render(el, opts) {
+      const [ancho, alto, min] = MEDIDAS[(opts && opts.size) || 'normal'] || MEDIDAS.normal
+      const caja = document.createElement('div')
+      caja.className = 'stub-turnstile'
+      caja.setAttribute('aria-hidden', 'true')
+      caja.style.cssText = 'width:' + (typeof ancho === 'number' ? ancho + 'px' : ancho) + ';height:' + alto + 'px;flex:none;background:#f9f9f9;border:1px solid #e5e5e5;box-sizing:border-box'
+      if (min) caja.style.minWidth = min + 'px'
+      const id = 'stub' + ++n
+      caja.setAttribute('data-stub-id', id)
+      el.appendChild(caja)
+      return id
+    },
+    remove(id) { const c = document.querySelector('.stub-turnstile[data-stub-id="' + id + '"]'); if (c) c.remove() },
+    reset() {},
+  }
+})()`
+
 // La barra fija de apoyo del móvil, tras bajar: sus controles y su texto, medidos como el resto (44 px de alto y de ancho; 13 px como suelo, 12 en mono y mayúsculas).
 const BARRA_FIJA = `(async () => {
   for (let i = 0; i < 30 && !document.querySelector('.mobile-support-bar'); i++) await new Promise((r) => setTimeout(r, 100))
@@ -530,9 +566,10 @@ async function medir(rutas) {
   // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
   // pintada y el corte de línea depende de ese avance; sin el flag, un Chrome de Linux con hinting podría partir una línea una palabra antes o
   // después que el del Mac. Es endurecimiento: en el Chromium de Linux que probé (ver la cabecera) daba lo mismo con y sin él.
-  const nav = await abrirNavegador({ ancho: ANCHOS[0], alto: 900, escala: 1, chromeArgs: ['--font-render-hinting=none'] })
+  const nav = await abrirNavegador({ ancho: ANCHO_MOVIL, alto: 900, escala: 1, chromeArgs: ['--font-render-hinting=none'] })
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: SIN_WEBGL })
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: STUB_DONACIONES })
+  await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: STUB_TURNSTILE })
   const res = {}
   const ejemplos = {}
   let rejilla
@@ -572,7 +609,7 @@ async function medir(rutas) {
         }
       }
     }
-    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ANCHOS[0], height: 900, deviceScaleFactor: 1, mobile: false })
+    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ANCHO_MOVIL, height: 900, deviceScaleFactor: 1, mobile: false })
     await nav.cargar('/guia-de-estilo')
     rejilla = await nav.evaluate(REJILLA_PAR)
     cielo = []
@@ -584,7 +621,7 @@ async function medir(rutas) {
     // T3-CIERRE: la barra «Lo último» y los <h3> de la prosa legal, a los dos anchos de las rutas.
     barra = []
     prosa = []
-    for (const ancho of ANCHOS) {
+    for (const ancho of ANCHOS_AUX) {
       await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: 900, deviceScaleFactor: 1, mobile: false })
       await nav.cargar('/equipo')
       barra.push(await nav.evaluate(BARRA_ULTIMO))
@@ -612,7 +649,7 @@ if (errores.length) {
   process.exit(1)
 }
 if (rejilla.texto > rejilla.ancho) {
-  console.log(`\n✘ .rejilla-par a ${ANCHOS[0]} px: el texto mide ${rejilla.texto} px en una ventana de ${rejilla.ancho} (pista «${rejilla.pista}»). Una pieza ancha ensancha la columna: la pista de la pila debe ser minmax(0, 1fr).`)
+  console.log(`\n✘ .rejilla-par a ${ANCHO_MOVIL} px: el texto mide ${rejilla.texto} px en una ventana de ${rejilla.ancho} (pista «${rejilla.pista}»). Una pieza ancha ensancha la columna: la pista de la pila debe ser minmax(0, 1fr).`)
   process.exit(1)
 }
 const fallosCielo = []
