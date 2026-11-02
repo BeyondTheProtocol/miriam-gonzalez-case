@@ -1,7 +1,7 @@
 // Regla R10 del lint de diseño (sistema v3, S6): lo que solo se ve con la página pintada, en Chrome, sobre el build ESTÁTICO.
 // Mismo ratchet que scripts/test-diseno.ts: un recuento puede BAJAR, nunca subir (scripts/diseno-render-baseline.json).
 //
-// Mide en cada ruta, a 390 y a 1280 px:
+// Mide en cada ruta, a 320, 360, 390, 768 y 1280 px (320 es el reflow de WCAG 1.4.10 y el zoom del 400 % sobre 1280):
 //   desborde            1 si la página se sale del ancho (scroll horizontal).
 //   h1_borde            1 si el borde izquierdo del H1 no cae bajo el del logo (±1 px).
 //   texto_bajo_suelo    elementos con texto por debajo de 13 px (12 solo en mono y mayúsculas; por debajo de 12, nunca).

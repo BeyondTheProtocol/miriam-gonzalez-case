@@ -173,8 +173,11 @@ defineExpose({
    el mínimo de la pista de rejilla o de flex que lo contiene y ensanchan la PÁGINA: a 320 px el formulario
    de /contacto se salía 54 px y el de /expertos y /ciencia, 29 (medido el 2-nov-2026 en helpmiriam.com).
    `min-width: 0` deja encoger la pista y, al ser contenedor de desplazamiento, su mínimo intrínseco pasa a
-   ser 0: lo que no cabe se desliza AQUÍ y no en la página. Es la red de seguridad; el caso normal lo
-   resuelve `size: compact` (150 px) cuando el hueco no llega a 300. */
+   ser 0: lo que no cabe se desliza AQUÍ y no en la página. MEDIDO (2-nov-2026, widget forzado a 300 px a
+   320): basta en /expertos y /ciencia (el wrap encoge a 222 px y la página no se sale; sin la guarda, 349),
+   y NO basta en /contacto, porque allí la pista implícita de la rejilla se dimensiona por max-content y da
+   350 px: eso se arregla en su sitio, con `minmax(0, …)` en la rejilla (regla 2 de retícula del DS).
+   La guarda es la red; el caso normal lo resuelve `size: compact` (150 px) cuando el hueco no llega a 300. */
 .turnstile-wrap {
   min-width: 0;
   max-width: 100%;

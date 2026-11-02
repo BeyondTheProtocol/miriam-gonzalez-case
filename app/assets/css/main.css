@@ -694,10 +694,11 @@
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
   .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
-  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex, con icono delante y al
-     suelo de 12 px (mono en mayúsculas). Las viejas de arriba siguen en 10 px hasta que se sustituyan. */
+  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex y con icono delante.
+     V1 (2-nov-2026): al suelo de 14 px, como el rol. Los 12 px de antes solo valían por ser mono en mayúsculas, y el
+     rol dejó de serlo: sin esto quedaban ocho insignias de la home en Hanken de 12 px en caja baja, por debajo del suelo. */
   .status-badge--hecho, .status-badge--curso, .status-badge--pendiente, .status-badge--nopuede, .status-badge--atencion {
-    font-size: var(--texto-2xs);
+    font-size: var(--texto-xs);
   }
   .status-badge--hecho     { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
   .status-badge--curso     { background: var(--estado-curso-fondo);     color: var(--estado-curso-texto);     box-shadow: inset 0 0 0 1px var(--estado-curso-borde); }
