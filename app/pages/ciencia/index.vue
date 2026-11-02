@@ -1,6 +1,9 @@
 <template>
-  <div class="[--measure:58ch]">
+  <div class="[--measure:58ch] ci-raiz">
     <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
+    <!-- `.ci-raiz` (V1, 2-nov-2026): aquí el mono NO se toca. Es la página de datos y el canon se lo da; lo que baja en V1 son
+         las versales (36 → 4). Los dos roles de rótulo vuelven a JetBrains SOLO dentro de esta página, con el mismo patrón de
+         variable por página que `[--measure:58ch]`: el tamaño (14 px, el suelo) y la caja baja son los de V1. -->
     <section class="section-spacing ci-zona-a" :aria-label="$t('science.title')">
       <div class="section-wide">
         <!-- Sin conmutador (tanda 2, T2c, 24-oct-2026). El conmutador «para mentes curiosas / para profesionales» salió: la capa
@@ -570,6 +573,10 @@ useHead({ script: [{ type: 'application/ld+json', innerHTML: condicion }] })
 </script>
 
 <style scoped>
+.ci-raiz {
+  --tipo-eyebrow: 500 var(--texto-xs)/1.5 var(--font-mono);
+  --tipo-etiqueta: 600 var(--texto-xs)/1.4 var(--font-mono);
+}
 /* Salto por anclas del índice: el objetivo es el <h2>, pero encima lleva un rótulo (eyebrow). El margen despeja la cabecera pegajosa (~73 px)
    Y ese rótulo, para que no quede medio tapado. */
 #ciencia-busca,

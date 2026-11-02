@@ -205,12 +205,12 @@ const fases = computed(() =>
   font-size: clamp(48px, 6vw, 72px);
   color: var(--cta-texto);
 }
+/* V1 (2-nov-2026): rótulo, no dato. Hanken al suelo de 14 px y sin tracking; la CIFRA (.gfm__cifra) y el recuento de
+   donaciones (.gfm__donantes, .gfm__enlace con `nums`) sí son dato y se quedan en mono. */
 .gfm__rotulo {
   margin: 0.625rem 0 0;
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.8125rem;
+  font-size: var(--texto-xs);
   line-height: 1.5;
-  letter-spacing: 0.04em;
   color: var(--texto-2);
 }
 /* La fecha de la cifra, bajo el rótulo: una línea suya. Sin `white-space: nowrap` (WCAG 1.4.4 y 1.4.10: con la letra ampliada se
@@ -221,16 +221,13 @@ const fases = computed(() =>
 .gfm__donantes {
   margin: 0.5rem 0 0;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.8125rem;
+  font-size: var(--texto-xs);
   letter-spacing: 0.04em;
   color: var(--texto-1);
 }
 .gfm__fases-titulo {
   margin: 1.5rem 0 0.5rem;
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-size: var(--texto-xs);
   color: var(--texto-3);
 }
 .gfm__fases {
@@ -256,8 +253,8 @@ const fases = computed(() =>
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 0.5rem;
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.8125rem;
+  font-size: var(--texto-xs);
+  font-weight: 600;
   line-height: 1.4;
   color: var(--texto-1);
 }
@@ -269,15 +266,14 @@ const fases = computed(() =>
 }
 .gfm__fase-desc {
   margin: 0.375rem 0 0;
-  font-size: 0.8125rem;
+  font-size: var(--texto-xs);
   line-height: 1.45;
   color: var(--texto-2);
 }
+/* «Únete a quienes ya lo hacen posible»: una frase, no un dato. Era mono con tracking. */
 .gfm__prueba {
   margin: 1.5rem 0 0;
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.8125rem;
-  letter-spacing: 0.03em;
+  font-size: var(--texto-xs);
   color: var(--texto-2);
 }
 

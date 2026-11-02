@@ -72,12 +72,13 @@ export default {
         body: ['Hanken Grotesk', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
-      // Suelo de la escala (sistema v3, S2b): el texto pequeño de Tailwind sale de los tokens y ya no baja de 13 px.
-      // `2xs` (12 px) está RESERVADO a mono en mayúsculas (.eyebrow, .etiqueta, ejes de gráfico). Las alturas de línea
+      // Suelo de la escala: el texto pequeño de Tailwind sale de los tokens. Desde V1 (2-nov-2026) `xs` es 14 px y es el
+      // suelo del DOM; `2xs` (12 px) queda como LEGADO de las instancias que aún lo escriben a mano (timeline, gastos,
+      // marcas, datos) y no lo usa nada nuevo: .eyebrow y .etiqueta ya no son mono en mayúsculas. Las alturas de línea
       // son las de siempre, para que solo cambie el cuerpo de la letra.
       fontSize: {
         '2xs': ['var(--texto-2xs)', { lineHeight: '1rem' }],
-        xs: ['var(--texto-xs)', { lineHeight: '1rem' }],
+        xs: ['var(--texto-xs)', { lineHeight: '1.25rem' }], // 14/20: con 16 px de interlineado, 14 de letra iba apretado
         sm: ['var(--texto-sm)', { lineHeight: '1.25rem' }],
       },
       spacing: {

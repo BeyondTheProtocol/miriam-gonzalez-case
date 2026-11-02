@@ -4729,7 +4729,7 @@ const manifestValidated = (() => {
    (.data-table ya lo trae; aquí lo extendemos a las cifras fuera de la tabla.) */
 .font-mono { font-variant-numeric: tabular-nums; }
 /* Las insignias heredadas (`status-badge`, mono en mayúsculas) pintaban 10 px; aquí, 12 (el mínimo del mono en mayúsculas). El resto del sitio no cambia. */
-.status-badge { font-size: var(--texto-2xs); }
+.status-badge { font-size: var(--texto-xs); } /* V1: el suelo, como el rol */
 /* Jerarquía de UNIDAD vs cifra: la unidad («SUVmáx», «HU», «/100») va volada,
    pequeña y atenuada; manda la cifra. El sufijo «aprox.» (≈) de un dato BLANDO. */
 .unit {

@@ -282,7 +282,8 @@ useHead({
 .caso__num {
   flex: none; width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center;
   border-radius: var(--radius-pill); background: rgb(var(--color-text-rgb) / 0.06); color: var(--color-text);
-  font: 600 0.8125rem/1 var(--font-mono, ui-monospace, monospace); transform: translateY(-0.15rem);
+  /* V1: el ordinal es decoración, no un dato: Hanken 600 al suelo de 14 px. */
+  font: 600 var(--texto-xs)/1 var(--font-body); transform: translateY(-0.15rem);
 }
 .caso__texto { font: 600 clamp(1.25rem, 1rem + 1.2vw, 1.75rem)/1.3 var(--font-display, 'Fraunces', serif); letter-spacing: -0.015em; color: var(--color-text); }
 

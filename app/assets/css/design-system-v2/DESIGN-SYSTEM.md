@@ -86,8 +86,8 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | `--font-display` | `'Fraunces', Georgia, serif` |  | italic = gesto de firma (eyebrow) |
 | `--font-body` | `'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif` |  | cuerpo/UI: elección del tipógrafo (9-jul) — auto-hospedada, no system-ui |
 | `--font-mono` | `'JetBrains Mono', ui-monospace, monospace` |  | SOLO datos tabulares |
-| `--texto-2xs` | `12px` |  | RESERVADO a mono en mayúsculas (.eyebrow, .etiqueta, ejes de gráfico). Nunca prosa. |
-| `--texto-xs` | `13px` |  |  |
+| `--texto-2xs` | `12px` |  | LEGADO: las instancias que aún lo escriben a mano (timeline, gastos, marcas, datos). Nada nuevo lo usa. |
+| `--texto-xs` | `14px` |  | el suelo |
 | `--texto-sm` | `15px` |  |  |
 | `--texto-ui` | `16px` |  | cuerpo de tarjetas y UI: lo que usa la home |
 | `--texto-base` | `17px` |  |  |
@@ -159,9 +159,9 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | `--tipo-body` | `var(--tipo-prosa)` |  | alias heredado de --tipo-prosa: no lo uses en código nuevo |
 | `--tipo-body-sm` | `400 var(--texto-sm)/1.5 var(--font-body)` |  |  |
 | `--tipo-cifra` | `700 var(--texto-3xl)/1 var(--font-display)` |  | «Cifra Fraunces» |
-| `--tipo-eyebrow` | `500 var(--texto-2xs)/1.55 var(--font-mono)` |  | mono en mayúsculas, 12 px |
-| `--tipo-etiqueta` | `600 var(--texto-2xs)/1.4 var(--font-mono)` |  | kicker de tarjeta o control, 12 px |
-| `--track-eyebrow` | `0.12em` |  | versalitas espaciadas: único recurso «de sistema» |
+| `--tipo-eyebrow` | `500 var(--texto-xs)/1.5 var(--font-body)` |  | la línea sobre un titular: Hanken, 14 px, caja baja |
+| `--tipo-etiqueta` | `600 var(--texto-xs)/1.4 var(--font-body)` |  | kicker de tarjeta o control: Hanken, 14 px, caja baja |
+| `--track-eyebrow` | `0.12em` |  | versalitas espaciadas: recurso del sistema, a mano y con tope (.eyebrow--versal) |
 | `--track-etiqueta` | `0.1em` |  |  |
 | `--track-titular` | `-0.03em` |  | H1, H2 y hero: la home lo escribía en línea, seis veces |
 | `--track-cifra` | `-0.02em` |  | display grande: tracking negativo |
@@ -313,13 +313,17 @@ Cada clase es **un rol** y lleva dentro tamaño, peso, interlineado y tracking. 
 | `.h4-tarjeta` | `--tipo-h4` | Hanken 700, 17 px | El título de una tarjeta o de un aviso | Como titular de sección |
 | `.lede` | `--texto-lg` | Hanken, 19 a 21 px | La entradilla bajo un titular | Párrafos normales |
 | `.prosa` | `--tipo-prosa` | Hanken 400, 17/1.6 | Lectura larga | Etiquetas o datos |
-| `.eyebrow` | `--tipo-eyebrow` | JetBrains Mono 500, 12 px, mayúsculas | La línea sobre un titular | Texto de más de una línea |
-| `.etiqueta` | `--tipo-etiqueta` | JetBrains Mono 600, 12 px, mayúsculas | El kicker de una tarjeta o de un control | Prosa |
+| `.eyebrow` | `--tipo-eyebrow` | Hanken 500, 14 px, caja baja | La línea sobre un titular | Texto de más de una línea |
+| `.eyebrow--versal` | + `--track-eyebrow` | lo anterior en mayúsculas espaciadas | El recurso de versalitas, a mano | Más de 6 por página |
+| `.etiqueta` | `--tipo-etiqueta` | Hanken 600, 14 px, caja baja | El kicker de una tarjeta o de un control | Prosa |
+| `.etiqueta--versal` | + `--track-etiqueta` | lo anterior en mayúsculas espaciadas | Lo mismo, en un kicker | Más de 6 por página |
 | (hero) | `--tipo-hero` | Fraunces 600, 28 a 46 px | El hero de la home y `/marcas` | Otras páginas |
 
 Reglas:
 
-- **Suelo de 13 px.** Nada de texto por debajo, salvo mono en mayúsculas (12 px: `.eyebrow`, `.etiqueta`, ejes de gráfico). `text-xs` es 13 px, `text-sm` es 15 px y `text-2xs` es 12 px y está reservado a ese mono.
+- **Suelo de 14 px (V1, 2-nov-2026).** Ningún texto del DOM por debajo. `text-xs` es 14 px y es el suelo; `text-sm` es 15. `text-2xs` (12 px) queda como LEGADO de las instancias que aún lo escriben a mano (`/timeline`, `/gastos`, `/marcas`, `/datos`: 26 sitios) y no lo usa nada nuevo. Los rótulos de eje DENTRO de un `<svg>` conservan su tamaño firmado (sección 8): los mide `texto_svg_bajo_suelo`, no esta escala. **Lo que vigila el CI sigue en 13 px** (R2 y el `texto_bajo_suelo` de R10): subir el umbral a 14 pondría en rojo los 9 hallazgos de R2 que quedan y es otra tanda.
+- **Mono = SOLO datos tabulares (V1).** `.eyebrow` y `.etiqueta` salieron del mono: son rótulos. Siguen en mono el valor de un `Dato`, `.data-table` (y su `.col-marker`), `.pill-data`, `.badge-genomic`, `.nums`, el DOI de `Referencia`, los ejes de gráfico y las anotaciones del retrato. Dos páginas conservan el mono EN SUS RÓTULOS, con variable por página en su raíz (el patrón de `[--measure:58ch]`): `/ciencia` (`.ci-raiz`, es la página de datos) y `/marcas` (`.mk-raiz`, sus cuatro eyebrow empiezan por «// », un comentario de código).
+- **Versalitas espaciadas: tope de 6 por página (V1).** No son el estado por defecto de ningún rol; se piden con `.eyebrow--versal` o `.etiqueta--versal`. Motivo (dato externo, 248 sitios, 5-oct-2026): están en el 16 % de los sitios buenos y el 57 % de los flojos, y con 3 o más, en el 6 % frente al 43 %. Antes de V1: home 29, `/prensa` 22, `/ciencia` 36; `/expertos`, 2 (el modelo).
 - Cuerpo de lectura 17 px (`--tipo-prosa`); cuerpo de tarjetas y UI 16 px (`--tipo-ui`); secundario 15 px (`--tipo-body-sm`).
 - Las cifras llevan `tabular-nums` (clase `nums`).
 - Fraunces en cursiva es el gesto de firma (`.firma`). Se carga la cursiva real, no una oblicua sintética.

@@ -1,6 +1,9 @@
 <template>
-  <div class="[--measure:58ch]">
+  <div class="[--measure:58ch] mk-raiz">
     <!-- `[--measure:58ch]` en la raíz: la medida de lectura de esta página es de 58ch (T3-CIERRE, decisión E del DS sección 8); el token global sigue en 68ch hasta el PR #290. -->
+    <!-- `.mk-raiz` (V1, 2-nov-2026): los cuatro eyebrow de esta página empiezan por «// » (marcas.*_eyebrow), que es un
+         comentario de código: el mono es el gesto, no una infracción. Aquí el rol conserva JetBrains, con el tamaño (14 px,
+         el suelo) y la caja baja de V1. Misma variable por página que `[--measure:58ch]`. -->
     <!--
       ════════════════════════════════════════════════════════════
         Página /marcas (· /en/brands) — landing B2B para marcas.
@@ -478,6 +481,9 @@ export default { name: 'MarcasPage' }
 </script>
 
 <style scoped>
+.mk-raiz {
+  --tipo-eyebrow: 500 var(--texto-xs)/1.5 var(--font-mono);
+}
 /* Remate personal del cierre — la firma íntima de Miriam ("Única. Como yo.").
    Filete fino superior centrado (mismo divisor editorial que .dossier-row, pero
    estrecho y centrado bajo el teaser) + margen que la separa del párrafo anterior
