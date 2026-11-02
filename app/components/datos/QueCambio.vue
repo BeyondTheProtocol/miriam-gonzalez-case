@@ -266,8 +266,15 @@ defineExpose({ abrir })
 .qc-res__t { font: 600 var(--texto-xs)/1.3 var(--font-body); color: var(--color-text-soft); }
 .qc-res__f { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); }
 .qc-res__filas { display: grid; gap: 6px; }
-.qc-res__fila { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 0 10px; align-items: baseline; }
-.qc-res__n { font: 700 14px/1.25 var(--font-body); color: var(--color-text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* El rótulo de la prueba NO se recorta con elipsis (R10, recorte_1412, 2-nov-2026). Con el espaciado de texto de
+   WCAG 1.4.12 puesto —interlineado 1,5, 0,12em entre letras, 0,16em entre palabras—, «ALT (GPT)» necesita 78 px y la
+   columna daba 43 a 360 px y 73 a 390: la elipsis se comía la mitad del nombre de una transaminasa, y es una pérdida
+   silenciosa, porque solo se ven tres puntos. Ahora envuelve. El mínimo de 8rem en la columna es lo que impide que se
+   encoja hasta partir los nombres en tiras de dos letras (sin él, el bloque pasaba de 140 a 525 px a 320 px);
+   `overflow-wrap: anywhere` queda de red para una palabra más larga que la columna. Medido: el bloque crece 17 px por
+   debajo de 768 px y NADA desde 768 (a 1280, 140 px antes y después). */
+.qc-res__fila { display: grid; grid-template-columns: minmax(8rem, 1fr) auto auto; gap: 0 10px; align-items: baseline; }
+.qc-res__n { font: 700 14px/1.25 var(--font-body); color: var(--color-text); min-width: 0; overflow-wrap: anywhere; }
 .qc-res__v { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); white-space: nowrap; }
 .qc-res__v strong { color: var(--color-text); }
 .qc-res__u { font-size: var(--texto-xs); }
