@@ -90,9 +90,18 @@
 //                       verse»), pero eso los dejaba sin medir NI cerrados ni abiertos: 272 nodos de texto en /mapa-metastasis, 55 en
 //                       /ciencia y 14 en /timeline, y parte de los ceros de la baseline era contenido de desplegable que nadie había
 //                       comprobado nunca. Una persona SÍ puede abrirlo, y el texto que se recorta ahí es contenido perdido igual que
-//                       cualquier otro. Que lo que aparece no sea un artefacto de la apertura está MEDIDO con un control de inyección
-//                       nula (los dos escaneos con todas las esperas y SIN meter el CSS: tiene que dar 0 en todas las claves, o lo que
-//                       cuenta lo causó abrir y no 1.4.12). Los números de la cosecha están en el PR.
+//                       cualquier otro. Dos controles, los dos MEDIDOS (2-nov-2026), porque cada uno tapa el agujero del otro:
+//                         · NEGATIVO (inyección nula) — los dos escaneos con todas las esperas y SIN meter el CSS. Dio 0 en las diez
+//                           claves probadas (el mapa, su espejo EN, /ciencia, /timeline y /datos a 320 y 390), así que lo que se cuenta
+//                           con el CSS puesto lo causó 1.4.12 y no la apertura.
+//                         · POSITIVO — cuántos nodos de texto deja medibles la apertura. Un 0 en el control de arriba también saldría si
+//                           la apertura no hiciera nada, así que hace falta ver que SÍ expone algo: 406 en /datos, 340 en
+//                           /mapa-metastasis, 277 en /celula-a-celula/explorar, 55 en /ciencia, 14 en /timeline, 0 en /lesiones (que no
+//                           trae ninguno cerrado). Unos 1 100 nodos de texto que antes no se miraban en ningún estado.
+//                       Y lo que salió: UNA clave sube (/celula-a-celula/explorar:320, de 12 a 13) y ninguna baja, así que el texto de
+//                       los desplegables aguanta 1.4.12 casi entero. Que no baje ninguna importa tanto como que suba una: si abrir
+//                       moviera la maquetación lo bastante para BORRAR un hallazgo del estado cerrado —que es el que ve casi todo el
+//                       mundo—, el ratchet lo absorbería como «BAJA: bien». Comprobado en las 210 claves de la pasada del CI.
 //                       Lo que SIGUE fuera: solo se abre el <details> NATIVO. Un panel que se esconde con `v-if`, `v-show` o `[hidden]`
 //                       (las pestañas de `Segmentado`, las capas de /lesiones, el explorador) sigue sin medirse en su estado cerrado, y
 //                       abrirlo no es poner un atributo: hay que pulsar su control. Queda anotado en
