@@ -357,6 +357,16 @@ const RECORTE_1412 = `(async () => {
   // tampoco se pinta ahí. Sin esto, el texto de una pieza deslizable (la galería de /laminillas, .tabla-scroll) salía
   // «solapado» con lo que hay debajo de la caja, que es un falso positivo (lo cazó la siembra (e) del canario).
   const recortaPintura = (v) => v === 'hidden' || v === 'clip' || v === 'auto' || v === 'scroll'
+  // ¿Se PINTA esto? Lo decide el navegador, no tres propiedades a mano. Un <details> CERRADO deja su contenido con
+  // display: block, visibility: visible y content-visibility: visible —nada que mirar en el estilo calculado— y el
+  // texto de dentro sigue devolviendo sus líneas con getClientRects(): 272 nodos de texto en /mapa-metastasis, 55 en
+  // /ciencia, 14 en /timeline (medido el 2-nov-2026). Al crecer la página, ese texto invisible empezaba a pisar al de
+  // al lado y la métrica lo contaba: era 279 de los 280 de /mapa-metastasis. checkVisibility() devuelve false ahí
+  // (medido), y con las dos opciones añade el visibility: hidden y la opacidad 0 de CUALQUIER antepasado (que no se
+  // hereda en el estilo calculado, así que mirar el nodo no basta). No se pasa «contentVisibilityAuto»: dejaría sin
+  // medir todo lo que está bajo el pliegue de una caja con content-visibility: auto (hoy la web no usa ninguna).
+  const SE_PINTA = { opacityProperty: true, visibilityProperty: true }
+  const sePinta = (e) => e.checkVisibility(SE_PINTA)
   const relleno = (e, cs) => { const r = e.getBoundingClientRect(); const b = (k) => parseFloat(cs['border' + k + 'Width']) || 0; return { left: r.left + b('Left'), top: r.top + b('Top'), right: r.right - b('Right'), bottom: r.bottom - b('Bottom') } }
   const ids = new Map()
   let nid = 0
@@ -404,8 +414,7 @@ const RECORTE_1412 = `(async () => {
         if (!t.textContent.trim()) continue
         const p = t.parentElement
         if (!p || p.closest(FUERA)) continue
-        const cs = getComputedStyle(p)
-        if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) < 0.05) continue
+        if (!sePinta(p)) continue
         const rango = document.createRange()
         rango.selectNodeContents(t)
         for (const q of rango.getClientRects()) {
@@ -423,8 +432,8 @@ const RECORTE_1412 = `(async () => {
     for (const raiz of raices) {
       for (const el of [raiz, ...raiz.querySelectorAll('*')]) {
         if (!el.matches('main, header, footer') && el.closest(FUERA)) continue
+        if (!sePinta(el)) continue
         const cs = getComputedStyle(el)
-        if (cs.display === 'none' || cs.visibility === 'hidden') continue
         const cy = corta(cs.overflowY)
         const cx = corta(cs.overflowX)
         if (!cy && !cx) continue
@@ -434,13 +443,33 @@ const RECORTE_1412 = `(async () => {
         const ancho = cx && el.scrollWidth > el.clientWidth + 1
         if (!alto && !ancho) continue
         const caja = relleno(el, cs)
+        // Lo que recortan las cajas que hay ENTRE el dueño del texto y esta: si un recorte de dentro ya esconde esa
+        // línea, la pérdida es de aquél y no de ésta, y contar las dos sería contar dos veces la misma línea perdida.
+        // Solo se calcula para las líneas que ya asoman, que son pocas.
+        const entre = (te) => {
+          let c = { left: -1e7, top: -1e7, right: 1e7, bottom: 1e7 }
+          for (let n = te; n && n !== el; n = n.parentElement) {
+            const cz = getComputedStyle(n)
+            if (!recortaPintura(cz.overflowX) && !recortaPintura(cz.overflowY)) continue
+            const r2 = relleno(n, cz)
+            if (recortaPintura(cz.overflowX)) { c.left = Math.max(c.left, r2.left); c.right = Math.min(c.right, r2.right) }
+            if (recortaPintura(cz.overflowY)) { c.top = Math.max(c.top, r2.top); c.bottom = Math.min(c.bottom, r2.bottom) }
+          }
+          return c
+        }
         // La geometría primero y el parentesco después: comparar dos flotantes es mucho más barato que recorrer el
         // árbol, y la gran mayoría de las líneas de la página no asoman por esta caja.
         for (const { el: te, q } of lineas) {
-          const porAlto = alto && q.bottom > caja.bottom + 1
-          const porAncho = ancho && q.right > caja.right + 1
+          let porAlto = alto && q.bottom > caja.bottom + 1
+          let porAncho = ancho && q.right > caja.right + 1
           if (!porAlto && !porAncho) continue
           if (te !== el && !el.contains(te)) continue
+          if (te !== el) {
+            const c = entre(te)
+            if (porAlto) porAlto = Math.min(q.bottom, c.bottom) > caja.bottom + 1
+            if (porAncho) porAncho = Math.min(q.right, c.right) > caja.right + 1
+            if (!porAlto && !porAncho) continue
+          }
           if (porAlto) { cajas.set(el, { tipo: 'alto', detalle: el.scrollHeight + ' > ' + el.clientHeight + ' px de alto' }); break }
           cajas.set(el, { tipo: cs.textOverflow === 'ellipsis' ? 'elipsis' : 'ancho', detalle: el.scrollWidth + ' > ' + el.clientWidth + ' px de ancho' })
           break

@@ -48,9 +48,16 @@ jobs:
         env:
           NUXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
 
-      # TEMPORAL (pasada 1 de recorte_1412): --detalle imprime los ejemplos de cada recuento, que es de donde sale la
-      # lista de deuda del PR y la baseline de la métrica nueva. Se quita antes de fusionar.
+      # TEMPORAL (pasada de cosecha de recorte_1412): --detalle imprime los ejemplos de cada recuento, que es de donde
+      # sale la lista de deuda del PR y la baseline de la métrica nueva. Se quita antes de fusionar.
       - run: pnpm test:diseno-render --detalle
+
+      # El canario de recorte_1412: siembra cinco recortes de verdad (uno por camino del detector) y exige que cuente
+      # los cuatro que pierden texto, no el que se desliza, y que vuelva a su recuento al quitarlos. Tarda unos 10 s y
+      # tapa un agujero real del ratchet: un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y
+      # alguien lo absorbería como una mejora. Corre en /mapa-metastasis, que NO está en cero (3 → 8 → 3): así prueba
+      # la resta antes/después con hallazgos ya presentes, y no solo que sepa contar desde 0.
+      - run: pnpm test:diseno-render --canario --rutas /mapa-metastasis --ancho 390
 
       # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.
       - run: pnpm test:componentes-texto
