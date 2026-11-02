@@ -45,6 +45,36 @@
 //                       contenedor), con y sin `--font-render-hinting=none`. Aun así el test fija ese flag y espera a `document.fonts.ready`, para que el
 //                       corte no dependa del hinting ni de que la fuente haya cargado. SIN probar: el Google Chrome de ubuntu-latest (x86_64) de
 //                       diseno.yml. Si su primer run da otro recuento, mira `--detalle` antes de tocar la baseline.
+//   recorte_1412        elementos cuyo TEXTO deja de verse al inyectar las cuatro reglas de WCAG 1.4.12 (text spacing): interlineado de
+//                       1,5 veces el tamaño de letra, 2 veces el tamaño entre párrafos, 0,12em entre letras y 0,16em entre palabras. El
+//                       criterio no pide que la web USE esos valores, sino que AGUANTE que alguien se los imponga (una hoja de usuario, una
+//                       extensión, el modo lectura) «sin perder contenido ni funcionalidad»: una caja de alto fijo con `overflow: hidden`
+//                       pasa en verde en todo lo demás de R10 y borra una línea en cuanto el interlineado sube a 1,5. Se mide el ANTES y el
+//                       DESPUÉS de inyectar, en una llamada APARTE (la última de cada clave) que deshace los estilos al terminar: si al
+//                       entrar esta métrica se moviera cualquier otro recuento, la inyección estaría tocando lo que no debe. Solo cuenta lo
+//                       que el antes no traía. Cuenta un ELEMENTO (una vez, aunque le pase por dos motivos) cuando:
+//                         · alto / ancho — está en una caja que recorta (`overflow` `hidden` o `clip`) y su `scrollHeight`/`scrollWidth` se
+//                           sale por más de 1 px en ese eje, Y asoma una línea de texto de verdad fuera de la caja de relleno. Las dos
+//                           condiciones, porque `scrollHeight > clientHeight` salta también con `overflow: visible` (medido el 2-nov-2026)
+//                           y porque un adorno desbordado no es texto perdido. `overflow: clip` sí dispara el recuento (medido: 154 > 40).
+//                         · elipsis — lo mismo por el ancho en una caja con `text-overflow: ellipsis`, donde antes cabía. Va aparte porque
+//                           ahí la pérdida es silenciosa: no hay barra ni corte visible, solo tres puntos.
+//                         · solape — su texto se pisa con el de otro elemento por más de 2 px en los DOS ejes (2 y no 0: dos palabras
+//                           vecinas de la misma línea se tocan por décimas). Cuenta a los dos elementos del par.
+//                       El reparto por motivo sale en la última línea de la salida (es lo que hace falta para decidir si la métrica vale
+//                       como ratchet, porque el ratchet guarda un solo número por clave).
+//                       NO cuenta: lo que YA se recortaba antes de inyectar (`-webkit-line-clamp`, un acordeón a `max-height: 0`), lo que se
+//                       DESLIZA (`overflow` `auto` o `scroll`: el texto se alcanza, y eso no es pérdida de contenido), lo que no es texto,
+//                       el texto de un `<svg>` (no reflúa como una caja CSS; su suelo lo mira `texto_svg_bajo_suelo`), html y body (lo que se
+//                       sale de la PÁGINA ya lo cuentan `desborde` y `desborde_oculto`, y la raíz lleva `overflow-x: clip` de serie), ni dos
+//                       textos que cuelgan de contenedores fijos o pegajosos DISTINTOS (se pisan o no según el scroll, y eso no lo decide
+//                       1.4.12). Para el solape, lo pintado se recorta antes a su caja visible, contando también los contenedores que se
+//                       deslizan: lo que está fuera de la vista de un `.tabla-scroll` no se pinta encima de lo que hay debajo de la caja.
+//                       La inyección pone los valores EXACTOS del criterio y no un «al menos»: donde la web ya pone más (cejas en mono a
+//                       0,2em, titulares a 1,6 de interlineado) los BAJA, y un texto más corto o más bajo no puede crear un recorte que no
+//                       existiera. Subestima, nunca infla, que es el lado seguro de un ratchet.
+//                       Nació de la deuda `web-r10-metrica-recortes-wcag-1412`: el encargo del PR #344 la pedía «si cabe» y se dejó fuera a
+//                       propósito (es una métrica NUEVA en las 210 claves y su deuda se revisa aparte de la tipografía de V1).
 //   sticky_tapado       elementos `position: sticky` (fuera de la cabecera) cuyo `top` queda por encima del borde de abajo de la cabecera fija:
 //                       al pegarse, la cabecera los tapa (WCAG 2.4.11). Un `lg:top-24` son 96 px y la cabecera mide 73 (112 con la barra «lo
 //                       último»). Se mide por geometría y no haciendo scroll: solo cuenta el que SÍ puede pegarse (su contenedor es más alto
@@ -70,6 +100,10 @@
 //   pnpm test:diseno-render --rutas /,/datos       solo esas rutas (no compara la baseline)
 //   pnpm test:diseno-render --rutas / --visor      además, la comprobación del visor 3D de /lesiones (con `--rutas` sola no corre: levanta un segundo Chrome)
 //   pnpm test:diseno-render --detalle              imprime los primeros ejemplos de cada recuento
+//   pnpm test:diseno-render --canario              el canario de `recorte_1412`: siembra cinco recortes de verdad en `main` (uno por camino
+//                                                  del detector) y exige que cuente los cuatro que pierden texto, no el que se desliza, y que
+//                                                  vuelva a su recuento al quitarlos. Sin canario no hay prueba de que la métrica mida algo.
+//                                                  `--rutas <ruta>` y `--ancho <px>` eligen dónde (por defecto, / a 1280). No compara baseline.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { abrirNavegador, ROOT } from './lib/navegador-cdp.mjs'
@@ -97,10 +131,10 @@ const ANCHOS = [320, 360, 390, 768, 1280]
 // interlineado, no el reflow, y repetirlas en cinco anchos solo alargaría el CI.
 const ANCHO_MOVIL = 390
 const ANCHOS_AUX = [ANCHO_MOVIL, 1280]
-const METRICAS = ['desborde', 'desborde_oculto', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado']
+const METRICAS = ['desborde', 'desborde_oculto', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado', 'recorte_1412']
 const PASOS_TAB = 14
 // Nombre corto de cada métrica en la línea de salida (con slice(0, 8), «desborde» y «desborde_oculto», u «objetivos_pequenos» y «objetivos_svg», salían iguales).
-const ETIQUETA = { desborde: 'desborde', desborde_oculto: 'desb_ocu', h1_borde: 'h1_borde', texto_bajo_suelo: 'txt_bajo', texto_svg_bajo_suelo: 'txt_svg', objetivos_pequenos: 'obj_peq', objetivos_svg: 'obj_svg', contraste: 'contraste', foco_tapado: 'foco_tap', linea_larga: 'lin_larg', sticky_tapado: 'sticky' }
+const ETIQUETA = { desborde: 'desborde', desborde_oculto: 'desb_ocu', h1_borde: 'h1_borde', texto_bajo_suelo: 'txt_bajo', texto_svg_bajo_suelo: 'txt_svg', objetivos_pequenos: 'obj_peq', objetivos_svg: 'obj_svg', contraste: 'contraste', foco_tapado: 'foco_tap', linea_larga: 'lin_larg', sticky_tapado: 'sticky', recorte_1412: 'rec_1412' }
 
 /** Corre dentro de la página. Devuelve recuentos y los primeros ejemplos de cada uno. */
 const MEDIR = `(() => {
@@ -302,6 +336,215 @@ const MEDIR = `(() => {
   }
   return { cuenta, ej }
 })()`
+
+// recorte_1412: el texto que DEJA DE VERSE con las cuatro reglas de WCAG 1.4.12 (text spacing) puestas. Corre al final de
+// cada medición, en su propia llamada, y DESHACE los estilos: ninguna otra métrica los ve (si alguna se mueve, la
+// inyección está tocando lo que no debe).
+const RECORTE_1412 = `(async () => {
+  const CANARIO = __CANARIO__
+  // Las cuatro reglas del criterio. Se imponen sobre main, header y footer; el texto de un <svg> queda fuera, porque no
+  // reflúa como una caja CSS (su suelo lo mira texto_svg_bajo_suelo).
+  // Son los valores EXACTOS de la prueba de referencia de WCAG y no un «al menos»: donde la web ya pone más (las cejas en
+  // mono a 0,2em de letra, los titulares a 1,6 de interlineado) esto BAJA el valor, y un texto más corto o más bajo no
+  // puede crear un recorte que no existiera. Subestima, nunca infla, que es el lado seguro de un ratchet.
+  const CSS = 'main, header, footer, main *:not(svg, svg *), header *:not(svg, svg *), footer *:not(svg, svg *) { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important } main p, header p, footer p { margin-bottom: 2em !important }'
+  const raices = [...document.querySelectorAll('main, header, footer')]
+  if (!raices.length) return { cuenta: 0, ej: [], tipos: { alto: 0, ancho: 0, elipsis: 0, solape: 0 } }
+  const FUERA = 'svg, script, style, noscript, textarea, [aria-hidden="true"], .sr-only'
+  const nombre = (e) => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className ? '.' + e.className.trim().split(/\\s+/).slice(0, 2).join('.') : '') + ' «' + (e.textContent || '').trim().slice(0, 24) + '»'
+  const corta = (v) => v === 'hidden' || v === 'clip'
+  // Lo que RECORTA LO PINTADO no es solo hidden y clip: en un contenedor que se desliza, lo que queda fuera de la vista
+  // tampoco se pinta ahí. Sin esto, el texto de una pieza deslizable (la galería de /laminillas, .tabla-scroll) salía
+  // «solapado» con lo que hay debajo de la caja, que es un falso positivo (lo cazó la siembra (e) del canario).
+  const recortaPintura = (v) => v === 'hidden' || v === 'clip' || v === 'auto' || v === 'scroll'
+  const relleno = (e, cs) => { const r = e.getBoundingClientRect(); const b = (k) => parseFloat(cs['border' + k + 'Width']) || 0; return { left: r.left + b('Left'), top: r.top + b('Top'), right: r.right - b('Right'), bottom: r.bottom - b('Bottom') } }
+  const ids = new Map()
+  let nid = 0
+  const id = (e) => { let v = ids.get(e); if (v === undefined) ids.set(e, (v = ++nid)); return v }
+
+  // Un escaneo: las cajas de las que se sale su propio texto y los pares de textos que se pisan.
+  const escanear = () => {
+    // La caja donde de verdad se ve lo que hay dentro de un elemento: la de relleno de cada antepasado que recorta,
+    // intersecada, y solo en el eje que recorta (overflow-x: hidden deja el otro eje en auto, así que no recorta en él).
+    const visibles = new Map()
+    const cajaVisible = (e) => {
+      if (visibles.has(e)) return visibles.get(e)
+      const p = e.parentElement
+      let c = p && p !== document.documentElement ? cajaVisible(p) : { left: -1e7, top: -1e7, right: 1e7, bottom: 1e7 }
+      const cs = getComputedStyle(e)
+      if (recortaPintura(cs.overflowX) || recortaPintura(cs.overflowY)) {
+        const r = relleno(e, cs)
+        c = {
+          left: recortaPintura(cs.overflowX) ? Math.max(c.left, r.left) : c.left,
+          right: recortaPintura(cs.overflowX) ? Math.min(c.right, r.right) : c.right,
+          top: recortaPintura(cs.overflowY) ? Math.max(c.top, r.top) : c.top,
+          bottom: recortaPintura(cs.overflowY) ? Math.min(c.bottom, r.bottom) : c.bottom,
+        }
+      }
+      visibles.set(e, c)
+      return c
+    }
+    // El antepasado fijo o pegajoso de cada elemento. Dos textos de contenedores fijos DISTINTOS se pisan o no según el
+    // scroll (la barra fija de apoyo del móvil se pondría encima de media página), y eso no lo decide 1.4.12.
+    const fijos = new Map()
+    const fijoDe = (e) => {
+      if (fijos.has(e)) return fijos.get(e)
+      const p = e.parentElement
+      const v = /^(fixed|sticky)$/.test(getComputedStyle(e).position) ? e : p && p !== document.documentElement ? fijoDe(p) : null
+      fijos.set(e, v)
+      return v
+    }
+
+    // 1. Las líneas de texto PINTADAS, con el elemento del que cuelga cada una.
+    const lineas = []
+    for (const raiz of raices) {
+      const tw = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT)
+      let t
+      while ((t = tw.nextNode())) {
+        if (!t.textContent.trim()) continue
+        const p = t.parentElement
+        if (!p || p.closest(FUERA)) continue
+        const cs = getComputedStyle(p)
+        if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) < 0.05) continue
+        const rango = document.createRange()
+        rango.selectNodeContents(t)
+        for (const q of rango.getClientRects()) {
+          if (q.width < 1 || q.height < 1) continue
+          lineas.push({ el: p, q })
+        }
+      }
+    }
+
+    // 2. Cajas que recortan y de las que se sale TEXTO. Dispara scrollHeight/scrollWidth (que salta también con overflow
+    // visible: medido, de ahí el filtro por el modo de cada eje) y además se exige que lo que asome sea una línea de texto
+    // de verdad, no un adorno desbordado. html y body quedan fuera: lo que se sale de la PÁGINA ya lo cuentan «desborde»
+    // y «desborde_oculto», y la raíz lleva overflow-x: clip de serie.
+    const cajas = new Map()
+    for (const raiz of raices) {
+      for (const el of [raiz, ...raiz.querySelectorAll('*')]) {
+        if (!el.matches('main, header, footer') && el.closest(FUERA)) continue
+        const cs = getComputedStyle(el)
+        if (cs.display === 'none' || cs.visibility === 'hidden') continue
+        const cy = corta(cs.overflowY)
+        const cx = corta(cs.overflowX)
+        if (!cy && !cx) continue
+        const r = el.getBoundingClientRect()
+        if (r.width < 2 || r.height < 2) continue
+        const alto = cy && el.scrollHeight > el.clientHeight + 1
+        const ancho = cx && el.scrollWidth > el.clientWidth + 1
+        if (!alto && !ancho) continue
+        const caja = relleno(el, cs)
+        for (const { el: te, q } of lineas) {
+          if (te !== el && !el.contains(te)) continue
+          if (alto && q.bottom > caja.bottom + 1) { cajas.set(el, { tipo: 'alto', detalle: el.scrollHeight + ' > ' + el.clientHeight + ' px de alto' }); break }
+          if (ancho && q.right > caja.right + 1) { cajas.set(el, { tipo: cs.textOverflow === 'ellipsis' ? 'elipsis' : 'ancho', detalle: el.scrollWidth + ' > ' + el.clientWidth + ' px de ancho' }); break }
+        }
+      }
+    }
+
+    // 3. Textos que se pisan. Cada línea se recorta ANTES a su caja visible: sin eso, la línea que ya cuenta como recorte
+    // volvería a contar como solape con lo que hay pintado debajo del recorte. Barrido ordenado por «top» y no n² : en
+    // /mapa-metastasis (29 000 px de alto) hay miles de líneas y esto corre 2 veces en cada una de las 210 claves.
+    const pares = new Map()
+    const lista = []
+    for (const { el, q } of lineas) {
+      const c = cajaVisible(el)
+      const v = { left: Math.max(q.left, c.left), top: Math.max(q.top, c.top), right: Math.min(q.right, c.right), bottom: Math.min(q.bottom, c.bottom) }
+      if (v.right - v.left < 2 || v.bottom - v.top < 2) continue
+      lista.push({ el, q: v })
+    }
+    lista.sort((a, b) => a.q.top - b.q.top)
+    for (let i = 0; i < lista.length; i++) {
+      const A = lista[i]
+      for (let j = i + 1; j < lista.length; j++) {
+        const B = lista[j]
+        if (B.q.top >= A.q.bottom - 2) break // ordenadas por top: ninguna de las siguientes llega a pisar a A
+        if (A.el === B.el || A.el.contains(B.el) || B.el.contains(A.el)) continue
+        const sx = Math.min(A.q.right, B.q.right) - Math.max(A.q.left, B.q.left)
+        const sy = Math.min(A.q.bottom, B.q.bottom) - Math.max(A.q.top, B.q.top)
+        if (sx <= 2 || sy <= 2) continue // dos palabras vecinas en la misma línea se tocan por décimas de píxel
+        if (fijoDe(A.el) !== fijoDe(B.el)) continue
+        const a = id(A.el)
+        const b = id(B.el)
+        const clave = Math.min(a, b) + '|' + Math.max(a, b)
+        if (!pares.has(clave)) pares.set(clave, { a: A.el, b: B.el, sx: Math.round(sx), sy: Math.round(sy) })
+      }
+    }
+    return { cajas, pares }
+  }
+
+  // Canario (--canario): cinco siembras, una por camino del detector. Sin él no hay prueba de que la métrica mida algo.
+  // (a) alto fijo que cabe justo con overflow: hidden → cuenta  (b) igual con clip → cuenta
+  // (c) nowrap + ellipsis con el ancho justo + 2 px → cuenta   (d) caja de alto fijo con overflow visible seguida de un
+  // párrafo → cuenta como solape (los DOS elementos)           (e) igual que (a) con overflow: auto → NO cuenta
+  if (CANARIO) {
+    const madre = raices.find((r) => r.tagName === 'MAIN') || raices[0]
+    const linea = 'Palabras de relleno para que la caja del canario lleve varias líneas de texto de verdad y se pueda medir el recorte. '
+    const caja = (ov) => {
+      const d = document.createElement('div')
+      d.className = 'canario-1412'
+      d.style.cssText = 'width:300px;font-size:16px;line-height:1.2'
+      d.innerHTML = '<p style="margin:0;font-size:16px;line-height:1.2">' + linea + linea + '</p>'
+      madre.appendChild(d)
+      d.style.height = d.scrollHeight + 'px' // cabe justo: con 1,2 no se sale, con 1,5 sí
+      d.style.overflow = ov
+      return d
+    }
+    caja('hidden')
+    caja('clip')
+    caja('auto')
+    const elip = document.createElement('div')
+    elip.className = 'canario-1412'
+    elip.style.cssText = 'font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:max-content'
+    elip.textContent = linea
+    madre.appendChild(elip)
+    elip.style.width = Math.ceil(elip.getBoundingClientRect().width) + 2 + 'px'
+    const sol = document.createElement('div')
+    sol.className = 'canario-1412'
+    sol.style.cssText = 'width:300px'
+    sol.innerHTML = '<div style="overflow:visible;font-size:16px;line-height:1.2">' + linea + '</div><p style="margin:0;font-size:16px;line-height:1.2">Párrafo de debajo, al que el de arriba se le echa encima.</p>'
+    madre.appendChild(sol)
+    sol.firstElementChild.style.height = sol.firstElementChild.getBoundingClientRect().height + 'px'
+  }
+
+  window.scrollTo(0, 0) // BARRA_FIJA deja la página en 700 px: con la barra fuera, todos los anchos miden lo mismo
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  const antes = escanear()
+  const estilo = document.createElement('style')
+  estilo.textContent = CSS
+  document.head.appendChild(estilo)
+  // Dos cuadros y una pausa: hay piezas que se recolocan con un ResizeObserver y no en el mismo reflujo.
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  await new Promise((r) => setTimeout(r, 150))
+  const despues = escanear()
+  estilo.remove()
+  for (const c of document.querySelectorAll('.canario-1412')) c.remove()
+
+  // Solo lo que el ANTES no traía: una caja con -webkit-line-clamp o un acordeón a max-height: 0 ya recortaba, y eso no
+  // es pérdida causada por 1.4.12. Se cuenta cada ELEMENTO una vez, aunque le pase por dos motivos.
+  const tipos = { alto: 0, ancho: 0, elipsis: 0, solape: 0 }
+  const tocados = new Set()
+  const ej = []
+  for (const [el, { tipo, detalle }] of despues.cajas) {
+    if (antes.cajas.has(el) || tocados.has(el)) continue
+    tocados.add(el)
+    tipos[tipo]++
+    if (ej.length < 8) ej.push(tipo + ': ' + detalle + ' ' + nombre(el))
+  }
+  for (const [clave, par] of despues.pares) {
+    if (antes.pares.has(clave)) continue
+    let nuevos = 0
+    for (const el of [par.a, par.b]) {
+      if (tocados.has(el)) continue
+      tocados.add(el)
+      tipos.solape++
+      nuevos++
+    }
+    if (nuevos && ej.length < 14) ej.push('solape: ' + par.sx + ' × ' + par.sy + ' px entre ' + nombre(par.a) + ' y ' + nombre(par.b))
+  }
+  return { cuenta: tocados.size, ej, tipos }
+})()`
+const fuenteRecorte = (canario) => RECORTE_1412.replace('__CANARIO__', canario ? 'true' : 'false')
 
 async function pulsarTab(nav) {
   for (const type of ['keyDown', 'keyUp']) {
@@ -562,6 +805,33 @@ async function medirVisor3D() {
   }
 }
 
+// El canario de recorte_1412 (--canario). Siembra cinco recortes de verdad en `main`, uno por camino del detector, y
+// comprueba que la métrica cuenta los cuatro que PIERDEN texto, no el que se desliza, y que al quitarlos vuelve a su
+// recuento. Sin canario no hay prueba de que la métrica mida algo. Son los dos números que va en el PR.
+// Esperado: hidden +1 y clip +1 (alto), la elipsis +1, el solape +2 (los dos elementos que se pisan) y overflow: auto +0.
+const CANARIO_ESPERADO = { alto: 2, ancho: 0, elipsis: 1, solape: 2 }
+async function medirCanario(ruta, ancho) {
+  const nav = await abrirNavegador({ ancho, alto: 900, escala: 1, chromeArgs: ['--font-render-hinting=none'] })
+  await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: SIN_WEBGL })
+  await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: STUB_DONACIONES })
+  await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: STUB_TURNSTILE })
+  // Cada pasada recarga la página: así la siembra de una no deja rastro en la siguiente.
+  const pasada = async (sembrar) => {
+    await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: 900, deviceScaleFactor: 1, mobile: false })
+    await nav.cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
+    await nav.cargar(ruta)
+    await nav.evaluate('document.fonts.ready.then(() => true)')
+    await nav.evaluate("(() => { const s = document.createElement('style'); s.textContent = '*{animation:none!important;transition:none!important}'; document.documentElement.appendChild(s) })()")
+    await nav.sleep(300)
+    return await nav.evaluate(fuenteRecorte(sembrar))
+  }
+  try {
+    return { limpio: await pasada(false), sembrado: await pasada(true), vuelta: await pasada(false) }
+  } finally {
+    await nav.cerrar()
+  }
+}
+
 async function medir(rutas) {
   // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
   // pintada y el corte de línea depende de ese avance; sin el flag, un Chrome de Linux con hinting podría partir una línea una palabra antes o
@@ -572,6 +842,7 @@ async function medir(rutas) {
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: STUB_TURNSTILE })
   const res = {}
   const ejemplos = {}
+  const tipos = { alto: 0, ancho: 0, elipsis: 0, solape: 0 }
   let rejilla
   let cielo
   let barra
@@ -600,6 +871,12 @@ async function medir(rutas) {
             ej.texto_bajo_suelo.push(...barra.bajoSuelo.map((x) => 'barra fija: ' + x))
             if (barra.existe) console.log(`    (barra fija de ${clave}: ${barra.alto} px de alto)`)
           }
+          // Lo ÚLTIMO de cada clave y en su propia llamada: inyecta 1.4.12, mide y deshace, así ninguna otra métrica
+          // ve esos estilos (y deja la página en scroll 0, donde BARRA_FIJA la había bajado a 700).
+          const rec = await nav.evaluate(fuenteRecorte(false))
+          cuenta.recorte_1412 = rec.cuenta
+          ej.recorte_1412 = rec.ej
+          for (const k of Object.keys(tipos)) tipos[k] += rec.tipos[k]
           res[clave] = { ...cuenta, foco_tapado: f.tapados }
           ejemplos[clave] = { ...ej, foco_tapado: f.ej }
           console.log(`  ${clave.padEnd(34)} ${METRICAS.map((m) => `${ETIQUETA[m]} ${res[clave][m]}`).join('  ')}`)
@@ -631,7 +908,7 @@ async function medir(rutas) {
   } finally {
     await nav.cerrar()
   }
-  return { res, ejemplos, rejilla, cielo, barra, prosa }
+  return { res, ejemplos, tipos, rejilla, cielo, barra, prosa }
 }
 
 const args = process.argv.slice(2)
@@ -641,8 +918,33 @@ if (!existsSync(ROOT)) {
   console.error('No existe .output/public: corre antes `pnpm exec nuxt generate`.')
   process.exit(2)
 }
+if (args.includes('--canario')) {
+  const ruta = arg('--rutas') ? arg('--rutas').split(',')[0] : '/'
+  const ancho = arg('--ancho') ? Number(arg('--ancho')) : 1280
+  const { limpio, sembrado, vuelta } = await medirCanario(ruta, ancho)
+  const linea = (x) => `${x.cuenta} (${Object.entries(x.tipos).map(([k, v]) => `${k} ${v}`).join(', ')})`
+  console.log(`\ncanario de recorte_1412 en ${ruta} a ${ancho} px`)
+  console.log(`  sin sembrar:          ${linea(limpio)}`)
+  console.log(`  con las 5 siembras:   ${linea(sembrado)}`)
+  console.log(`  al quitarlas:         ${linea(vuelta)}`)
+  for (const e of sembrado.ej) console.log(`   ${e}`)
+  const esperado = Object.values(CANARIO_ESPERADO).reduce((a, b) => a + b, 0)
+  const fallos = []
+  if (vuelta.cuenta !== limpio.cuenta) fallos.push(`al quitar la siembra el recuento no vuelve: ${limpio.cuenta} → ${vuelta.cuenta}`)
+  for (const [k, v] of Object.entries(CANARIO_ESPERADO)) {
+    const d = sembrado.tipos[k] - limpio.tipos[k]
+    if (d !== v) fallos.push(`${k}: la siembra suma ${d} y no ${v}`)
+  }
+  if (sembrado.cuenta - limpio.cuenta !== esperado) fallos.push(`la siembra suma ${sembrado.cuenta - limpio.cuenta} elementos y no ${esperado} (la caja con overflow: auto se desliza y no debe contar)`)
+  if (fallos.length) {
+    console.log(`\n✘ canario de recorte_1412:\n   ${fallos.join('\n   ')}`)
+    process.exit(1)
+  }
+  console.log(`\n✔ canario: la métrica cuenta los cuatro recortes sembrados que pierden texto (+${esperado} elementos), no el que se desliza, y vuelve a ${limpio.cuenta} al quitarlos.`)
+  process.exit(0)
+}
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
-const { res, ejemplos, rejilla, cielo, barra, prosa } = await medir(rutas)
+const { res, ejemplos, tipos, rejilla, cielo, barra, prosa } = await medir(rutas)
 const errores = Object.entries(res).filter(([, v]) => v.error)
 if (errores.length) {
   console.log(`\n✘ ${errores.length} medición(es) con error: ${errores.map(([k]) => k).join(', ')}`)
@@ -697,6 +999,9 @@ if (arg('--rutas')) process.exit(0)
 const previa = existsSync(RUTA_BASELINE) ? JSON.parse(readFileSync(RUTA_BASELINE, 'utf8')) : null
 const total = (m) => Object.values(res).reduce((a, v) => a + v[m], 0)
 const resumen = METRICAS.map((m) => `${m} ${total(m)}`).join(' · ')
+// El reparto de recorte_1412 por motivo. El ratchet guarda UN número por clave; esto es lo que hace falta para decidir si
+// la métrica tiene demasiados falsos positivos para ser ratchet (y para escribirlo en el PR con cifras).
+console.log(`  recorte_1412 por motivo: ${Object.entries(tipos).map(([k, v]) => `${k} ${v}`).join(' · ')}`)
 
 if (args.includes('--actualizar')) {
   if (previa) {
