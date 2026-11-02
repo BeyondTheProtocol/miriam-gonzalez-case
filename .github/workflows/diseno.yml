@@ -2,8 +2,16 @@ name: Diseño
 
 # Regla R10 del lint de diseño (sistema v3) y test del texto de los componentes base: lo que solo se ve con la página pintada. Corre en Chrome sobre el build
 # ESTÁTICO, en 42 rutas a 320, 360, 390, 768 y 1280 px (320 es el reflow de WCAG 1.4.10 y el zoom del 400 % sobre
-# 1280): desborde horizontal, borde del H1 bajo el logo, texto por debajo de 13 px,
-# controles de menos de 44 px, contraste y foco que queda tapado por la cabecera fija. Mismo ratchet que test:diseno:
+# 1280), 210 claves en total. Las doce métricas, con su nombre en la baseline: desborde horizontal de la página
+# (desborde) y cajas que se salen por la derecha sin que las tape un contenedor más estrecho (desborde_oculto); borde
+# del H1 bajo el del logo (h1_borde); texto por debajo de 13 px en el DOM (texto_bajo_suelo) y dentro de un <svg>, a su
+# tamaño de pantalla (texto_svg_bajo_suelo); controles de menos de 44 px (objetivos_pequenos) y de menos de 24 dentro de
+# un <svg> (objetivos_svg); contraste por debajo de 4,5:1 (contraste); foco de teclado tapado por la cabecera fija
+# (foco_tapado); líneas de más de 90 caracteres pintados (linea_larga); sticky que la cabecera tapa al pegarse
+# (sticky_tapado); y texto que deja de verse con las cuatro reglas de WCAG 1.4.12 inyectadas (recorte_1412). Más seis
+# cinco comprobaciones sin baseline (el visor 3D, .rejilla-par, el cielo de /links, la barra «Lo último» y los <h3>
+# legales), más el canario de recorte_1412, que es un paso aparte de este workflow.
+# La cabecera de scripts/test-diseno-render.mjs explica cada una y lo que el gate NO mide. Mismo ratchet que test:diseno:
 # scripts/diseno-render-baseline.json solo puede bajar.
 #
 # Las reglas R1 a R9 no necesitan build y corren en lint.yml. Este workflow es APARTE a propósito: el e2e.yml lo
@@ -19,7 +27,7 @@ permissions: {}
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 45 # 5 anchos × 42 rutas (eran 2 × 42)
+    timeout-minutes: 45 # 5 anchos × 42 rutas (eran 2 × 42). Medido: 17 min 08 s sin recorte_1412 y 17 min 43 s con ella (2-nov-2026).
     steps:
       - uses: actions/checkout@v6
 
@@ -41,7 +49,17 @@ jobs:
         env:
           NUXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
 
+      # El canario de recorte_1412: siembra seis recortes de verdad (uno por camino del detector) y exige que cuente
+      # los cinco que pierden texto, no el que se desliza, y que vuelva a su recuento al quitarlos. Tarda unos 10 s y
+      # tapa un agujero real del ratchet: un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y
+      # alguien lo absorbería como una mejora. Va ANTES del ratchet a propósito: si fuera después, la pasada que falla
+      # —que es exactamente ese caso— se saltaría este paso y el canario no correría nunca (medido: en la pasada de
+      # cosecha, con el ratchet rojo, este paso salió «skipped»). Corre en /mapa-metastasis, que NO está en cero
+      # (3 → 9 → 3): así prueba la resta antes/después con hallazgos ya presentes, y no solo contar desde 0.
+      - run: pnpm test:diseno-render --canario --rutas /mapa-metastasis --ancho 390
+
       - run: pnpm test:diseno-render
+
 
       # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.
       - run: pnpm test:componentes-texto
