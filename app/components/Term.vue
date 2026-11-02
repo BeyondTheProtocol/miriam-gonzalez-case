@@ -440,8 +440,8 @@ onClickOutside(triggerRef, () => hide(), { ignore: [popRef] })
   color: var(--color-text); /* berenjena */
   border-radius: var(--radius-pill);
   padding: 4px 12px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-family: var(--font-mono); /* dato clínico abreviado («FGFR1 amplificado → FGFRi»): mono, y por el token */
+  font-size: var(--texto-xs); /* V1: el suelo por su token (antes, 13 px literales); son las cinco píldoras de /ciencia */
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.2;

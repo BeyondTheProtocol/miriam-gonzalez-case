@@ -82,7 +82,7 @@ const idBarra = useId()
 .hpp__paso { display: flex; align-items: center; gap: 10px; min-height: 32px; }
 .hpp__num {
   flex: none; width: 24px; height: 24px; border-radius: var(--radius-pill); display: inline-flex; align-items: center;
-  justify-content: center; font: 600 var(--texto-xs)/1 var(--font-mono);
+  justify-content: center; font: 600 var(--texto-xs)/1 var(--font-body); /* V1: ordinal, no dato */
   color: var(--color-text); background: rgb(var(--color-text-rgb) / 0.06);
 }
 </style>

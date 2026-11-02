@@ -406,11 +406,12 @@
     pointer-events: none;
   }
 
-  /* Tag / eyebrow */
+  /* Tag / eyebrow. V1 (2-nov-2026): el rol ya NO es versales ni mono. Lo que lo marca es el color y el peso,
+     no las mayúsculas espaciadas: la home llevaba 8, /prensa 6 y /ciencia 25, y la proliferación es justo lo que
+     condena el dato externo (sección 1 de los tokens). Quien quiera el recurso lo pide con `.eyebrow--versal`,
+     con tope de 6 por página. El TEXTO no cambia en ninguna instancia: `text-transform` es presentación. */
   .eyebrow {
     font: var(--tipo-eyebrow);
-    letter-spacing: var(--track-eyebrow);
-    text-transform: uppercase;
     color: var(--texto-2);
   }
   /* Un eyebrow que es un titular (h2.eyebrow, como la cita de la home) conserva el interlineado de titular: sin esto el
@@ -418,15 +419,24 @@
   h1.eyebrow, h2.eyebrow, h3.eyebrow, h4.eyebrow {
     line-height: 1.1;
   }
-  /* Kicker de tarjeta o control: mono 600 en mayúsculas, 12 px. El suelo del sistema es 13 px y el 12 se reserva a
-     mono en mayúsculas (.eyebrow, .etiqueta, ejes). `.eyebrow--sm` (11 px) era lo mismo con otro nombre: queda como alias
-     hasta que las páginas migren, y entonces sale. El color por defecto es --texto-2; una utilidad de color lo gana. */
+  /* Kicker de tarjeta o control: Hanken 600, 14 px, caja baja (V1, 2-nov-2026; antes mono 12 px en mayúsculas).
+     `.eyebrow--sm` (11 px) era lo mismo con otro nombre: queda como alias hasta que las páginas migren, y entonces
+     sale. El color por defecto es --texto-2; una utilidad de color lo gana. */
   .etiqueta,
   .eyebrow--sm {
     font: var(--tipo-etiqueta);
-    letter-spacing: var(--track-etiqueta);
-    text-transform: uppercase;
     color: var(--texto-2);
+  }
+  /* Las versalitas espaciadas, cuando se piden a propósito: el ÚNICO recurso «de sistema» para ellas, con tope de
+     6 por página (V1). Se escribe junto al rol: `class="eyebrow eyebrow--versal"`. Hoy no las pide ninguna página:
+     la home pasó de 29 a 3, /prensa de 20 a 2 y /ciencia de 34 a 2, y las que quedan son de la cabecera y del pie. */
+  .eyebrow--versal {
+    text-transform: uppercase;
+    letter-spacing: var(--track-eyebrow);
+  }
+  .etiqueta--versal {
+    text-transform: uppercase;
+    letter-spacing: var(--track-etiqueta);
   }
 
   /* DS badge genómico — violet pill, mono */
@@ -662,10 +672,15 @@
      fuera de la paleta. Se quedan tal cual porque la ruta de la home (BADGE_RUTA en utils/rutaPasos.ts) pinta con --active,
      --firma, --pending y --candidate, y la home no cambia en esta fase. Las sustituyen las variantes de estado de abajo
      cuando RutaPasos (P1) y las páginas migren; entonces salen estas. */
+  /* V1 (2-nov-2026): al dejar de ser mono en mayúsculas pierde el permiso del 12 px y pasa al suelo de 13 en
+     Hanken, sin versales; el texto de cada estado no cambia. Las variantes de legado venían de 10 px, el texto
+     más pequeño del sitio y el único que estaba bajo el suelo. El relleno NO se toca: lo bajé a 2/8 cuando el
+     suelo iba a ser 14 y, retirado aquello, el apaño sobraba (con 2/8 la insignia medía 22,2 px frente a los
+     24,8 de producción). Con 4/9 mide 26,2: crece 1,4 px, que es lo que cuesta la letra más grande. */
   .status-badge {
-    @apply inline-flex items-center font-mono font-semibold uppercase;
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    @apply inline-flex items-center font-body font-semibold;
+    font-size: var(--texto-xs);
+    letter-spacing: 0;
     padding: 4px 9px;
     border-radius: 6px;
     line-height: 1.4;
@@ -681,10 +696,11 @@
   /* shape: tag teal de morfología/factibilidad (forma del hueso); recurre en /mapa. */
   .status-badge--shape     { background: rgba(31,107,87,0.12); color: #1f6b57; }
 
-  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex, con icono delante y al
-     suelo de 12 px (mono en mayúsculas). Las viejas de arriba siguen en 10 px hasta que se sustituyan. */
+  /* Variantes de estado del sistema v3 (hecho, curso, pendiente, nopuede, atencion): sin hex y con icono delante.
+     V1 (2-nov-2026): al suelo de 13 px, como el rol. Los 12 de antes solo valían por ser mono en mayúsculas, y el rol
+     dejó de serlo: sin esto quedaban ocho insignias de la home en Hanken de 12 px en caja baja, bajo el suelo. */
   .status-badge--hecho, .status-badge--curso, .status-badge--pendiente, .status-badge--nopuede, .status-badge--atencion {
-    font-size: var(--texto-2xs);
+    font-size: var(--texto-xs);
   }
   .status-badge--hecho     { background: var(--estado-hecho-fondo);     color: var(--estado-hecho-texto);     box-shadow: inset 0 0 0 1px var(--estado-hecho-borde); }
   .status-badge--curso     { background: var(--estado-curso-fondo);     color: var(--estado-curso-texto);     box-shadow: inset 0 0 0 1px var(--estado-curso-borde); }
@@ -728,8 +744,6 @@
     color: var(--texto-1);
     font-size: var(--texto-xs);
     line-height: 1.25;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
     margin-bottom: 8px;
     /* la etiqueta larga puede ocupar 2 líneas sin romper el grid; el resto del
        contenido se ancla abajo */
@@ -925,8 +939,9 @@
   .notes-disclosure {
     border-top: 1px solid var(--trazo-sutil);
   }
+  /* V1: el resumen es un rótulo (Hanken 14 px, caja baja), no un dato en mono en mayúsculas. */
   .notes-disclosure > summary {
-    @apply font-mono uppercase tracking-[0.12em];
+    @apply font-body;
     color: var(--texto-2);
     font-size: var(--texto-xs);
     font-weight: 500;

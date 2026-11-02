@@ -485,9 +485,11 @@ const { latest, latestAgo } = useLatestUpdate()
   margin-bottom: 0.35rem;
 }
 
+/* V1 (2-nov-2026): el titular de «Lo último» es un TITULAR, no un dato, y el mono es solo para datos
+   tabulares (sección 1 de los tokens). Pasa a Hanken y conserva su tamaño, el subrayado, el color y el
+   icono. La fecha de al lado sí se queda en mono: es una fecha de actualización, como la de `Nota`. */
 .hero__latest-title {
   display: block;
-  font-family: 'JetBrains Mono', monospace;
   font-size: 0.875rem;
   line-height: 1.45;
   color: var(--color-miriam);

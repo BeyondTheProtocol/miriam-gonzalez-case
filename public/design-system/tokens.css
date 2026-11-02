@@ -60,8 +60,12 @@
   --font-body:    'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;  /* cuerpo/UI: elección del tipógrafo (9-jul) — auto-hospedada, no system-ui */
   --font-mono:    'JetBrains Mono', ui-monospace, monospace; /* SOLO datos tabulares */
 
-  /* Escala modular (base 17, ratio ~1.25) — TYP-2. SUELO de 13 px: por debajo solo el mono en mayúsculas (12). */
-  --texto-2xs:  12px;  /* RESERVADO a mono en mayúsculas (.eyebrow, .etiqueta, ejes de gráfico). Nunca prosa. */
+  /* Escala modular (base 17, ratio ~1.25) — TYP-2. SUELO de 13 px: por debajo solo el mono en mayúsculas (12).
+     V1 (2-nov-2026) NO lo toca: el encargo pedía subirlo a 14 citando un «v1.1 §13» que no existe, el canon vigente
+     dice 13 (design-system-v3-2026-10-24.md, línea 25) y subirlo sería una propuesta de diseño, no cumplimiento.
+     Lo que sí cambia V1 es QUIÉN puede acogerse al 12: es un permiso para mono EN MAYÚSCULAS, y .eyebrow y
+     .etiqueta han dejado de serlo, así que pasan al suelo de 13. */
+  --texto-2xs:  12px;  /* RESERVADO a mono en mayúsculas (ejes de gráfico y las instancias que aún lo escriben a mano). Nunca prosa. */
   --texto-xs:   13px;
   --texto-sm:   15px;
   --texto-ui:   16px;  /* cuerpo de tarjetas y UI: lo que usa la home */
@@ -122,9 +126,15 @@
   --tipo-body:    var(--tipo-prosa);                                                                     /* alias heredado de --tipo-prosa: no lo uses en código nuevo */
   --tipo-body-sm: 400 var(--texto-sm)/1.5  var(--font-body);
   --tipo-cifra:   700 var(--texto-3xl)/1    var(--font-display); /* «Cifra Fraunces» */
-  --tipo-eyebrow:  500 var(--texto-2xs)/1.55 var(--font-mono);                                            /* mono en mayúsculas, 12 px */
-  --tipo-etiqueta: 600 var(--texto-2xs)/1.4 var(--font-mono);                                            /* kicker de tarjeta o control, 12 px */
-  --track-eyebrow: 0.12em;  /* versalitas espaciadas: único recurso «de sistema» */
+  /* V1 (2-nov-2026): los dos rótulos salen del mono y de las versales. El mono es SOLO para datos tabulares (línea 61) y
+     estos dos roles son rótulos, no datos: en la home eran 15 de los 41 textos en mono que no son dato. Las versalitas
+     espaciadas siguen en el sistema, pero se piden a mano (.eyebrow--versal, .etiqueta--versal) y con tope de 6 por
+     página: el dato externo (248 sitios, 5-oct-2026) las encuentra en el 16 % de los sitios buenos y el 57 % de los
+     flojos, y con 3 o más, en el 6 % frente al 43 %. La home llevaba 29, /prensa 22 y /ciencia 36.
+     Al salir del mono en mayúsculas pierden el permiso del 12 px y pasan al suelo de 13. */
+  --tipo-eyebrow:  500 var(--texto-xs)/1.5 var(--font-body);                                             /* la línea sobre un titular: Hanken, 13 px, caja baja */
+  --tipo-etiqueta: 600 var(--texto-xs)/1.4 var(--font-body);                                            /* kicker de tarjeta o control: Hanken, 13 px, caja baja */
+  --track-eyebrow: 0.12em;  /* versalitas espaciadas: recurso del sistema, a mano y con tope (.eyebrow--versal) */
   --track-etiqueta: 0.1em;
   --track-titular: -0.03em; /* H1, H2 y hero: la home lo escribía en línea, seis veces */
   --track-cifra:  -0.02em;  /* display grande: tracking negativo */

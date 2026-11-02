@@ -21,7 +21,11 @@
           {{ $t('a11y.role_detected', { role: roleLabel }) }}
         </p>
 
-        <div class="grid md:grid-cols-2 xl:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12">
+        <!-- `grid-cols-1` en la pila y `minmax(0, …)` en las dos columnas de `xl`: sin ellos la pista implícita se
+             dimensiona por max-content y una pieza de ancho fijo la ensancha. A 320 px el captcha (300 px) daba una
+             pista de 350 y la página se salía 54 px (WCAG 1.4.10; medido el 2-nov-2026). Es la regla 2 de retícula del
+             DS («minmax(0, …) y no 1fr a secas») y la que vigila la comprobación `.rejilla-par` de R10. -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-8 lg:gap-12">
           <div>
             <p class="text-tinta leading-relaxed mb-8">
               {{ $t('contact.message') }}

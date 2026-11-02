@@ -37,7 +37,6 @@
       "app/utils/timeline.ts": 9
     },
     "R2": {
-      "app/assets/css/main.css": 1,
       "app/components/celula/explorar/CelulaExplorarPerfil.vue": 1,
       "app/components/datos/Sello.vue": 1,
       "app/components/DonationReturnPrompt.vue": 1,

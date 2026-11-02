@@ -205,9 +205,8 @@ function jumpTo(e: Event, id: string) {
   gap: 0.5rem;
   min-height: var(--control-min);
   padding: 0 14px;
-  font: 500 var(--texto-2xs)/1.4 var(--font-mono);
-  letter-spacing: var(--track-eyebrow);
-  text-transform: uppercase;
+  /* V1: el mono se queda (es /ciencia, página de datos), pero sube al suelo de 14 px y deja las versales. */
+  font: 500 var(--texto-xs)/1.4 var(--font-mono);
   color: var(--texto-1);
   cursor: pointer;
   list-style: none;
