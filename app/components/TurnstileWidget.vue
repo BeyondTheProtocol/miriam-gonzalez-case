@@ -36,11 +36,20 @@ let scriptEl: HTMLScriptElement | null = null
 const TAMANOS = { normal: { ancho: 300, alto: 65 }, compact: { ancho: 150, alto: 140 } } as const
 const tamano = ref<keyof typeof TAMANOS>('normal')
 
+/** Ancho de ventana por debajo del cual ninguna caja de este sitio da los 300 px del tamaño `normal`:
+ *  el diálogo de /laminillas deja `min(560, 100vw − 32) − 40` de contenido (300 px pide 372 de ventana)
+ *  y la tarjeta de /contacto, unos `100vw − 98` (pide 398). Con 400 están los dos cubiertos. */
+const VENTANA_ESTRECHA = 400
+
 /** El tamaño que cabe en el hueco del widget. Se mide con el contenedor VACÍO: una vez pintado, el
- *  propio widget ensancharía la pista y la medida mentiría. */
+ *  propio widget ensancharía la pista y la medida mentiría. Si el hueco mide 0, el componente está
+ *  dentro de algo que aún no se pinta —el `<dialog>` CERRADO de /laminillas— y entonces decide la
+ *  ventana: hay que acertar a la primera, porque un reto ya resuelto no se repinta (tiraría el token,
+ *  y con el modo gestionado se resuelve solo en cuanto se monta, antes de que nadie abra el diálogo). */
 function tamanoQueCabe(): keyof typeof TAMANOS {
   const hueco = container.value?.getBoundingClientRect().width ?? 0
-  return hueco > 0 && hueco < TAMANOS.normal.ancho ? 'compact' : 'normal'
+  if (hueco <= 0) return window.innerWidth < VENTANA_ESTRECHA ? 'compact' : 'normal'
+  return hueco < TAMANOS.normal.ancho ? 'compact' : 'normal'
 }
 
 // Turnstile puede quedarse colgado sin emitir token NI error (sitekey con el
