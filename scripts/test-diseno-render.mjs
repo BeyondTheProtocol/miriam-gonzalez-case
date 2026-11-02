@@ -61,6 +61,8 @@
 //                           ahí la pérdida es silenciosa: no hay barra ni corte visible, solo tres puntos.
 //                         · solape — su texto se pisa con el de otro elemento por más de 2 px en los DOS ejes (2 y no 0: dos palabras
 //                           vecinas de la misma línea se tocan por décimas). Cuenta a los dos elementos del par.
+//                       Y una caja NO cuenta la línea que un recorte de más ADENTRO ya esconde: la pérdida es de aquél, y contar las
+//                       dos sería contar dos veces la misma línea perdida.
 //                       El reparto por motivo sale en la última línea de la salida (es lo que hace falta para decidir si la métrica vale
 //                       como ratchet, porque el ratchet guarda un solo número por clave).
 //                       NO cuenta: lo que YA se recortaba antes de inyectar (`-webkit-line-clamp`, un acordeón a `max-height: 0`), lo que se
@@ -76,6 +78,11 @@
 //                       Tampoco mide el texto que, en el momento de medir, está a opacidad 0: la portada de la home entra animándose y el
 //                       gate apaga las animaciones, así que 84 de sus 149 nodos de texto se quedan en opacidad 0 (medido el 2-nov-2026).
 //                       Es el mismo punto ciego que ya tiene `contraste`, que también se salta lo que no se pinta.
+//                       Y el punto ciego MÁS GRANDE, que es la otra cara de no contar el <details> cerrado: ese texto no se mide NI
+//                       cerrado ni abierto. Son 272 nodos de texto en /mapa-metastasis, 55 en /ciencia y 14 en /timeline, así que parte
+//                       de los 197 ceros de las 210 claves es contenido de desplegable que nunca se midió. Medirlo abierto (poner
+//                       `open` en cada <details> antes del «antes») cambiaría lo que la métrica promete y obligaría a cosechar otra
+//                       baseline: queda anotado en `web-recortes-1412-mapa-y-explorador` y no se hace aquí.
 //                       El canario (`--canario`, ver `CANARIO_ESPERADO`) corre TAMBIÉN en el CI, sobre /mapa-metastasis a 390 px, que no
 //                       está en cero (3 → 8 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
 //                       ratchet, porque un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y alguien lo absorbería.

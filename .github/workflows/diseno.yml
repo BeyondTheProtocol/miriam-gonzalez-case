@@ -9,7 +9,8 @@ name: Diseño
 # un <svg> (objetivos_svg); contraste por debajo de 4,5:1 (contraste); foco de teclado tapado por la cabecera fija
 # (foco_tapado); líneas de más de 90 caracteres pintados (linea_larga); sticky que la cabecera tapa al pegarse
 # (sticky_tapado); y texto que deja de verse con las cuatro reglas de WCAG 1.4.12 inyectadas (recorte_1412). Más seis
-# comprobaciones sin baseline (el visor 3D, .rejilla-par, el cielo de /links, la barra «Lo último» y los <h3> legales).
+# cinco comprobaciones sin baseline (el visor 3D, .rejilla-par, el cielo de /links, la barra «Lo último» y los <h3>
+# legales), más el canario de recorte_1412, que es un paso aparte de este workflow.
 # La cabecera de scripts/test-diseno-render.mjs explica cada una y lo que el gate NO mide. Mismo ratchet que test:diseno:
 # scripts/diseno-render-baseline.json solo puede bajar.
 #
@@ -48,14 +49,17 @@ jobs:
         env:
           NUXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
 
-      - run: pnpm test:diseno-render
-
       # El canario de recorte_1412: siembra cinco recortes de verdad (uno por camino del detector) y exige que cuente
       # los cuatro que pierden texto, no el que se desliza, y que vuelva a su recuento al quitarlos. Tarda unos 10 s y
       # tapa un agujero real del ratchet: un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y
-      # alguien lo absorbería como una mejora. Corre en /mapa-metastasis, que NO está en cero (3 → 8 → 3): así prueba
-      # la resta antes/después con hallazgos ya presentes, y no solo que sepa contar desde 0.
+      # alguien lo absorbería como una mejora. Va ANTES del ratchet a propósito: si fuera después, la pasada que falla
+      # —que es exactamente ese caso— se saltaría este paso y el canario no correría nunca (medido: en la pasada de
+      # cosecha, con el ratchet rojo, este paso salió «skipped»). Corre en /mapa-metastasis, que NO está en cero
+      # (3 → 8 → 3): así prueba la resta antes/después con hallazgos ya presentes, y no solo contar desde 0.
       - run: pnpm test:diseno-render --canario --rutas /mapa-metastasis --ancho 390
+
+      - run: pnpm test:diseno-render
+
 
       # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.
       - run: pnpm test:componentes-texto
