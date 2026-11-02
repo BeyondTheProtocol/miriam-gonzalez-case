@@ -87,17 +87,23 @@
 //                       main, header y footer antes del escaneo «antes», mide los DOS estados con ellos abiertos —así la resta sigue
 //                       comparando lo mismo— y los devuelve a como estaban al terminar, junto con los estilos. Antes quedaban fuera por
 //                       `checkVisibility()`, que es lo correcto mientras están cerrados (nadie los ve, así que no pueden «dejar de
-//                       verse»), pero eso los dejaba sin medir NI cerrados ni abiertos: 272 nodos de texto en /mapa-metastasis, 55 en
-//                       /ciencia y 14 en /timeline, y parte de los ceros de la baseline era contenido de desplegable que nadie había
+//                       verse»), pero eso los dejaba sin medir NI cerrados ni abiertos: unos mil nodos de texto en diez rutas (las
+//                       cifras, abajo), y parte de los ceros de la baseline era contenido de desplegable que nadie había
 //                       comprobado nunca. Una persona SÍ puede abrirlo, y el texto que se recorta ahí es contenido perdido igual que
 //                       cualquier otro. Dos controles, los dos MEDIDOS (2-nov-2026), porque cada uno tapa el agujero del otro:
 //                         · NEGATIVO (inyección nula) — los dos escaneos con todas las esperas y SIN meter el CSS. Dio 0 en las diez
 //                           claves probadas (el mapa, su espejo EN, /ciencia, /timeline y /datos a 320 y 390), así que lo que se cuenta
 //                           con el CSS puesto lo causó 1.4.12 y no la apertura.
 //                         · POSITIVO — cuántos nodos de texto deja medibles la apertura. Un 0 en el control de arriba también saldría si
-//                           la apertura no hiciera nada, así que hace falta ver que SÍ expone algo: 406 en /datos, 340 en
-//                           /mapa-metastasis, 277 en /celula-a-celula/explorar, 55 en /ciencia, 14 en /timeline, 0 en /lesiones (que no
-//                           trae ninguno cerrado). Unos 1 100 nodos de texto que antes no se miraban en ningún estado.
+//                           la apertura no hiciera nada, y «ningún hallazgo nuevo» es ambiguo de la misma forma, así que hace falta ver
+//                           que SÍ expone algo. Se cuentan los nodos que ANTES de abrir no se pintaban y DESPUÉS sí: cada uno una vez
+//                           (contar por desplegable cuenta dos veces el que está anidado) y sin el <summary>, que se ve con el
+//                           desplegable cerrado y siempre se midió. En el Mac, a 390 px: 395 en /datos, 272 en
+//                           /celula-a-celula/explorar, 262 en /mapa-metastasis, 51 en /ciencia, 14 en /prensa, 13 en /timeline, 11 en
+//                           /herramientas, 2 en /guia-de-estilo, 1 en /laminillas, 0 en /lesiones (que no trae ninguno cerrado):
+//                           1 021 nodos de texto que antes no se miraban en ningún estado.
+//                           Y no todo lo que no se pintaba pasa a medirse: en el mapa quedan 124 de 386 y en /laminillas 54 de 55. Ese
+//                           resto es el punto ciego de abajo —opacidad 0, y paneles con v-if, v-show o [hidden]—, no éste.
 //                       Y lo que salió: UNA clave sube (/celula-a-celula/explorar:320, de 12 a 13) y ninguna baja, así que el texto de
 //                       los desplegables aguanta 1.4.12 casi entero. Que no baje ninguna importa tanto como que suba una: si abrir
 //                       moviera la maquetación lo bastante para BORRAR un hallazgo del estado cerrado —que es el que ve casi todo el
@@ -612,9 +618,10 @@ const RECORTE_1412 = `(async () => {
   }
 
   // Los <details> se abren ANTES del «antes», y los dos escaneos los ven abiertos. Por qué: cerrado, su texto no se
-  // pinta —checkVisibility() devuelve false— y la métrica lo saltaba entero, así que esos 272 nodos de texto de
-  // /mapa-metastasis, 55 de /ciencia y 14 de /timeline no se medían NI cerrados ni abiertos, y parte de los ceros de la
-  // baseline era contenido de desplegable que nadie había comprobado nunca contra 1.4.12. Cerrado nadie lo ve, así que
+  // pinta —checkVisibility() devuelve false— y la métrica lo saltaba entero, así que ese texto no se medía NI cerrado
+  // ni abierto (1 021 nodos en diez rutas, 395 de ellos en /datos; el control positivo de la cabecera los cuenta), y
+  // parte de los ceros de la baseline era contenido de desplegable que nadie había comprobado nunca contra 1.4.12.
+  // Cerrado nadie lo ve, así que
   // no puede «dejar de verse»; pero una persona SÍ puede abrirlo, y el texto que se recorta ahí es contenido perdido
   // igual que cualquier otro. Abiertos en los DOS escaneos, la resta sigue comparando lo mismo: solo cuenta lo que
   // rompe 1.4.12, no lo que aparece al abrir.
