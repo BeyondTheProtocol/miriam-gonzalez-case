@@ -92,8 +92,10 @@
 //                       comprobado nunca. Una persona SÍ puede abrirlo, y el texto que se recorta ahí es contenido perdido igual que
 //                       cualquier otro. Dos controles, los dos MEDIDOS (2-nov-2026), porque cada uno tapa el agujero del otro:
 //                         · NEGATIVO (inyección nula) — los dos escaneos con todas las esperas y SIN meter el CSS. Dio 0 en las diez
-//                           claves probadas (el mapa, su espejo EN, /ciencia, /timeline y /datos a 320 y 390), así que lo que se cuenta
-//                           con el CSS puesto lo causó 1.4.12 y no la apertura.
+//                           claves probadas en el Mac (el mapa, su espejo EN, /ciencia, /timeline y /datos a 320 y 390) y 0 en los
+//                           CINCO anchos de /celula-a-celula/explorar en el CI, que es la única ruta con un hallazgo nuevo y la que el
+//                           Mac no reproduce (da 5 donde el CI da 12). Así que lo que se cuenta con el CSS puesto lo causó 1.4.12 y no
+//                           la apertura.
 //                         · POSITIVO — cuántos nodos de texto deja medibles la apertura. Un 0 en el control de arriba también saldría si
 //                           la apertura no hiciera nada, y «ningún hallazgo nuevo» es ambiguo de la misma forma, así que hace falta ver
 //                           que SÍ expone algo. Se cuentan los nodos que ANTES de abrir no se pintaban y DESPUÉS sí: cada uno una vez
@@ -105,7 +107,13 @@
 //                           Y no todo lo que no se pintaba pasa a medirse: en el mapa quedan 124 de 386 y en /laminillas 54 de 55. Ese
 //                           resto es el punto ciego de abajo —opacidad 0, y paneles con v-if, v-show o [hidden]—, no éste.
 //                       Y lo que salió: UNA clave sube (/celula-a-celula/explorar:320, de 12 a 13) y ninguna baja, así que el texto de
-//                       los desplegables aguanta 1.4.12 casi entero. Que no baje ninguna importa tanto como que suba una: si abrir
+//                       los desplegables aguanta 1.4.12 casi entero. El elemento nuevo es el envoltorio de la página del explorador
+//                       (`div.overflow-x-clip` de celula-a-celula-explorar.vue): con un desplegable abierto y 1.4.12 puesto, su
+//                       contenido mide 320 px dentro de una caja de 305 y una línea de texto se queda cortada. Atribuido y
+//                       clasificado en el CI con tres variantes sobre el MISMO build: tal cual 13, sin abrir los desplegables 12 (y su
+//                       lista de ejemplos es la misma MENOS esa línea), abriendo y sin inyectar el CSS 0 a los cinco anchos. Y con
+//                       réplicas, porque esa clave es la más sensible al entorno que hay: 12 en 5 pasadas sin abrir, 13 en 3 con
+//                       abrir, sin una sola excepción. Que no baje ninguna importa tanto como que suba una: si abrir
 //                       moviera la maquetación lo bastante para BORRAR un hallazgo del estado cerrado —que es el que ve casi todo el
 //                       mundo—, el ratchet lo absorbería como «BAJA: bien». Comprobado en las 210 claves de la pasada del CI.
 //                       Lo que SIGUE fuera: solo se abre el <details> NATIVO. Un panel que se esconde con `v-if`, `v-show` o `[hidden]`
