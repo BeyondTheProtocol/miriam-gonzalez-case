@@ -59,6 +59,37 @@ jobs:
       # (3 → 10 → 3): así prueba la resta antes/después con hallazgos ya presentes, y no solo contar desde 0.
       - run: pnpm test:diseno-render --canario --rutas /mapa-metastasis --ancho 390
 
+      # TEMPORAL (diagnóstico de esta rama, se quita antes de fusionar): ATRIBUIR y CLASIFICAR el único hallazgo que
+      # sube (/celula-a-celula/explorar:320, 12 → 13). En el Mac esa ruta da 5 y en el CI 12, así que no se puede
+      # nombrar ni atribuir desde una pasada local, y comparar contra una baseline cosechada en OTRA pasada no
+      # distingue «lo causó la apertura» de «esa clave se mueve entre pasadas». Tres variantes en el MISMO runner y
+      # sobre el MISMO build:
+      #   (i)   tal cual                           → nombra los 13
+      #   (ii)  SIN abrir los desplegables         → si también da 13, el +1 no es de la apertura: es la clave moviéndose
+      #   (iii) abriendo y SIN inyectar el CSS     → tiene que dar 0, o el hallazgo es artefacto de abrir y no de 1.4.12
+      # Las tres con --rutas, así que salen antes del ratchet y no pintan nada en el gate.
+      - name: Atribuir y clasificar el hallazgo nuevo del explorador (TEMPORAL)
+        continue-on-error: true
+        run: |
+          python3 - <<'PY'
+          import io
+          s = io.open('scripts/test-diseno-render.mjs', encoding='utf-8').read()
+          A = "  const cerrados = raices.flatMap((r) => [...r.querySelectorAll('details')]).filter((d) => !d.open)"
+          B = "  document.head.appendChild(estilo)"
+          assert s.count(A) == 1, 'ancla cerrados no unica'
+          assert s.count(B) == 1, 'ancla estilo no unica'
+          io.open('scripts/var-ii.mjs', 'w', encoding='utf-8').write(s.replace(A, "  const cerrados = []"))
+          io.open('scripts/var-iii.mjs', 'w', encoding='utf-8').write(s.replace(B, "  void estilo"))
+          print('variantes escritas')
+          PY
+          echo "########## (i) tal cual ##########"
+          node scripts/test-diseno-render.mjs --rutas /celula-a-celula/explorar --detalle
+          echo "########## (ii) SIN abrir los desplegables ##########"
+          node scripts/var-ii.mjs --rutas /celula-a-celula/explorar --detalle
+          echo "########## (iii) abriendo y SIN inyectar el CSS (debe dar 0) ##########"
+          node scripts/var-iii.mjs --rutas /celula-a-celula/explorar --detalle
+          rm -f scripts/var-ii.mjs scripts/var-iii.mjs
+
       - run: pnpm test:diseno-render
 
 
