@@ -83,13 +83,45 @@
 //                       Tampoco mide el texto que, en el momento de medir, está a opacidad 0: la portada de la home entra animándose y el
 //                       gate apaga las animaciones, así que 84 de sus 149 nodos de texto se quedan en opacidad 0 (medido el 2-nov-2026).
 //                       Es el mismo punto ciego que ya tiene `contraste`, que también se salta lo que no se pinta.
-//                       Y el punto ciego MÁS GRANDE, que es la otra cara de no contar el <details> cerrado: ese texto no se mide NI
-//                       cerrado ni abierto. Son 272 nodos de texto en /mapa-metastasis, 55 en /ciencia y 14 en /timeline, así que parte
-//                       de los 197 ceros de las 210 claves es contenido de desplegable que nunca se midió. Medirlo abierto (poner
-//                       `open` en cada <details> antes del «antes») cambiaría lo que la métrica promete y obligaría a cosechar otra
-//                       baseline: queda anotado en `web-recortes-1412-mapa-y-explorador` y no se hace aquí.
+//                       El texto de un <details> SÍ se mide, abierto (2-nov-2026). La métrica pone `open` en todos los <details> de
+//                       main, header y footer antes del escaneo «antes», mide los DOS estados con ellos abiertos —así la resta sigue
+//                       comparando lo mismo— y los devuelve a como estaban al terminar, junto con los estilos. Antes quedaban fuera por
+//                       `checkVisibility()`, que es lo correcto mientras están cerrados (nadie los ve, así que no pueden «dejar de
+//                       verse»), pero eso los dejaba sin medir NI cerrados ni abiertos: unos mil nodos de texto en diez rutas (las
+//                       cifras, abajo), y parte de los ceros de la baseline era contenido de desplegable que nadie había
+//                       comprobado nunca. Una persona SÍ puede abrirlo, y el texto que se recorta ahí es contenido perdido igual que
+//                       cualquier otro. Dos controles, los dos MEDIDOS (2-nov-2026), porque cada uno tapa el agujero del otro:
+//                         · NEGATIVO (inyección nula) — los dos escaneos con todas las esperas y SIN meter el CSS. Dio 0 en las diez
+//                           claves probadas en el Mac (el mapa, su espejo EN, /ciencia, /timeline y /datos a 320 y 390) y 0 en los
+//                           CINCO anchos de /celula-a-celula/explorar en el CI, que es la única ruta con un hallazgo nuevo y la que el
+//                           Mac no reproduce (da 5 donde el CI da 12). Así que lo que se cuenta con el CSS puesto lo causó 1.4.12 y no
+//                           la apertura.
+//                         · POSITIVO — cuántos nodos de texto deja medibles la apertura. Un 0 en el control de arriba también saldría si
+//                           la apertura no hiciera nada, y «ningún hallazgo nuevo» es ambiguo de la misma forma, así que hace falta ver
+//                           que SÍ expone algo. Se cuentan los nodos que ANTES de abrir no se pintaban y DESPUÉS sí: cada uno una vez
+//                           (contar por desplegable cuenta dos veces el que está anidado) y sin el <summary>, que se ve con el
+//                           desplegable cerrado y siempre se midió. En el Mac, a 390 px: 395 en /datos, 272 en
+//                           /celula-a-celula/explorar, 262 en /mapa-metastasis, 51 en /ciencia, 14 en /prensa, 13 en /timeline, 11 en
+//                           /herramientas, 2 en /guia-de-estilo, 1 en /laminillas, 0 en /lesiones (que no trae ninguno cerrado):
+//                           1 021 nodos de texto que antes no se miraban en ningún estado.
+//                           Y no todo lo que no se pintaba pasa a medirse: en el mapa quedan 124 de 386 y en /laminillas 54 de 55. Ese
+//                           resto es el punto ciego de abajo —opacidad 0, y paneles con v-if, v-show o [hidden]—, no éste.
+//                       Y lo que salió: UNA clave sube (/celula-a-celula/explorar:320, de 12 a 13) y ninguna baja, así que el texto de
+//                       los desplegables aguanta 1.4.12 casi entero. El elemento nuevo es el envoltorio de la página del explorador
+//                       (`div.overflow-x-clip` de celula-a-celula-explorar.vue): con un desplegable abierto y 1.4.12 puesto, su
+//                       contenido mide 320 px dentro de una caja de 305 y una línea de texto se queda cortada. Atribuido y
+//                       clasificado en el CI con tres variantes sobre el MISMO build: tal cual 13, sin abrir los desplegables 12 (y su
+//                       lista de ejemplos es la misma MENOS esa línea), abriendo y sin inyectar el CSS 0 a los cinco anchos. Y con
+//                       réplicas, porque esa clave es la más sensible al entorno que hay: 12 en 5 pasadas sin abrir, 13 en 3 con
+//                       abrir, sin una sola excepción. Que no baje ninguna importa tanto como que suba una: si abrir
+//                       moviera la maquetación lo bastante para BORRAR un hallazgo del estado cerrado —que es el que ve casi todo el
+//                       mundo—, el ratchet lo absorbería como «BAJA: bien». Comprobado en las 210 claves de la pasada del CI.
+//                       Lo que SIGUE fuera: solo se abre el <details> NATIVO. Un panel que se esconde con `v-if`, `v-show` o `[hidden]`
+//                       (las pestañas de `Segmentado`, las capas de /lesiones, el explorador) sigue sin medirse en su estado cerrado, y
+//                       abrirlo no es poner un atributo: hay que pulsar su control. Queda anotado en
+//                       `web-recortes-1412-mapa-y-explorador`.
 //                       El canario (`--canario`, ver `CANARIO_ESPERADO`) corre TAMBIÉN en el CI, sobre /mapa-metastasis a 390 px, que no
-//                       está en cero (3 → 9 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
+//                       está en cero (3 → 10 → 3): así prueba la resta antes/después con hallazgos ya presentes, y tapa un agujero del
 //                       ratchet, porque un detector que se rompiera y empezara a leer 0 saldría como «BAJA: bien» y alguien lo absorbería.
 //                       Nació de la deuda `web-r10-metrica-recortes-wcag-1412`: el encargo del PR #344 la pedía «si cabe» y se dejó fuera a
 //                       propósito (es una métrica NUEVA en las 210 claves y su deuda se revisa aparte de la tipografía de V1).
@@ -118,9 +150,10 @@
 //   pnpm test:diseno-render --rutas /,/datos       solo esas rutas (no compara la baseline)
 //   pnpm test:diseno-render --rutas / --visor      además, la comprobación del visor 3D de /lesiones (con `--rutas` sola no corre: levanta un segundo Chrome)
 //   pnpm test:diseno-render --detalle              imprime los primeros ejemplos de cada recuento
-//   pnpm test:diseno-render --canario              el canario de `recorte_1412`: siembra cinco recortes de verdad en `main` (uno por camino
-//                                                  del detector) y exige que cuente los cuatro que pierden texto, no el que se desliza, y que
-//                                                  vuelva a su recuento al quitarlos. Sin canario no hay prueba de que la métrica mida algo.
+//   pnpm test:diseno-render --canario              el canario de `recorte_1412`: siembra siete recortes de verdad en `main` (uno por camino
+//                                                  del detector, incluida una dentro de un <details> cerrado) y exige que cuente los seis que
+//                                                  pierden texto, no el que se desliza, y que vuelva a su recuento al quitarlos. Sin canario no
+//                                                  hay prueba de que la métrica mida algo.
 //                                                  `--rutas <ruta>` y `--ancho <px>` eligen dónde (por defecto, / a 1280). No compara baseline.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -378,12 +411,15 @@ const RECORTE_1412 = `(async () => {
   const recortaPintura = (v) => v === 'hidden' || v === 'clip' || v === 'auto' || v === 'scroll'
   // ¿Se PINTA esto? Lo decide el navegador, no tres propiedades a mano. Un <details> CERRADO deja su contenido con
   // display: block, visibility: visible y content-visibility: visible —nada que mirar en el estilo calculado— y el
-  // texto de dentro sigue devolviendo sus líneas con getClientRects(): 272 nodos de texto en /mapa-metastasis, 55 en
-  // /ciencia, 14 en /timeline (medido el 2-nov-2026). Al crecer la página, ese texto invisible empezaba a pisar al de
-  // al lado y la métrica lo contaba: era 279 de los 280 de /mapa-metastasis. checkVisibility() devuelve false ahí
-  // (medido), y con las dos opciones añade el visibility: hidden y la opacidad 0 de CUALQUIER antepasado (que no se
-  // hereda en el estilo calculado, así que mirar el nodo no basta). No se pasa «contentVisibilityAuto»: dejaría sin
-  // medir todo lo que está bajo el pliegue de una caja con content-visibility: auto (hoy la web no usa ninguna).
+  // texto de dentro sigue devolviendo sus líneas con getClientRects(). Al crecer la página, ese texto invisible
+  // empezaba a pisar al de al lado y la métrica lo contaba: era 279 de los 280 de /mapa-metastasis. checkVisibility()
+  // devuelve false ahí (medido), y con las dos opciones añade el visibility: hidden y la opacidad 0 de CUALQUIER
+  // antepasado (que no se hereda en el estilo calculado, así que mirar el nodo no basta). No se pasa
+  // «contentVisibilityAuto»: dejaría sin medir todo lo que está bajo el pliegue de una caja con content-visibility:
+  // auto (hoy la web no usa ninguna).
+  // Los <details> ya no llegan aquí cerrados: se abren antes de los dos escaneos (ver más abajo), así que este filtro
+  // los deja pasar y lo que sigue tapando es lo demás —la opacidad 0, el visibility: hidden, el display: none y el
+  // panel que un <details> abierto siga escondiendo por dentro.
   const SE_PINTA = { opacityProperty: true, visibilityProperty: true }
   const sePinta = (e) => e.checkVisibility(SE_PINTA)
   const relleno = (e, cs) => { const r = e.getBoundingClientRect(); const b = (k) => parseFloat(cs['border' + k + 'Width']) || 0; return { left: r.left + b('Left'), top: r.top + b('Top'), right: r.right - b('Right'), bottom: r.bottom - b('Bottom') } }
@@ -527,11 +563,12 @@ const RECORTE_1412 = `(async () => {
     return { cajas, pares }
   }
 
-  // Canario (--canario): seis siembras, una por camino del detector. Sin él no hay prueba de que la métrica mida algo.
+  // Canario (--canario): siete siembras, una por camino del detector. Sin él no hay prueba de que la métrica mida algo.
   // (a) alto fijo que cabe justo con overflow: hidden → cuenta  (b) igual con clip → cuenta
   // (c) nowrap + ellipsis con el ancho justo + 2 px → cuenta    (d) caja de alto fijo con overflow visible seguida de un
   // párrafo → cuenta como solape (los DOS elementos)            (e) igual que (a) con overflow: auto → NO cuenta
   // (f) nowrap + overflow: hidden y SIN elipsis → cuenta como «ancho», que es una rama distinta de la de la elipsis
+  // (g) igual que (a) dentro de un <details> CERRADO → cuenta, y es la siembra del camino nuevo (la apertura de abajo)
   if (CANARIO) {
     const madre = raices.find((r) => r.tagName === 'MAIN') || raices[0]
     const linea = 'Palabras de relleno para que la caja del canario lleve varias líneas de texto de verdad y se pueda medir el recorte. '
@@ -569,7 +606,41 @@ const RECORTE_1412 = `(async () => {
     sol.innerHTML = '<div style="overflow:visible;font-size:16px;line-height:1.2">' + linea + '</div><p style="margin:0;font-size:16px;line-height:1.2">Párrafo de debajo, al que el de arriba se le echa encima.</p>'
     madre.appendChild(sol)
     sol.firstElementChild.style.height = sol.firstElementChild.getBoundingClientRect().height + 'px'
+    // (g) el MISMO recorte de (a), pero dentro de un <details> CERRADO: es la siembra del camino nuevo. Sin la apertura
+    // de abajo no cuenta (cerrado, su texto no se pinta y la métrica lo salta entero); con ella, sí. La caja se mide con
+    // el <details> ABIERTO y se cierra después: dentro de uno cerrado no hay maquetación, scrollHeight daría 0, la caja
+    // recortaría ya en el «antes» y la resta borraría la siembra, con lo que el canario leería +0 como si el camino
+    // estuviera roto.
+    const des = document.createElement('details')
+    des.className = 'canario-1412'
+    des.open = true
+    des.innerHTML = '<summary>Canario</summary>'
+    const dentro = document.createElement('div')
+    dentro.style.cssText = 'width:300px;font-size:16px;line-height:1.2'
+    dentro.innerHTML = '<p style="margin:0;font-size:16px;line-height:1.2">' + linea + linea + '</p>'
+    des.appendChild(dentro)
+    madre.appendChild(des)
+    dentro.style.height = dentro.scrollHeight + 'px' // cabe justo: con 1,2 no se sale, con 1,5 sí
+    dentro.style.overflow = 'hidden'
+    des.open = false
   }
+
+  // Los <details> se abren ANTES del «antes», y los dos escaneos los ven abiertos. Por qué: cerrado, su texto no se
+  // pinta —checkVisibility() devuelve false— y la métrica lo saltaba entero, así que ese texto no se medía NI cerrado
+  // ni abierto (1 021 nodos en diez rutas, 395 de ellos en /datos; el control positivo de la cabecera los cuenta), y
+  // parte de los ceros de la baseline era contenido de desplegable que nadie había comprobado nunca contra 1.4.12.
+  // Cerrado nadie lo ve, así que
+  // no puede «dejar de verse»; pero una persona SÍ puede abrirlo, y el texto que se recorta ahí es contenido perdido
+  // igual que cualquier otro. Abiertos en los DOS escaneos, la resta sigue comparando lo mismo: solo cuenta lo que
+  // rompe 1.4.12, no lo que aparece al abrir.
+  // Va ANTES del scrollTo a propósito: hay un toggle que hace scroll (el <details id=detalle-foco> del mapa), y así
+  // el scrollTo(0, 0) de abajo lo deshace. Se restauran al final, junto con los estilos.
+  const cerrados = raices.flatMap((r) => [...r.querySelectorAll('details')]).filter((d) => !d.open)
+  for (const d of cerrados) d.open = true
+  // El evento toggle se despacha de forma ASÍNCRONA, y hay desplegables con el atributo open enlazado a un ref de Vue. Sin
+  // esta espera, lo que un toggle monta llegaría ENTRE el antes y el después y saldría como hallazgo de 1.4.12 sin
+  // serlo (comprobado con el control de inyección nula: ver la cabecera).
+  if (cerrados.length) await new Promise((r) => setTimeout(r, 250))
 
   window.scrollTo(0, 0) // BARRA_FIJA deja la página en 700 px: con la barra fuera, todos los anchos miden lo mismo
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
@@ -582,6 +653,10 @@ const RECORTE_1412 = `(async () => {
   await new Promise((r) => setTimeout(r, 150))
   const despues = escanear()
   estilo.remove()
+  // Se deshace todo lo que esta llamada tocó: los estilos y los desplegables que estaban cerrados. El toggle del
+  // cierre también es asíncrono, así que se le da un tick para que los watchers de Vue lo vean antes de volver.
+  for (const d of cerrados) d.open = false
+  if (cerrados.length) await new Promise((r) => setTimeout(r, 0))
   for (const c of document.querySelectorAll('.canario-1412')) c.remove()
 
   // Solo lo que el ANTES no traía: una caja con -webkit-line-clamp o un acordeón a max-height: 0 ya recortaba, y eso no
@@ -869,12 +944,13 @@ async function medirVisor3D() {
   }
 }
 
-// El canario de recorte_1412 (--canario). Siembra seis recortes de verdad en `main`, uno por camino del detector, y
-// comprueba que la métrica cuenta los cinco que PIERDEN texto, no el que se desliza, y que al quitarlos vuelve a su
+// El canario de recorte_1412 (--canario). Siembra siete recortes de verdad en `main`, uno por camino del detector, y
+// comprueba que la métrica cuenta los seis que PIERDEN texto, no el que se desliza, y que al quitarlos vuelve a su
 // recuento. Sin canario no hay prueba de que la métrica mida algo. Son los dos números que va en el PR.
-// Esperado: hidden +1 y clip +1 (alto), el recorte horizontal sin elipsis +1 (ancho), la elipsis +1, el solape +2 (los
-// dos elementos que se pisan) y overflow: auto +0.
-const CANARIO_ESPERADO = { alto: 2, ancho: 1, elipsis: 1, solape: 2 }
+// Esperado: hidden +1, clip +1 y el de dentro de un <details> cerrado +1 (alto), el recorte horizontal sin elipsis +1
+// (ancho), la elipsis +1, el solape +2 (los dos elementos que se pisan) y overflow: auto +0.
+// El tercer «alto» es la siembra (g): mide el camino que abre esta métrica, el texto que vive dentro de un desplegable.
+const CANARIO_ESPERADO = { alto: 3, ancho: 1, elipsis: 1, solape: 2 }
 async function medirCanario(ruta, ancho) {
   const nav = await abrirNavegador({ ancho, alto: 900, escala: 1, chromeArgs: ['--font-render-hinting=none'] })
   await nav.cdp('Page.addScriptToEvaluateOnNewDocument', { source: SIN_WEBGL })
@@ -990,7 +1066,7 @@ if (args.includes('--canario')) {
   const linea = (x) => `${x.cuenta} (${Object.entries(x.tipos).map(([k, v]) => `${k} ${v}`).join(', ')})`
   console.log(`\ncanario de recorte_1412 en ${ruta} a ${ancho} px`)
   console.log(`  sin sembrar:          ${linea(limpio)}`)
-  console.log(`  con las 6 siembras:   ${linea(sembrado)}`)
+  console.log(`  con las 7 siembras:   ${linea(sembrado)}`)
   console.log(`  al quitarlas:         ${linea(vuelta)}`)
   for (const e of sembrado.ej) console.log(`   ${e}`)
   const esperado = Object.values(CANARIO_ESPERADO).reduce((a, b) => a + b, 0)
@@ -1011,7 +1087,7 @@ if (args.includes('--canario')) {
     console.log(`\n✘ canario de recorte_1412:\n   ${fallos.join('\n   ')}`)
     process.exit(1)
   }
-  console.log(`\n✔ canario: la métrica cuenta las cinco siembras que pierden texto (+${esperado} elementos), no la que se desliza, y vuelve a ${limpio.cuenta} al quitarlos.`)
+  console.log(`\n✔ canario: la métrica cuenta las seis siembras que pierden texto (+${esperado} elementos), no la que se desliza, y vuelve a ${limpio.cuenta} al quitarlos.`)
   process.exit(0)
 }
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
