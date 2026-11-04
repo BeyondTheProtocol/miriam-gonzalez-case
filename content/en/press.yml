@@ -16,12 +16,16 @@
 #   5. La Vanguardia — major national masthead; a light piece (Clic section, built
 #      on a clip from the Roca Project podcast), hence behind El País.
 #   6. El Español — major national digital daily, strong on-message headline.
-#   7. Roca Project — podcast with its own community; after the interview (episode 100,
+#   7. La Nación (Argentina) — major Argentine national daily, own piece (by Desirée
+#      Jaimovich, 29 Oct); first coverage in Latin America. Position PROPOSED on
+#      4-Nov-2026: Adri and Miriam confirm it. No `home`. El Tiempo (CO) and Red Uno (BO)
+#      republished it: not listed separately.
+#   8. Roca Project — podcast with its own community; after the interview (episode 100,
 #      15 Jul) the website's contact form fills up (timeline.yml). Position PROPOSED on
 #      25-Oct-2026: Adri and Miriam confirm it. No `home`: the home strip does not change.
-#   8. Corresponsables — CSR outlet; exclusive interview.
-#   9. La Opinión de Murcia — regional, anchors the local/human angle.
-#  10. La 7 — regional TV (Instagram clip), closes the list.
+#   9. Corresponsables — CSR outlet; exclusive interview.
+#  10. La Opinión de Murcia — regional, anchors the local/human angle.
+#  11. La 7 — regional TV (Instagram clip), closes the list.
 articles:
   - outlet: El País (English)
     home: 2
@@ -51,6 +55,10 @@ articles:
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: "Miriam, an engineer, uses AI to fight her unique breast cancer… (in Spanish)"
     date: '2026-06-19'
+  - outlet: La Nación
+    url: https://www.lanacion.com.ar/tecnologia/tiene-un-cancer-inusual-y-esta-usando-ia-para-ayudar-a-los-medicos-que-la-estan-tratando-nid29102026/
+    title: She has an unusual cancer and is using AI to help the doctors treating her (in Spanish)
+    date: '2026-10-29'
   - outlet: Roca Project
     url: https://www.youtube.com/watch?v=zVUECrux6zA
     title: 'The case reaches episode 100 of Roca Project (in Spanish)'

@@ -15,12 +15,16 @@
 #   5. La Vanguardia — gran cabecera nacional; pieza ligera (sección Clic, sobre un
 #      clip del pódcast Roca Project), por eso detrás de El País.
 #   6. El Español — gran nacional digital, titular fuerte y en mensaje.
-#   7. Roca Project — pódcast con comunidad propia; tras la entrevista (programa 100, 15-jul)
+#   7. La Nación (Argentina) — gran diario nacional argentino, pieza propia (firma
+#      Desirée Jaimovich, 29-oct); primera cobertura en LatAm. Puesto PROPUESTO el
+#      4-nov-2026: lo confirman Adri y Miriam. Sin `home`. El Tiempo (CO) y Red Uno (BO)
+#      la reprodujeron: no entran aparte.
+#   8. Roca Project — pódcast con comunidad propia; tras la entrevista (programa 100, 15-jul)
 #      el formulario de contacto de la web se llena (timeline.yml). Puesto PROPUESTO el
 #      25-oct-2026: lo confirman Adri y Miriam. Sin `home`: la tira de la home no cambia.
-#   8. Corresponsables — medio de RSE; entrevista en exclusiva.
-#   9. La Opinión de Murcia — regional, ancla el ángulo local/humano.
-#  10. La 7 — TV regional (clip en Instagram), cierra la lista.
+#   9. Corresponsables — medio de RSE; entrevista en exclusiva.
+#  10. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#  11. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     home: 2
@@ -50,6 +54,10 @@ articles:
     url: https://www.elespanol.com/alicante/vivir/salud/20260619/miren-ingeniera-anos-usa-ia-luchar-cancer-mama-unico-contactan-oncologos-mundo/1003744290903_0.html
     title: 'Miriam, ingeniera, usa la IA para luchar contra su cáncer de mama único…'
     date: '2026-06-19'
+  - outlet: La Nación
+    url: https://www.lanacion.com.ar/tecnologia/tiene-un-cancer-inusual-y-esta-usando-ia-para-ayudar-a-los-medicos-que-la-estan-tratando-nid29102026/
+    title: Tiene un cáncer inusual y está usando IA para ayudar a los médicos que la están tratando
+    date: '2026-10-29'
   - outlet: Roca Project
     url: https://www.youtube.com/watch?v=zVUECrux6zA
     title: El caso, en el programa 100 de Roca Project
