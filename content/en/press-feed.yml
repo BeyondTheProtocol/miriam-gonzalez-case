@@ -1,0 +1,6 @@
+# Últimas apariciones — FEED AUTOMÁTICO, por fecha (la página ordena; aquí da igual el orden).
+# Lo escribe tools/menciones_al_feed.py (Polaris) en un PR que firma Miriam en el lote; no se edita a mano.
+# La lista curada (orden de Adri) es press.yml y no se toca desde aquí.
+# Solo se pintan las piezas con `verified: true`. Campos:
+#   outlet, url, title, date (YYYY-MM-DD), country (ISO alfa-2 del medio, opcional), lang (BCP 47 del titular, opcional), verified
+articles: []
