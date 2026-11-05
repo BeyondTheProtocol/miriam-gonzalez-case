@@ -135,10 +135,42 @@
       </div>
     </Banda>
 
-    <!-- 3 · El caso en los medios. #cobertura: el destino de «Mi caso en la prensa» de /links (F6). Las diez piezas de press.yml, sin filtro
-         por `home`. La meta se construye en el script: un `<template> · {{ }}` perdería el espacio (R11). -->
+    <!-- 3a · Últimas apariciones (4-nov-2026): el feed automático (content/<locale>/press-feed.yml), que llena Polaris por PR desde el vigía de
+         menciones. Va DENTRO de la banda crema de cobertura y no en una banda propia: entre dos tarjetas haría falta una oscura (5c) y las
+         TarjetaEnlace solo funcionan sobre crema. Solo las `verified: true`, por fecha descendente; las 6 últimas a la vista y el resto plegado.
+         Con el feed vacío no sale nada, ni la cabecera. La meta («Medio · país · ») se arma en el script (R11) y la fecha va en <time>. -->
     <Banda tono="crema" titular="press-mentions">
-      <div id="cobertura" class="scroll-mt-24">
+      <div v-if="ultimas.length" id="ultimas" class="scroll-mt-24">
+        <CabeceraSeccion id="press-latest" :titulo="$t('press.latest_title')" />
+        <ul aria-labelledby="press-latest" class="pr-lista pr-lista--cobertura pr-lista--feed" role="list">
+          <li v-for="item in ultimasVisibles" :key="item.url">
+            <TarjetaEnlace
+              :href="item.url"
+              :titulo="item.title"
+              :titulo-lang="item.lang"
+              icono="ph:newspaper-clipping"
+              @click="trackPress(item.outlet)"
+            >{{ prefijoUltima(item) }}<time :datetime="item.date">{{ fmtDia(item.date) }}</time></TarjetaEnlace>
+          </li>
+        </ul>
+        <details v-if="ultimasResto.length" class="desplegable pr-ultimas__resto">
+          <summary>{{ $t('press.latest_more', { n: ultimasResto.length }, ultimasResto.length) }}</summary>
+          <ul class="pr-lista pr-lista--cobertura pr-lista--feed" role="list">
+            <li v-for="item in ultimasResto" :key="item.url">
+              <TarjetaEnlace
+                :href="item.url"
+                :titulo="item.title"
+                :titulo-lang="item.lang"
+                icono="ph:newspaper-clipping"
+                @click="trackPress(item.outlet)"
+              >{{ prefijoUltima(item) }}<time :datetime="item.date">{{ fmtDia(item.date) }}</time></TarjetaEnlace>
+            </li>
+          </ul>
+        </details>
+      </div>
+      <!-- 3b · El caso en los medios. #cobertura: el destino de «Mi caso en la prensa» de /links (F6). Las diez piezas de press.yml, sin filtro
+           por `home`. La meta se construye en el script: un `<template> · {{ }}` perdería el espacio (R11). -->
+      <div id="cobertura" class="scroll-mt-24" :class="{ 'pr-bloque': ultimas.length }">
         <CabeceraSeccion id="press-mentions" :titulo="$t('press.mentions_title')" />
         <ul aria-labelledby="press-mentions" class="pr-lista pr-lista--cobertura" role="list">
           <li v-for="item in mentions" :key="item.url">
@@ -270,6 +302,47 @@ const { data: pressData } = await useAsyncData(
 )
 const mentions = computed(() => pressData.value?.articles ?? [])
 
+// Últimas apariciones (content/<locale>/press-feed.yml): el feed automático. Se pintan solo las verificadas, de la más nueva a la más vieja.
+// Lo que ya está en press.yml (la lista curada) no se repite aquí: si Adri la sube a la lista, manda la lista.
+type PiezaFeed = { outlet: string; url: string; title: string; date: string; country?: string; lang?: string; verified: boolean }
+const ULTIMAS_VISIBLES = 6
+const { data: feedData } = await useAsyncData(
+  `press-feed-${locale.value}`,
+  () => {
+    const collection = `press_feed_${locale.value || 'en'}` as keyof Collections
+    return queryCollection(collection).first() as Promise<{ articles?: PiezaFeed[] } | null>
+  },
+  { watch: [locale] }
+)
+const ultimas = computed(() => {
+  const curadas = new Set(mentions.value.map((m) => m.url))
+  return (feedData.value?.articles ?? [])
+    .filter((p) => p.verified === true && !curadas.has(p.url))
+    .sort((a, b) => b.date.localeCompare(a.date))
+})
+const ultimasVisibles = computed(() => ultimas.value.slice(0, ULTIMAS_VISIBLES))
+const ultimasResto = computed(() => ultimas.value.slice(ULTIMAS_VISIBLES))
+
+const intlLocale = () => (locale.value === 'es' ? 'es-ES' : 'en-US')
+// País del medio (ISO alfa-2) en el idioma de la página. Un código que Intl no conoce se enseña tal cual, no se inventa.
+const nombrePais = (c?: string) => {
+  if (!c) return ''
+  try {
+    return new Intl.DisplayNames([intlLocale()], { type: 'region' }).of(c) ?? c
+  } catch {
+    return c
+  }
+}
+// «Medio · país · » con el espacio final: la fecha va detrás en su <time> (R11).
+const prefijoUltima = (p: PiezaFeed) => [p.outlet, nombrePais(p.country)].filter(Boolean).join(' · ') + ' · '
+// 'YYYY-MM-DD' → «2 nov 2026» / «Nov 2, 2026» (mes corto: cabe junto al país a 375 px; comité de diseño, 4-nov-2026). En UTC: sin eso, un huso negativo restaría un día.
+const fmtDia = (d: string) => {
+  const [y, m, dd] = d.split('-').map(Number)
+  return new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(
+    new Date(Date.UTC(y, m - 1, dd))
+  )
+}
+
 // 'YYYY-MM-DD' / 'YYYY-MM' → mes y año legibles según idioma.
 const fmtDate = (d?: string) => {
   if (!d) return ''
@@ -396,6 +469,14 @@ useHead({
   .pr-lista--cobertura > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .pr-lista--cobertura > li:last-child:nth-child(odd) :deep(.tarjeta-enlace__titulo) { max-width: var(--measure); }
 }
+
+/* Últimas apariciones: el resto plegado bajo las 6 de arriba, y los titulares del feed (que no cura nadie) parten hasta una palabra o una URL
+   larguísima a 375 px en vez de desbordar la tarjeta. */
+.pr-ultimas__resto { margin-top: var(--sp-16); }
+.pr-ultimas__resto > .pr-lista { margin-top: var(--sp-12); }
+.pr-lista--feed :deep(.tarjeta-enlace__titulo) { overflow-wrap: anywhere; }
+/* La fecha salta entera de línea, nunca «2 de / noviembre» (comité de diseño, 4-nov-2026). */
+.pr-lista--feed :deep(time) { white-space: nowrap; }
 
 /* Preguntas frecuentes, abiertas */
 .pr-faq { margin: 0; }

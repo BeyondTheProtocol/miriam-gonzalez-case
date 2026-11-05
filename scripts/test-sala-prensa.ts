@@ -213,6 +213,27 @@ for (const [loc, fichero] of [['es', 'index.html'], ['en', 'en.html']] as const)
   ok(atributos.length === ymls[loc].length && atributos.every((a, i) => a.includes('data-umami-event="Clic-prensa"') && a.includes(`data-umami-event-medio="${ymls[loc][i].medio}"`)), `${fichero}: cada enlace de la tira lleva data-umami-event="Clic-prensa" y data-umami-event-medio con su medio`)
 }
 
+// 8 · Últimas apariciones (4-nov-2026): el feed automático de content/<idioma>/press-feed.yml, que Polaris llena por PR desde el vigía. La clase
+//     del fallo: que una pieza sin verificar salga en público, que el feed toque la lista curada de Adri o que la banda rompa la alternancia 5c.
+for (const loc of ['es', 'en'] as const) {
+  const ruta = `content/${loc}/press-feed.yml`
+  ok(existsSync(ruta), `${ruta} existe`)
+  if (!existsSync(ruta)) continue
+  const feed = readFileSync(ruta, 'utf-8')
+  ok(/^articles:/m.test(feed), `${ruta}: tiene la clave articles`)
+  const piezas = feed.split(/\n(?=\s*- outlet:)/).slice(1)
+  ok(piezas.every((p) => /\n\s*verified:\s*(true|false)\b/.test(p)), `${ruta}: cada pieza declara verified (${piezas.length})`)
+  ok(piezas.every((p) => /\n\s*date:\s*'?\d{4}-\d{2}-\d{2}'?/.test(p)), `${ruta}: cada pieza lleva fecha de día ISO`)
+}
+const config = readFileSync('content.config.ts', 'utf-8')
+ok(/press_feed_es[\s\S]*?source:\s*'es\/press-feed\.yml'/.test(config) && /press_feed_en[\s\S]*?source:\s*'en\/press-feed\.yml'/.test(config), 'content.config.ts declara press_feed_es y press_feed_en')
+ok(['outlet', 'url', 'title', 'date', 'country', 'lang', 'verified'].every((c) => new RegExp(`pressFeedItemSchema[\\s\\S]*?\\b${c}:`).test(config)), 'el esquema del feed declara outlet, url, title, date, country, lang y verified')
+ok(/p\.verified === true/.test(pagina), '/prensa pinta del feed solo lo que tiene verified: true')
+ok(/b\.date\.localeCompare\(a\.date\)/.test(pagina), '/prensa ordena el feed por fecha descendente')
+ok(/<time :datetime="item\.date">/.test(pagina) && /:titulo-lang="item\.lang"/.test(pagina), '/prensa: la fecha del feed va en <time datetime> y el titular lleva su lang')
+ok(['es', 'en'].every((l) => (l === 'es' ? es : en).latest_more?.includes(' | ')) && /latest_more', \{ n: ultimasResto\.length \}, ultimasResto\.length\)/.test(pagina), '«Ver N más» concuerda en singular y plural (ES y EN)')
+ok(/id="ultimas"[\s\S]*?id="cobertura"/.test(pagina), '/prensa: «Últimas apariciones» va encima de «El caso en los medios»')
+
 if (fallos) {
   console.error(`\n❌ ${fallos} fallo(s) en la sala de prensa`)
   process.exit(1)

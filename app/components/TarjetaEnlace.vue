@@ -33,7 +33,9 @@ const props = withDefaults(defineProps<{
   verbo?: string
   esfuerzo?: string
   nivel?: string
-}>(), { to: undefined, href: undefined, icono: undefined, meta: undefined, tono: 'suave', verbo: undefined, esfuerzo: undefined, nivel: undefined })
+  /** idioma del título si no es el de la página (p. ej. un titular de prensa en inglés en /prensa): solo envuelve el título, no el aviso sr-only */
+  tituloLang?: string
+}>(), { tituloLang: undefined, to: undefined, href: undefined, icono: undefined, meta: undefined, tono: 'suave', verbo: undefined, esfuerzo: undefined, nivel: undefined })
 
 const emit = defineEmits<{ (e: 'click', ev: MouseEvent): void }>()
 const externa = computed(() => !!props.href)
@@ -54,7 +56,7 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
     <span class="tarjeta-enlace__fila">
       <Icon v-if="icono" :name="icono" class="tarjeta-enlace__icono" aria-hidden="true" />
       <span class="tarjeta-enlace__texto">
-        <span class="h4-tarjeta tarjeta-enlace__titulo">{{ titulo }}<span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span></span>
+        <span class="h4-tarjeta tarjeta-enlace__titulo"><span :lang="tituloLang">{{ titulo }}</span><span class="sr-only">{{ ' ' + $t('a11y.new_tab') }}</span></span>
         <span v-if="meta || $slots.default" class="tarjeta-enlace__meta"><slot>{{ meta }}</slot></span>
       </span>
       <Icon name="ph:arrow-up-right" class="tarjeta-enlace__flecha" aria-hidden="true" />
@@ -76,7 +78,7 @@ const alPulsar = (ev: MouseEvent) => emit('click', ev)
     <span class="tarjeta-enlace__fila">
       <Icon v-if="icono" :name="icono" class="tarjeta-enlace__icono" aria-hidden="true" />
       <span class="tarjeta-enlace__texto">
-        <span class="h4-tarjeta tarjeta-enlace__titulo">{{ titulo }}</span>
+        <span class="h4-tarjeta tarjeta-enlace__titulo"><span :lang="tituloLang">{{ titulo }}</span></span>
         <span v-if="meta || $slots.default" class="tarjeta-enlace__meta"><slot>{{ meta }}</slot></span>
       </span>
       <Icon name="ph:arrow-right" class="tarjeta-enlace__flecha" aria-hidden="true" />

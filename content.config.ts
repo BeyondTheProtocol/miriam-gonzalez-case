@@ -49,6 +49,24 @@ const pressSchema = z.object({
   articles: z.array(pressItemSchema),
 })
 
+// Feed automático de apariciones (4-nov-2026). Lo escribe `tools/menciones_al_feed.py` de Polaris por PR, nunca a mano ni sin
+// verificar; `press.yml` sigue siendo la lista curada por Adri y no tiene ruta de escritura. Todos los campos van declarados: un campo
+// que el esquema no conoce se descarta al leer la colección. `country` es el código ISO 3166-1 alfa-2 del medio (no la edición del
+// buscador) y `lang` el BCP 47 del titular; la página los pinta con Intl, así ES y EN llevan el mismo dato.
+const pressFeedItemSchema = z.object({
+  outlet: z.string(),
+  url: z.string().url(),
+  title: z.string(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  country: z.string().regex(/^[A-Z]{2}$/).optional(),
+  lang: z.string().optional(),
+  verified: z.boolean(),
+})
+
+const pressFeedSchema = z.object({
+  articles: z.array(pressFeedItemSchema),
+})
+
 const scienceSchema = z.object({
   treatments: z.array(
     z.object({
@@ -145,6 +163,16 @@ export default defineContentConfig({
       type: 'data',
       source: 'en/press.yml',
       schema: pressSchema,
+    }),
+    press_feed_es: defineCollection({
+      type: 'data',
+      source: 'es/press-feed.yml',
+      schema: pressFeedSchema,
+    }),
+    press_feed_en: defineCollection({
+      type: 'data',
+      source: 'en/press-feed.yml',
+      schema: pressFeedSchema,
     }),
     science_es: defineCollection({
       type: 'data',
