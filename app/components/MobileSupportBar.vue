@@ -7,7 +7,7 @@
     leave-from-class="translate-y-0"
     leave-to-class="translate-y-full"
   >
-    <div v-if="visible" class="mobile-support-bar lg:hidden">
+    <div v-if="visible" ref="barra" class="mobile-support-bar lg:hidden">
       <a
         :href="GOFUNDME_URL"
         target="_blank"
@@ -96,6 +96,28 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   if (typeof window !== 'undefined') window.removeEventListener('resize', update)
+})
+
+/* Alto REAL de la barra en `--barra-apoyo-alto` (R50, igual que plugins/cabecera-alto.client.ts con la cabecera): main.css lo usa en
+   `scroll-padding-bottom` para que el elemento que recibe el foco con el teclado no quede debajo de la barra (WCAG 2.4.11). Se mide
+   aquí y no en un plugin porque la barra nace y muere con `v-if`: sin barra en pantalla no hay variable y el relleno vuelve a 0. */
+const barra = ref<HTMLElement | null>(null)
+let observador: ResizeObserver | null = null
+function quitarAlto() {
+  if (typeof document !== 'undefined') document.documentElement.style.removeProperty('--barra-apoyo-alto')
+}
+watch(barra, (el) => {
+  observador?.disconnect()
+  observador = null
+  if (!el || typeof ResizeObserver === 'undefined') return quitarAlto()
+  observador = new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--barra-apoyo-alto', `${Math.ceil(el.getBoundingClientRect().height)}px`)
+  })
+  observador.observe(el)
+}, { flush: 'post' })
+onBeforeUnmount(() => {
+  observador?.disconnect()
+  quitarAlto()
 })
 </script>
 

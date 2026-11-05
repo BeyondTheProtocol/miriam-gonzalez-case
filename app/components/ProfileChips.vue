@@ -57,7 +57,7 @@ const chips = computed(() =>
 function onClick(chip: ProfileChip) {
   if (onColaboraPage.value) {
     const el = document.getElementById(chip.hash.replace('#', ''))
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    el?.scrollIntoView({ behavior: smoothOrAuto(), block: 'start' })
   }
   trackPathway(chip.id)
 }

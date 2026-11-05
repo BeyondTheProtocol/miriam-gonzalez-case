@@ -123,15 +123,14 @@ function jumpTo(e: Event, id: string) {
   const el = document.getElementById(id)
   if (!el) return
   e.preventDefault()
-  // A11y: el foco va al título destino; respeta prefers-reduced-motion.
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  // A11y: el foco va al título destino; respeta prefers-reduced-motion (smoothOrAuto).
   // A11y: solo forzar tabindex en destinos NO focusables (un heading). Si el destino
   // ya es focusable (el <a> del CTA del mapa), preservar su tabulación nativa.
   if (!/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && el.getAttribute('tabindex') === null) {
     el.setAttribute('tabindex', '-1')
   }
   el.focus({ preventScroll: true })
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  el.scrollIntoView({ behavior: smoothOrAuto(), block: 'start' })
   activeId.value = id
   // cerrar el desplegable móvil tras saltar
   const details = (e.currentTarget as HTMLElement).closest('details')

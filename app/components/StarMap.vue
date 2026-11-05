@@ -574,11 +574,12 @@ function flyToId(id: string): boolean {
   const startTx = tx.value
   const startTy = ty.value
   const t0 = performance.now()
-  const dur = 480
+  // Con menos movimiento pedido, el vuelo a la estrella es un salto (dur 0), igual que el scrollIntoView de abajo.
+  const dur = prefiereMenosMovimiento() ? 0 : 480
 
   bump()
   function frame(now: number) {
-    const t = Math.min(1, (now - t0) / dur)
+    const t = dur ? Math.min(1, (now - t0) / dur) : 1
     const ease = 1 - (1 - t) ** 3
     scale.value = startS + (targetScale - startS) * ease
     tx.value = startTx + (targetTx - startTx) * ease
@@ -590,7 +591,7 @@ function flyToId(id: string): boolean {
     }
   }
   flyRaf = requestAnimationFrame(frame)
-  vp.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  vp.scrollIntoView({ behavior: smoothOrAuto(), block: 'center' })
   return true
 }
 

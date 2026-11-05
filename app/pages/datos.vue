@@ -380,7 +380,7 @@ onMounted(() => alHash(location.hash))
 watch(() => ruta.hash, (h) => alHash(h))
 function saltar(id: string) {
   const el = document.getElementById(id); if (!el) return
-  window.scrollTo({ top: Math.max(0, yPagina(el) - margen()), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  window.scrollTo({ top: Math.max(0, yPagina(el) - margen()), behavior: smoothOrAuto() })
   history.replaceState(history.state, '', `#${id}`)
 }
 let chipActivo: HTMLElement | null = null
@@ -396,7 +396,7 @@ function espiar() {
   })
 }
 onMounted(() => { window.addEventListener('scroll', espiar, { passive: true }); espiar() })
-watch(activa, () => nextTick(() => chipActivo?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })))
+watch(activa, () => nextTick(() => chipActivo?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: smoothOrAuto() })))
 onBeforeUnmount(() => { window.removeEventListener('scroll', espiar); cancelAnimationFrame(rafSpy) })
 
 /* «qué cambió» entre las dos últimas analíticas: nombres cortos, lo que pasó entre medias y el salto al gráfico */

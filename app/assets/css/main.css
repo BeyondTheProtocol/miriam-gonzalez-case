@@ -15,6 +15,9 @@
      ancla que ya llevan su propio margen (con el ratón, el aterrizaje no cambia). */
   html:has(:focus-visible) {
     scroll-padding-top: calc(var(--cabecera-alto) + 16px);
+    /* Lo mismo por abajo con la barra de apoyo fija del móvil: MobileSupportBar.vue publica su alto real mientras está en
+       pantalla; sin barra, la variable no existe y queda el aire de 16 px. */
+    scroll-padding-bottom: calc(var(--barra-apoyo-alto, 0px) + 16px);
   }
   /* Smooth-scroll solo si el usuario no pide menos movimiento (WCAG 2.3.3). */
   @media (prefers-reduced-motion: no-preference) {

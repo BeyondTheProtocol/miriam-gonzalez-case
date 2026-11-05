@@ -37,3 +37,6 @@ seed/donations.json
 docs/
 .claude/settings.local.json
 .claude/*.local.json
+
+# Informes de Lighthouse CI (job lighthouse de e2e.yml; en CI se suben como artefacto)
+.lighthouseci/

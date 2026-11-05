@@ -27,6 +27,8 @@ jobs:
       - run: pnpm run test:caso-copias
       # Sistema de diseño: ratchet por fichero (scripts/diseno-baseline.json). Un recuento solo puede bajar.
       - run: pnpm run test:diseno
+      # Desplazamientos de JS con movimiento reducido (smoothOrAuto) y foco no tapado por la barra de apoyo fija (R20, R50).
+      - run: pnpm run test:movimiento
       # pdftotext (poppler-utils) lee los PDF que se descargan de la web; en CI test:dinero-fuente falla si no está.
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       # Las cifras de dinero tienen UNA fuente (app/data/dinero.json) y la norma de transparencia se cumple: ninguna cifra en € a mano,

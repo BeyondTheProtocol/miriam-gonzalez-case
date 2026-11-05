@@ -120,3 +120,34 @@ jobs:
       - run: pnpm test:mapa-focos
       - run: pnpm test:mallas-3d
       - run: pnpm test:esqueleto-huesos
+
+  # Lighthouse CI (Apache-2.0) sobre el build estático, en un job aparte para no sumar minutos a ciencia-nivel (R19 del repaso
+  # de guardados, 21-oct-2026). Accesibilidad ≥ 0,95 en cada página BLOQUEA; rendimiento solo avisa (umbral 0,9, sin fallo).
+  # Páginas y umbrales: lighthouserc.json. Los informes no salen a ningún servicio de fuera: van como artefacto del run.
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22 # la de Netlify (netlify.toml)
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Igual que arriba: `nuxt generate` a secas, sin pedir datos a GoFundMe.
+      - run: pnpm exec nuxt generate
+
+      # Versión fijada y sin tocar el lockfile. Chrome es el del runner.
+      - run: pnpm dlx @lhci/cli@0.16.0 autorun
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: .lighthouseci/informes
+          if-no-files-found: ignore

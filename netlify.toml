@@ -34,9 +34,30 @@
 # ── Cabeceras de seguridad (auditoría 5.5) ───────────────────────────────────
 # Sitio de salud + donaciones = la confianza es crítica. Subconjunto SEGURO que
 # no rompe nada (Plausible, enlaces a GoFundMe, fuentes auto-alojadas, OG image).
-# NO se incluye una Content-Security-Policy estricta a propósito: una CSP mal
-# afinada bloquearía esos recursos. Queda como mejora futura (probar en
-# report-only antes de forzarla).
+#
+# Content-Security-Policy SOLO en report-only (R18, 5-nov-2026): el navegador
+# avisa en la consola de lo que bloquearía, pero no bloquea nada. No hay
+# report-uri, así que los avisos no salen de la consola de quien visita.
+# Orígenes inventariados en el build (grep de .output/public) y con un rastreo
+# en Chrome de las 86 páginas generadas sirviendo esta misma cabecera:
+#   · cloud.umami.is (script) y gateway.umami.is (envío): inferido del código
+#     de script.js; en local no envía nada (data-domains).
+#   · plausible.io (envío): inferido de @nuxtjs/plausible (ignoredHostnames).
+#   · challenges.cloudflare.com (Turnstile, script + iframe): del código.
+#   · alphafold.ebi.ac.uk y api.iconify.design (fetch): del código; solo con
+#     interacción, el rastreo no los ve.
+#   · btp-laminillas-visor.s3.fr-par.scw.cloud (teselas de /laminillas): visto.
+#   · blob: en connect y worker (explorador célula a célula): visto.
+#   · 'wasm-unsafe-eval': visto (el explorador célula a célula compila wasm;
+#     sin él el rastreo avisa en /celula-a-celula/explorar). Nuxt Content usa
+#     además sqlite-wasm en un worker, que el rastreo no ve por dentro.
+#   · 'unsafe-inline' en script y style: los scripts del payload de Nuxt y los
+#     estilos en línea de Vue. Quitarlo exige hashes o nonces.
+# ANTES DE FORZARLA (pasar a Content-Security-Policy) hay que resolver lo que
+# este informe dejaría roto: el explorador usa eval (lo vio el rastreo en
+# /celula-a-celula/explorar) y loaders.gl puede pedir unpkg.com en un worker
+# (sin verificar). No se arregla con otra regla por ruta: dos CSP sobre la
+# misma página se aplican las dos y manda la más estricta.
 [[headers]]
   for = "/*"
   [headers.values]
@@ -45,6 +66,7 @@
     X-Frame-Options = "SAMEORIGIN"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), browsing-topics=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cloud.umami.is https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://btp-laminillas-visor.s3.fr-par.scw.cloud; font-src 'self' data:; connect-src 'self' blob: https://gateway.umami.is https://plausible.io https://alphafold.ebi.ac.uk https://api.iconify.design; worker-src 'self' blob:; frame-src https://challenges.cloudflare.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 [[headers]]
   for = "/donations.json"

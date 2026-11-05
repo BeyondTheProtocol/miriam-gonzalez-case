@@ -987,12 +987,7 @@ function rmnNote(le: Lesion): string {
   return L('Las imágenes de RMN disponibles (series cervical y dorsal) cubren este nivel. El detalle de la forma y la médula ósea se ve en el visor.',
            'The available MRI images (cervical and thoracic series) cover this level. Shape and bone-marrow detail are visible in the viewer.')
 }
-/* desplazamiento que respeta prefers-reduced-motion (a11y): 'auto' si el usuario
-   pide menos movimiento, 'smooth' si no. Se usa en todos los scrollIntoView de JS. */
-function smoothOrAuto(): ScrollBehavior {
-  if (import.meta.client && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'auto'
-  return 'smooth'
-}
+/* smoothOrAuto() vive en composables/useMovimiento.ts: 'auto' si el lector pide menos movimiento, 'smooth' si no. */
 function goToMRI() {
   // sin pestañas: la RMN vive bajo la sección «imagen real» → desplaza a ella
   if (import.meta.client) nextTick(() => document.getElementById('imagen')?.scrollIntoView({ behavior: smoothOrAuto(), block: 'start' }))
@@ -1004,10 +999,9 @@ function jumpToIdoneidad(e: Event) {
   const el = document.getElementById('idoneidad')
   if (!el) return
   e.preventDefault()
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   el.setAttribute('tabindex', '-1')
   el.focus({ preventScroll: true })
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  el.scrollIntoView({ behavior: smoothOrAuto(), block: 'start' })
 }
 
 function visible(le: Lesion): boolean {
