@@ -3,4 +3,11 @@
 # La lista curada (orden de Adri) es press.yml y no se toca desde aquí.
 # Solo se pintan las piezas con `verified: true`. Campos:
 #   outlet, url, title, date (YYYY-MM-DD), country (ISO alfa-2 del medio, opcional), lang (BCP 47 del titular, opcional), verified
-articles: []
+articles:
+  - outlet: "El Español"
+    url: "https://www.elespanol.com/omicrono/tecnologia/20261107/miriam-gonzalez-espanola-estudia-propio-cancer-agentes-ia-enciclopedia-tumor/1003744445429_0.html"
+    title: "Miriam González, la española que estudia su propio cáncer con agentes de IA: \"Tengo la enciclopedia de mi tumor\""
+    date: '2026-11-07'
+    country: ES
+    lang: es
+    verified: true
