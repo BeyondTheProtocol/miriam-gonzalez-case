@@ -3,8 +3,7 @@
  * ajustes de la home, 24-oct-2026). Antes eran siete enlaces escritos a mano en index.vue que se desincronizaban de la sala de
  * prensa; ahora la fuente es una: press.yml.
  *
- * La home enseña los medios con `home: N` (seis desde el 10-nov-2026; por debajo de 768 px, PrensaTira.vue oculta del 5.º en
- * adelante) y en el orden que dice el campo `home: N` de cada pieza (1 primero), que no es el orden
+ * La home enseña SOLO cuatro medios y en el orden que dice el campo `home: N` de cada pieza (1 primero), que no es el orden
  * curado de la sala de prensa. Los demás medios siguen en press.yml y en /prensa; un medio sin `home` no sale en la home.
  *
  * Un medio sale UNA vez, con el enlace de su pieza marcada. El nombre se limpia de paréntesis: en inglés la pieza marcada de
