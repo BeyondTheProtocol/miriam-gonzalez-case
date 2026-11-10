@@ -1,7 +1,9 @@
 <script setup lang="ts">
 /**
  * «Han contado su caso»: la tira de medios justo debajo del hero (rediseño de arquitectura, F5, 23-oct-2026): credibilidad antes
- * de pedir nada. Desde el 24-oct-2026 pesa poco: una o dos líneas en letra pequeña, no nombres grandes, y solo CUATRO medios.
+ * de pedir nada. Desde el 24-oct-2026 pesa poco: una o dos líneas en letra pequeña, no nombres grandes. Desde el 10-nov-2026, SEIS
+ * medios desde 768 px y solo los CUATRO primeros por debajo (medido por `diseno`: con 5 o 6 en la rejilla de móvil la tira pasa de
+ * 118 a 162 px a 375 px).
  * Cuáles, en qué orden y con qué enlace sale de content/<idioma>/press.yml (campo `home: N` de cada pieza; usePrensaMedios), la
  * misma fuente que la sala de prensa; los demás medios siguen en /prensa. Aquí no se escribe ningún medio ni URL.
  *
@@ -62,6 +64,9 @@ useUmamiVisto(tira, EVENTO_PRENSA_VISIBLE)
 /* Por debajo de 640 px (24-oct-2026, revisión de diseño): la tira es etiqueta + dos líneas, no cuatro filas. Los medios van en una
    rejilla de 2 columnas (2×2, sin un medio huérfano en la segunda fila) y «Sala de prensa» se oculta (display: none: también sale del
    tabulador y del lector de pantalla), porque la puerta «Prensa» de «Cómo ayudar» y el pie llevan a /prensa una pantalla más abajo. */
+/* Por debajo de 768 px, solo los cuatro primeros (10-nov-2026): con 5 o 6 la rejilla de móvil tendría 3 filas y, entre 640 y 767 px,
+   la tira 3 líneas. display: none también los saca del tabulador y del lector de pantalla; siguen en /prensa. */
+@media (max-width: 767.98px) { .prensa-tira__lista > li:nth-child(n+5) { display: none; } }
 @media (max-width: 639.98px) {
   .prensa-tira__lista { display: grid; grid-template-columns: repeat(2, max-content); gap: 0 24px; }
   .prensa-tira__sala { display: none; }
