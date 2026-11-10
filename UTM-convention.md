@@ -18,8 +18,10 @@ https://helpmiriam.com/?utm_source=<dónde>&utm_medium=<tipo>&utm_campaign=<acci
 | Parámetro | Qué es | Valores que usamos |
 |---|---|---|
 | `utm_source` | la plataforma | `instagram` · `twitter` · `prensa` · `whatsapp` · `linkedin` · `newsletter` |
-| `utm_medium` | el tipo de enlace | `bio` · `post` · `story` · `firma` · `perfil` · `dm` |
+| `utm_medium` | el tipo de enlace | `bio` · `post` · `story` · `firma` · `perfil` · `dm` · `video` |
 | `utm_campaign` | la acción/ola | `lanzamiento` · (futuras: `actualizacion-jun`, `hito-50k`…) |
+
+`video` se usa cuando el enlace va dentro de un vídeo: en su descripción o en un QR que sale en pantalla (p. ej. `/estreno-yt`). Si el enlace está en la bio del canal, sigue siendo `bio`.
 
 Todo en **minúsculas, sin acentos ni espacios** (usa guiones). Sé consistente: Umami
 agrupa por coincidencia exacta, así que `Instagram` ≠ `instagram`.

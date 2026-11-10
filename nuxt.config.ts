@@ -291,6 +291,8 @@ export default defineNuxtConfig({
     '/biopsia-ig': { redirect: { to: '/laminillas?utm_source=instagram&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-tt': { redirect: { to: '/laminillas?utm_source=tiktok&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
     '/biopsia-yt': { redirect: { to: '/laminillas?utm_source=youtube&utm_medium=bio&utm_campaign=lanzamiento-biopsia', statusCode: 302 } },
+    // Estreno del vídeo en YouTube: destino del QR y del enlace de la descripción (medium `video`, ver UTM-convention.md).
+    '/estreno-yt': { redirect: { to: '/colabora?utm_source=youtube&utm_medium=video&utm_campaign=estreno', statusCode: 302 } },
     // ── Páginas que se pliegan en otras (rediseño de arquitectura, F4, 23-oct-2026; tanda 2, T2a, 24-oct-2026) ─────────
     // Cada redirección son TRES reglas (ES, EN y la variante /en/<slug-es> que crea i18n) y las tres van en
     // `prerender.ignore` (si no, su .html de meta-refresh sombrea el redirect). Donde el slug EN es igual al ES, bastan dos. Sin
@@ -363,6 +365,7 @@ export default defineNuxtConfig({
         '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso', '/polaris',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
         '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
+        '/estreno-yt',
         // la página vieja de la biopsia: solo queda su 301 a /laminillas
         '/biopsia-osea', '/en/bone-biopsy', '/en/biopsia-osea',
         // la página retirada de AlphaFold: solo queda su 301 al explorador

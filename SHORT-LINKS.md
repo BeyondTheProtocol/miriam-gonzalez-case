@@ -76,6 +76,7 @@ control y tu analítica.
 | `/biopsia-ig` | `/laminillas` | `lanzamiento-biopsia` (Instagram/bio) |
 | `/biopsia-tt` | `/laminillas` | `lanzamiento-biopsia` (TikTok/bio) |
 | `/biopsia-yt` | `/laminillas` | `lanzamiento-biopsia` (YouTube/bio) |
+| `/estreno-yt` | `/colabora` | `estreno` (YouTube/vídeo de estreno: QR y descripción) |
 | `/caso` | `/datos#que-buscamos` | `equipo-clinico` (reenvío a médicos, no redes) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 | `/polaris` | repo público de Polaris en GitHub (externo) | medido vía Link de Umami `cloud.umami.is/q/polaris-repo` («General → Repo Polaris», en Umami → Links) |
