@@ -863,6 +863,8 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
 .dt-barra { position: sticky; top: var(--dt-cab); z-index: 40; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
   margin: 16px -16px 0; padding: 8px 16px; background: rgb(var(--color-bg-rgb) / 0.92); backdrop-filter: saturate(1.4) blur(8px);
   border-bottom: 1px solid rgb(var(--color-text-rgb) / 0.08); }
+/* Desenfoque funcional (barra fija sobre los gráficos): quien reduce transparencia la ve opaca. */
+@media (prefers-reduced-transparency: reduce) { .dt-barra { background: rgb(var(--color-bg-rgb)); backdrop-filter: none; } }
 .dt-barra::-webkit-scrollbar { display: none; }
 @media (min-width: 640px) { .dt-barra { margin: 16px 0 0; padding: 8px 0; } }
 .dt-chip { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; white-space: nowrap;

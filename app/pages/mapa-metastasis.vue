@@ -5278,6 +5278,13 @@ svg [role="option"]:focus-visible {
   background: rgba(20, 14, 22, 0.82);
   backdrop-filter: blur(2px);
 }
+/* Velo de diálogo: quien reduce transparencia lo ve opaco y sin desenfoque. */
+@media (prefers-reduced-transparency: reduce) {
+  .foco-key-lb {
+    background: var(--color-text);
+    backdrop-filter: none;
+  }
+}
 .foco-key-lb__panel {
   width: min(860px, 100%);
   max-height: 92vh;
