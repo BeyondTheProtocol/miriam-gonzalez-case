@@ -42,9 +42,16 @@
   /* ── Velos (backdrops / cielos) ──────────────────────────────── */
   --velo-berenjena-60: color-mix(in srgb, var(--color-text) 60%, transparent); /* backdrop de dialog */
 
-  /* ── Sombra: sistema plano. Solo capas flotantes (LAY-3). En CAPAS a baja
-     opacidad (hairline ring + contacto + ambiente) para huir del "sticker"
-     de una sola sombra plana = tell nº1 de IA. Nada de glassmorphism/blur. */
+  /* ── Sombra: sistema plano. Solo capas flotantes (LAY-3). En capas a baja
+     opacidad (filete + contacto + ambiente), para no repetir la misma sombra
+     gris bajo cada caja.
+     Vidrio y desenfoque (regla revisada el 11-nov-2026, firmada por Miriam):
+       · Como DECORACIÓN, no: ni paneles translúcidos para «dar profundidad», ni refracción.
+       · Como FUNCIÓN, sí, con tres condiciones: (1) la capa va encima de contenido que se
+         mueve o que no controlas (barra fija, controles sobre un mapa, velo de un diálogo);
+         (2) su fondo es casi opaco (0,82 o más) y el texto pasa AA sobre lo que quede detrás;
+         (3) con `prefers-reduced-transparency: reduce` pasa a fondo opaco y sin desenfoque.
+     Fuente: NN/g, «Glassmorphism: Definition and Best Practices» (7-jun-2024). */
   --sombra-flotante:
     0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent),
     0 1px 2px color-mix(in srgb, var(--color-text) 8%, transparent),

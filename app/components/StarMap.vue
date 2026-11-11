@@ -994,6 +994,13 @@ const tipStyle = computed(() => {
   box-shadow: 0 4px 14px rgba(45, 27, 61, 0.1);
   backdrop-filter: blur(6px);
 }
+/* Desenfoque funcional (controles sobre el mapa): quien reduce transparencia lo ve opaco. */
+@media (prefers-reduced-transparency: reduce) {
+  .starmap__zoom {
+    background: var(--color-bg);
+    backdrop-filter: none;
+  }
+}
 .starmap__zoom-sep {
   width: 1px;
   height: 22px;
