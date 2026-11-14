@@ -73,7 +73,33 @@ export const getFundraiser = () =>
     headers,
   })
     .then((res) => res.json())
-    .then(({ data }: GoFundMeResponse) => data.fundraiser)
+    .then((r: Partial<GoFundMeResponse> & { errors?: Array<{ message?: string }> }) => {
+      // Desde el 11-nov-2026 GoFundMe contesta sin `data.fundraiser` (antes salía un TypeError mudo). Se dice qué pasó.
+      const fundraiser = r?.data?.fundraiser
+      if (!fundraiser) {
+        const motivo = r?.errors?.map((e) => e?.message).filter(Boolean).join('; ') || 'respuesta sin data.fundraiser'
+        throw new Error(`GoFundMe no devolvió la campaña: ${motivo}`.slice(0, 300))
+      }
+      return fundraiser
+    })
+
+/**
+ * La última cifra que sirve la web publicada (la función viva o, si GoFundMe falla, su semilla). Es el respaldo del
+ * build cuando GoFundMe no responde y no hay semilla en disco (14-nov-2026: los deploy previews de Netlify no tienen
+ * caché y caían todos). Conserva su `actualizado` y sale como `semilla`: la web enseña su fecha y no la hace pasar por
+ * una cifra de hoy.
+ */
+export const COPIA_PUBLICADA = 'https://helpmiriam.com/fundraiser.json'
+
+export async function getCopiaPublicada(): Promise<GoFundMeFundraiser> {
+  const res = await fetch(COPIA_PUBLICADA, { signal: AbortSignal.timeout(15000) })
+  if (!res.ok) throw new Error(`la copia publicada respondió ${res.status}`)
+  const copia = (await res.json()) as GoFundMeFundraiser
+  if (!copia || typeof copia.donationCount !== 'number' || typeof copia.currentAmount?.amount !== 'number') {
+    throw new Error('la copia publicada no trae cifras')
+  }
+  return { ...copia, origen: 'semilla' }
+}
 
 async function fileExists(path: string) {
   try {
@@ -107,7 +133,19 @@ export async function saveFundraiser(overwrite = false) {
       console.warn(`Fundraiser fetch failed; keeping existing file (${path}).`, error)
       return
     }
-    throw error
+    // Sin semilla en disco (deploy preview, checkout limpio): la última cifra de la web publicada.
+    try {
+      const copia = await getCopiaPublicada()
+      await fs.mkdir('seed', { recursive: true })
+      await fs.writeFile(path, JSON.stringify(copia))
+      console.warn(`GoFundMe no respondió; semilla tomada de ${COPIA_PUBLICADA} (cifra del ${copia.actualizado ?? '¿?'}).`, error)
+      return
+    } catch (errorCopia) {
+      // En producción, mejor parar: Netlify deja publicado el deploy anterior, con su cifra. En una preview o en local,
+      // se sigue sin semilla: el HTML sale sin la tarjeta (useFundraiser ya lo contempla).
+      if (process.env.CONTEXT === 'production') throw error
+      console.warn('Sin GoFundMe ni copia publicada: se construye sin semilla (la tarjeta no sale).', error, errorCopia)
+    }
   }
 }
 
