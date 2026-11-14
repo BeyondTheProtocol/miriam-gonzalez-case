@@ -96,6 +96,9 @@ jobs:
       # Si test-ciencia-nivel, test-laminillas-visor o test-alphafold-visor mueren a medias, no queda ni Chrome ni su perfil.
       - run: pnpm test:chrome-copias-limpieza
 
+      # Chrome headless no depende del Llavero de macOS (SIN_LLAVERO en lanzarChrome y en todo lanzador suelto).
+      - run: pnpm test:chrome-sin-llavero
+
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
       # /laminillas: contrato del manifest, privacidad (sin siglas de muestra ni términos vetados), orden de filas,
