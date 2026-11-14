@@ -98,6 +98,8 @@ jobs:
 
       # Estos no necesitan el build; van detrás porque el checkout ya está listo.
       - run: pnpm test:short-links
+      # Sin GoFundMe ni semilla, el build toma la cifra publicada (con su fecha) en vez de caer. Sin red: fetch simulado.
+      - run: pnpm test:fundraiser-respaldo
       # /laminillas: contrato del manifest, privacidad (sin siglas de muestra ni términos vetados), orden de filas,
       # paneo por bloque, que una 4.ª columna entra sin tocar código y el alta y el 301 de la ruta.
       - run: pnpm test:laminillas
