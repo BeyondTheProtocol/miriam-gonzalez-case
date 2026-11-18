@@ -60,15 +60,7 @@ jobs:
       # (3 → 10 → 3): así prueba la resta antes/después con hallazgos ya presentes, y no solo contar desde 0.
       - run: pnpm test:diseno-render --canario --rutas /mapa-metastasis --ancho 390
 
-      # TEMPORAL (cosecha de la baseline de axe, se quita antes de pedir la firma): el Chrome headless del Mac no carga páginas.
-      - run: pnpm test:diseno-render --actualizar --absorber --detalle > cosecha-axe.log 2>&1; s=$?; tail -n 400 cosecha-axe.log; exit $s
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cosecha-axe
-          path: |
-            scripts/diseno-render-baseline.json
-            cosecha-axe.log
+      - run: pnpm test:diseno-render
 
 
       # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.
