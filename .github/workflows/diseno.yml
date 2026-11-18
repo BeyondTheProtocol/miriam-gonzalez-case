@@ -10,7 +10,8 @@ name: Diseño
 # (foco_tapado); líneas de más de 90 caracteres pintados (linea_larga); sticky que la cabecera tapa al pegarse
 # (sticky_tapado); y texto que deja de verse con las cuatro reglas de WCAG 1.4.12 inyectadas (recorte_1412). Más seis
 # cinco comprobaciones sin baseline (el visor 3D, .rejilla-par, el cielo de /links, la barra «Lo último» y los <h3>
-# legales), más el canario de recorte_1412, que es un paso aparte de este workflow.
+# legales), más el canario de recorte_1412, que es un paso aparte de este workflow. Y axe-core: una métrica por regla
+# (axe_<regla>), con la misma baseline que solo puede bajar.
 # La cabecera de scripts/test-diseno-render.mjs explica cada una y lo que el gate NO mide. Mismo ratchet que test:diseno:
 # scripts/diseno-render-baseline.json solo puede bajar.
 #
@@ -59,7 +60,15 @@ jobs:
       # (3 → 10 → 3): así prueba la resta antes/después con hallazgos ya presentes, y no solo contar desde 0.
       - run: pnpm test:diseno-render --canario --rutas /mapa-metastasis --ancho 390
 
-      - run: pnpm test:diseno-render
+      # TEMPORAL (cosecha de la baseline de axe, se quita antes de pedir la firma): el Chrome headless del Mac no carga páginas.
+      - run: pnpm test:diseno-render --actualizar --absorber --detalle > cosecha-axe.log 2>&1; s=$?; tail -n 400 cosecha-axe.log; exit $s
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cosecha-axe
+          path: |
+            scripts/diseno-render-baseline.json
+            cosecha-axe.log
 
 
       # El texto que de verdad sale de Dato, Referencia y TarjetaEnlace (espacios que Vue elimina en modo condense). Sin baseline.

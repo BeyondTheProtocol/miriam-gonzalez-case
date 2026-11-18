@@ -228,8 +228,8 @@ const lectura = computed(() => {
       <div ref="caja" class="cielo__lienzo" @pointerup="tocar">
         <canvas ref="lienzo" class="cielo__canvas" role="slider" tabindex="0"
                 :aria-label="L(`${nPuntos} valores de laboratorio de ${nExtracciones} extracciones desde diciembre de 2023, ${nFuera} fuera de rango, ordenados por fecha y por prueba. Flechas izquierda y derecha: fechas; arriba y abajo: pruebas; Intro: ir a esa fecha.`, `${nPuntos} lab values from ${nExtracciones} blood draws since December 2023, ${nFuera} out of range, by date and by test. Left and right arrows: dates; up and down: tests; Enter: go to that date.`)"
-                :aria-valuemin="0" :aria-valuemax="Math.max(0, nPuntos - 1)" :aria-valuenow="sel ? puntos.indexOf(sel) : undefined"
-                :aria-valuetext="lectura || undefined" @keydown="tecla" />
+                :aria-valuemin="0" :aria-valuemax="Math.max(0, nPuntos - 1)" :aria-valuenow="sel ? puntos.indexOf(sel) : 0"
+                :aria-valuetext="lectura || L('Ningún valor elegido todavía', 'No value selected yet')" @keydown="tecla" />
       </div>
       <p class="cielo__lee nums" aria-live="polite">
         <template v-if="sel">{{ lectura }} <span class="cielo__sello">↧ {{ L('extraído del informe', 'extracted from report') }}</span>

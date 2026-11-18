@@ -1977,6 +1977,13 @@ function registerSkOpt(id: number, el: unknown) {
   if (el) skOptEls.set(id, el as Element)
   else skOptEls.delete(id)
 }
+/* los marcadores del diagrama de fenotipo: options del listbox `sc-opt-*` (axe: el listbox llevaba role=button
+   dentro y su aria-activedescendant apuntaba a un id que no existía). */
+const scOptEls = new Map<number, Element>()
+function registerScOpt(id: number, el: unknown) {
+  if (el) scOptEls.set(id, el as Element)
+  else scOptEls.delete(id)
+}
 const listOptEls = new Map<number, HTMLElement>()
 function registerListOpt(id: number, el: unknown) {
   if (el) listOptEls.set(id, el as HTMLElement)
@@ -1988,6 +1995,11 @@ function registerListOpt(id: number, el: unknown) {
 function focusActiveOption() {
   if (!import.meta.client) return
   const active = document.activeElement
+  // el diagrama de fenotipo lleva su propio roving tabindex: el foco sigue a la selección dentro de él
+  if (active && active.id.startsWith('sc-opt-')) {
+    nextTick(() => (scOptEls.get(selected.value) as SVGElement | undefined)?.focus?.())
+    return
+  }
   const insideNav = active && (skOptEls.has(idOfEl(active)) || listOptEls.has(idOfEl(active)) || (active instanceof HTMLElement && active.closest('[data-foco-nav]')))
   if (!insideNav) return
   nextTick(() => {
@@ -3684,7 +3696,8 @@ const manifestValidated = (() => {
                     :stroke="selected === d.le.id ? '#2d1b3d' : (focoHovered(d.le) ? '#9d44ab' : '#ffffff')"
                     :stroke-width="selected === d.le.id ? 2.5 : (focoHovered(d.le) ? 2.2 : 1.2)"
                     :stroke-dasharray="sourceOf(d.le) === 'ia-david' ? '2 1.6' : undefined"
-                    class="cursor-pointer sk-marker" tabindex="0" role="button" :aria-pressed="selected === d.le.id"
+                    class="cursor-pointer sk-marker" role="option" :id="'sc-opt-' + d.le.id" :ref="(el) => registerScOpt(d.le.id, el)"
+                    :tabindex="selected === d.le.id ? 0 : -1" :aria-selected="selected === d.le.id"
                     :aria-label="`#${d.le.id} ${d.le.level[lang]} — Ga ${d.le.dota ?? '—'} / FDG ${d.le.fdg ?? '—'}`"
                     @click="pickAndShow(d.le.id)" @keydown.enter="pickAndShow(d.le.id)" @keydown.space.prevent="pickAndShow(d.le.id)"
                     @mouseenter="canHoverFine() && (showTip($event, lesionTipText(d.le)), setHover(d.le.id))" @mouseleave="hideTip(); clearHover()" @focus="showTip($event, lesionTipText(d.le)); setHover(d.le.id)" @blur="hideTip(); clearHover()" @keydown.escape="hideTip" />
