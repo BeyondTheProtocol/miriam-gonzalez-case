@@ -205,7 +205,7 @@ const AXE_CORRER = `(async () => {
   const por = {}, ej = {}
   for (const v of r.violations) {
     por[v.id] = v.nodes.length
-    ej['axe_' + v.id] = v.nodes.slice(0, 6).map((n) => (n.impact || v.impact || '?') + ' · ' + n.target.join(' ') + ' · ' + (n.failureSummary || '').replace(/\s+/g, ' ').slice(0, 160))
+    ej['axe_' + v.id] = v.nodes.slice(0, 6).map((n) => (n.impact || v.impact || '?') + ' · ' + n.target.join(' ') + ' · ' + (n.failureSummary || '').replace(/\\s+/g, ' ').slice(0, 160))
   }
   return { por, ej }
 })()`
