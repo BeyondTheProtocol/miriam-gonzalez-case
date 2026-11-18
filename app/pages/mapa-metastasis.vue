@@ -571,7 +571,7 @@ function neShare(le: Lesion): number {
 }
 function phenoColor(le: Lesion) { return PHENO[le.pheno].c }
 /* Relleno de la ficha con el número del foco (`.foco-id-casing`): el color de la rampa aclarado un 8 %. La tinta berenjena da 4,34 a 4,42:1 sobre el teal y el neutro
-   de la rampa (AA pide 4,5); con el 8 % de blanco da de 4,9 a 5,3:1 en los cinco fenotipos. El casing blanco del dígito sigue. Los discos del esqueleto y del diagrama
+   de la rampa (AA pide 4,5); con el 8 % de blanco da de 4,9 a 5,3:1 en los cinco fenotipos, y el casing blanco del dígito sobra (se quitó el 18-nov-2026). Los discos del esqueleto y del diagrama
    (SVG) no cambian: ahí el dígito lleva su contorno y no hay texto corrido. */
 function aclara8(color: string) { return 'color-mix(in srgb, ' + color + ' 92%, white)' }
 function phenoChipFill(le: Lesion) { return aclara8(PHENO[le.pheno].c) }
@@ -4853,15 +4853,10 @@ svg [role="option"]:focus-visible {
   stroke: #9d44ab;
   stroke-width: 3;
 }
-/* Casing blanco opaco del nº de foco en los <span> HTML (el disco SVG ya lo lleva
-   vía paint-order:stroke): el dígito berenjena no alcanza AA texto sobre los
-   rellenos teal/neutro (4.34–4.42:1); el stroke blanco DETRÁS del glifo da
-   separación (dígito 15.7:1 vs casing; casing ≥3:1 vs relleno). paint-order pinta
-   el contorno primero → no adelgaza el núcleo del glifo a 12px. */
-.foco-id-casing {
-  -webkit-text-stroke: 1.1px #ffffff;
-  paint-order: stroke fill;
-}
+/* Nº de foco en los <span> HTML: SIN casing blanco (18-nov-2026). El casing tapaba que la tinta berenjena no llegaba a AA sobre el relleno
+   de la rampa, pero desde que el relleno se aclara un 8 % (`phenoChipFill`) el dígito solo da de 4,9 a 5,3:1 en los cinco fenotipos, y el
+   contorno de 1,1 px hacía que axe leyera el texto como BLANCO sobre el relleno (2,97 a 3,2:1, `color-contrast` en /mapa-metastasis): para
+   un lector de contraste el dígito era el contorno. Los discos SVG conservan su paint-order:stroke. La clase `.foco-id-casing` queda como gancho, sin estilo. */
 /* ── «Detalle del foco» PLEGABLE (reducido por defecto, se expande) ───────── */
 .foco-detalle > summary { list-style: none; }
 .foco-detalle > summary::-webkit-details-marker { display: none; }

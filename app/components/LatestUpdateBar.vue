@@ -13,7 +13,6 @@
       <NuxtLink
         :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
         class="latest-bar__link group"
-        :aria-label="`${$t('hero.latest_label')}: ${latest.title}`"
         @click="trackLatest('barra')"
       >
         <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
