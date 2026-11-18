@@ -18,7 +18,7 @@
          flechas mueven la selección Y el foco del DOM). aria-activedescendant apunta al activo. -->
     <svg :viewBox="`0 0 ${VB_W} ${VB_VIS}`" class="w-full" role="listbox"
       :aria-label="ariaLabel ?? L('Esquema del esqueleto con las lesiones (flechas para recorrer)', 'Skeleton schematic with the lesions (arrows to step)')"
-      :aria-activedescendant="idPrefix + selected"
+      :aria-activedescendant="idActivo"
       :aria-describedby="describedby"
       @keydown="onKey">
       <defs>
@@ -199,6 +199,9 @@ const ticksUsados = computed(() => {
 })
 
 function esSel(g: LesGroup) { return g.foci.some((l) => l.id === props.selected) }
+/* el id lo lleva el marcador del grupo (su foco PRIMARIO): si lo elegido es otro foco del grupo, `idPrefix + selected` apuntaba a un id que no
+   existe (axe aria-valid-attr-value). Sin marcador para lo elegido, no se apunta a nada. */
+const idActivo = computed(() => { const r = CONPOS.find((x) => esSel(x.g)); return r ? props.idPrefix + r.g.primary.id : undefined })
 /* flechas: recorre los grupos en orden del esqueleto (arriba → abajo) */
 function onKey(e: KeyboardEvent) {
   if (!props.teclado) return

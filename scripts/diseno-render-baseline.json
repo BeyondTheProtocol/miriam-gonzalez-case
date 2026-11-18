@@ -14,7 +14,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/:360": {
       "desborde": 0,
@@ -28,7 +29,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/:390": {
       "desborde": 0,
@@ -42,7 +44,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/:768": {
       "desborde": 0,
@@ -56,7 +59,8 @@
       "linea_larga": 1,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/:1280": {
       "desborde": 0,
@@ -70,7 +74,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/ciencia:320": {
       "desborde": 0,
@@ -84,7 +89,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/ciencia:360": {
       "desborde": 0,
@@ -98,7 +106,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/ciencia:390": {
       "desborde": 0,
@@ -112,7 +123,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/ciencia:768": {
       "desborde": 0,
@@ -126,7 +140,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "empty-table-header": 1
+      }
     },
     "/ciencia:1280": {
       "desborde": 0,
@@ -140,7 +158,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "empty-table-header": 1
+      }
     },
     "/ciencia/evidencia:320": {
       "desborde": 0,
@@ -154,7 +176,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/ciencia/evidencia:360": {
       "desborde": 0,
@@ -168,7 +191,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/ciencia/evidencia:390": {
       "desborde": 0,
@@ -182,7 +206,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/ciencia/evidencia:768": {
       "desborde": 0,
@@ -196,7 +221,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/ciencia/evidencia:1280": {
       "desborde": 0,
@@ -210,7 +236,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/colabora:320": {
       "desborde": 0,
@@ -224,7 +251,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/colabora:360": {
       "desborde": 0,
@@ -238,7 +266,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/colabora:390": {
       "desborde": 0,
@@ -252,7 +281,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/colabora:768": {
       "desborde": 0,
@@ -266,7 +296,8 @@
       "linea_larga": 1,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/colabora:1280": {
       "desborde": 0,
@@ -280,7 +311,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/contacto:320": {
       "desborde": 0,
@@ -294,7 +326,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/contacto:360": {
       "desborde": 0,
@@ -308,7 +341,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/contacto:390": {
       "desborde": 0,
@@ -322,7 +356,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/contacto:768": {
       "desborde": 0,
@@ -336,7 +371,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/contacto:1280": {
       "desborde": 0,
@@ -350,7 +386,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/datos:320": {
       "desborde": 0,
@@ -364,7 +401,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/datos:360": {
       "desborde": 0,
@@ -378,7 +418,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/datos:390": {
       "desborde": 0,
@@ -392,7 +435,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/datos:768": {
       "desborde": 0,
@@ -406,7 +452,10 @@
       "linea_larga": 7,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/datos:1280": {
       "desborde": 0,
@@ -420,7 +469,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/equipo:320": {
       "desborde": 0,
@@ -434,7 +486,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/equipo:360": {
       "desborde": 0,
@@ -448,7 +501,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/equipo:390": {
       "desborde": 0,
@@ -462,7 +516,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/equipo:768": {
       "desborde": 0,
@@ -476,7 +531,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/equipo:1280": {
       "desborde": 0,
@@ -490,7 +546,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gastos:320": {
       "desborde": 0,
@@ -504,7 +561,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gastos:360": {
       "desborde": 0,
@@ -518,7 +576,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gastos:390": {
       "desborde": 0,
@@ -532,7 +591,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gastos:768": {
       "desborde": 0,
@@ -546,7 +606,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gastos:1280": {
       "desborde": 0,
@@ -560,7 +621,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gracias:320": {
       "desborde": 0,
@@ -574,7 +636,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gracias:360": {
       "desborde": 0,
@@ -588,7 +651,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gracias:390": {
       "desborde": 0,
@@ -602,7 +666,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gracias:768": {
       "desborde": 0,
@@ -616,7 +681,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/gracias:1280": {
       "desborde": 0,
@@ -630,7 +696,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/laminillas:320": {
       "desborde": 0,
@@ -644,7 +711,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 2
+      }
     },
     "/laminillas:360": {
       "desborde": 0,
@@ -658,7 +729,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 2
+      }
     },
     "/laminillas:390": {
       "desborde": 0,
@@ -672,7 +747,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 2
+      }
     },
     "/laminillas:768": {
       "desborde": 0,
@@ -686,7 +765,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 2
+      }
     },
     "/laminillas:1280": {
       "desborde": 0,
@@ -700,7 +783,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 2
+      }
     },
     "/lesiones:320": {
       "desborde": 0,
@@ -714,7 +801,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/lesiones:360": {
       "desborde": 0,
@@ -728,7 +816,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/lesiones:390": {
       "desborde": 0,
@@ -742,7 +831,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/lesiones:768": {
       "desborde": 0,
@@ -756,7 +846,8 @@
       "linea_larga": 3,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/lesiones:1280": {
       "desborde": 0,
@@ -770,7 +861,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/links:320": {
       "desborde": 0,
@@ -784,7 +876,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/links:360": {
       "desborde": 0,
@@ -798,7 +891,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/links:390": {
       "desborde": 0,
@@ -812,7 +906,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/links:768": {
       "desborde": 0,
@@ -826,7 +921,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/links:1280": {
       "desborde": 0,
@@ -840,7 +936,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/mapa-metastasis:320": {
       "desborde": 0,
@@ -854,7 +951,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 4,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/mapa-metastasis:360": {
       "desborde": 0,
@@ -868,7 +970,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 3,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/mapa-metastasis:390": {
       "desborde": 0,
@@ -882,7 +989,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 3,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/mapa-metastasis:768": {
       "desborde": 0,
@@ -896,7 +1008,12 @@
       "linea_larga": 3,
       "sticky_tapado": 0,
       "recorte_1412": 16,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/mapa-metastasis:1280": {
       "desborde": 0,
@@ -910,7 +1027,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 4,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/marcas:320": {
       "desborde": 0,
@@ -924,7 +1046,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/marcas:360": {
       "desborde": 0,
@@ -938,7 +1061,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/marcas:390": {
       "desborde": 0,
@@ -952,7 +1076,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/marcas:768": {
       "desborde": 0,
@@ -966,7 +1091,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/marcas:1280": {
       "desborde": 0,
@@ -980,7 +1106,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/prensa:320": {
       "desborde": 0,
@@ -994,7 +1121,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/prensa:360": {
       "desborde": 0,
@@ -1008,7 +1136,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/prensa:390": {
       "desborde": 0,
@@ -1022,7 +1151,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/prensa:768": {
       "desborde": 0,
@@ -1036,7 +1166,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/prensa:1280": {
       "desborde": 0,
@@ -1050,7 +1181,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/timeline:320": {
       "desborde": 0,
@@ -1064,7 +1196,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/timeline:360": {
       "desborde": 0,
@@ -1078,7 +1211,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/timeline:390": {
       "desborde": 0,
@@ -1092,7 +1226,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/timeline:768": {
       "desborde": 0,
@@ -1106,7 +1241,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/timeline:1280": {
       "desborde": 0,
@@ -1120,7 +1256,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/celula-a-celula:320": {
       "desborde": 0,
@@ -1134,7 +1271,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 7
+      }
     },
     "/celula-a-celula:360": {
       "desborde": 0,
@@ -1148,7 +1288,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 7
+      }
     },
     "/celula-a-celula:390": {
       "desborde": 0,
@@ -1162,7 +1305,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 7
+      }
     },
     "/celula-a-celula:768": {
       "desborde": 0,
@@ -1176,7 +1322,10 @@
       "linea_larga": 8,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 7
+      }
     },
     "/celula-a-celula:1280": {
       "desborde": 0,
@@ -1190,7 +1339,10 @@
       "linea_larga": 3,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 7
+      }
     },
     "/celula-a-celula/explorar:320": {
       "desborde": 0,
@@ -1204,7 +1356,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 13,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/celula-a-celula/explorar:360": {
       "desborde": 0,
@@ -1218,7 +1371,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/celula-a-celula/explorar:390": {
       "desborde": 0,
@@ -1232,7 +1386,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/celula-a-celula/explorar:768": {
       "desborde": 0,
@@ -1246,7 +1401,8 @@
       "linea_larga": 8,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/celula-a-celula/explorar:1280": {
       "desborde": 0,
@@ -1260,7 +1416,8 @@
       "linea_larga": 11,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/aviso-legal:320": {
       "desborde": 0,
@@ -1274,7 +1431,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/aviso-legal:360": {
       "desborde": 0,
@@ -1288,7 +1446,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/aviso-legal:390": {
       "desborde": 0,
@@ -1302,7 +1461,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/aviso-legal:768": {
       "desborde": 0,
@@ -1316,7 +1476,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/aviso-legal:1280": {
       "desborde": 0,
@@ -1330,7 +1491,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/privacidad:320": {
       "desborde": 0,
@@ -1344,7 +1506,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/privacidad:360": {
       "desborde": 0,
@@ -1358,7 +1521,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/privacidad:390": {
       "desborde": 0,
@@ -1372,7 +1536,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/privacidad:768": {
       "desborde": 0,
@@ -1386,7 +1551,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/privacidad:1280": {
       "desborde": 0,
@@ -1400,7 +1566,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/cookies:320": {
       "desborde": 0,
@@ -1414,7 +1581,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/cookies:360": {
       "desborde": 0,
@@ -1428,7 +1596,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/cookies:390": {
       "desborde": 0,
@@ -1442,7 +1611,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/cookies:768": {
       "desborde": 0,
@@ -1456,7 +1626,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/cookies:1280": {
       "desborde": 0,
@@ -1470,7 +1641,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/guia-de-estilo:320": {
       "desborde": 0,
@@ -1484,7 +1656,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 1,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/guia-de-estilo:360": {
       "desborde": 0,
@@ -1498,7 +1673,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/guia-de-estilo:390": {
       "desborde": 0,
@@ -1512,7 +1690,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/guia-de-estilo:768": {
       "desborde": 0,
@@ -1526,7 +1707,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/guia-de-estilo:1280": {
       "desborde": 0,
@@ -1540,7 +1724,10 @@
       "linea_larga": 1,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/herramientas:320": {
       "desborde": 0,
@@ -1554,7 +1741,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/herramientas:360": {
       "desborde": 0,
@@ -1568,7 +1756,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/herramientas:390": {
       "desborde": 0,
@@ -1582,7 +1771,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/herramientas:768": {
       "desborde": 0,
@@ -1596,7 +1786,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/herramientas:1280": {
       "desborde": 0,
@@ -1610,7 +1801,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/reservorio:320": {
       "desborde": 0,
@@ -1624,7 +1816,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/reservorio:360": {
       "desborde": 0,
@@ -1638,7 +1833,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/reservorio:390": {
       "desborde": 0,
@@ -1652,7 +1850,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/reservorio:768": {
       "desborde": 0,
@@ -1666,7 +1867,10 @@
       "linea_larga": 1,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/reservorio:1280": {
       "desborde": 0,
@@ -1680,7 +1884,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/historia:320": {
       "desborde": 0,
@@ -1694,7 +1901,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "heading-order": 1
+      }
     },
     "/historia:360": {
       "desborde": 0,
@@ -1708,7 +1918,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "heading-order": 1
+      }
     },
     "/historia:390": {
       "desborde": 0,
@@ -1722,7 +1935,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "heading-order": 1
+      }
     },
     "/historia:768": {
       "desborde": 0,
@@ -1736,7 +1952,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "heading-order": 1
+      }
     },
     "/historia:1280": {
       "desborde": 0,
@@ -1750,7 +1969,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "heading-order": 1
+      }
     },
     "/expertos:320": {
       "desborde": 0,
@@ -1764,7 +1986,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/expertos:360": {
       "desborde": 0,
@@ -1778,7 +2001,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/expertos:390": {
       "desborde": 0,
@@ -1792,7 +2016,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/expertos:768": {
       "desborde": 0,
@@ -1806,7 +2031,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/expertos:1280": {
       "desborde": 0,
@@ -1820,7 +2046,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/experts:320": {
       "desborde": 0,
@@ -1834,7 +2061,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/experts:360": {
       "desborde": 0,
@@ -1848,7 +2076,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/experts:390": {
       "desborde": 0,
@@ -1862,7 +2091,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/experts:768": {
       "desborde": 0,
@@ -1876,7 +2106,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/experts:1280": {
       "desborde": 0,
@@ -1890,7 +2121,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en:320": {
       "desborde": 0,
@@ -1904,7 +2136,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en:360": {
       "desborde": 0,
@@ -1918,7 +2151,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en:390": {
       "desborde": 0,
@@ -1932,7 +2166,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en:768": {
       "desborde": 0,
@@ -1946,7 +2181,8 @@
       "linea_larga": 1,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en:1280": {
       "desborde": 0,
@@ -1960,7 +2196,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/science:320": {
       "desborde": 0,
@@ -1974,7 +2211,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/en/science:360": {
       "desborde": 0,
@@ -1988,7 +2228,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/en/science:390": {
       "desborde": 0,
@@ -2002,7 +2245,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1
+      }
     },
     "/en/science:768": {
       "desborde": 0,
@@ -2016,7 +2262,11 @@
       "linea_larga": 1,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "empty-table-header": 1
+      }
     },
     "/en/science:1280": {
       "desborde": 0,
@@ -2030,7 +2280,11 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "empty-table-header": 1
+      }
     },
     "/en/science/evidence:320": {
       "desborde": 0,
@@ -2044,7 +2298,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/science/evidence:360": {
       "desborde": 0,
@@ -2058,7 +2313,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/science/evidence:390": {
       "desborde": 0,
@@ -2072,7 +2328,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/science/evidence:768": {
       "desborde": 0,
@@ -2086,7 +2343,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/science/evidence:1280": {
       "desborde": 0,
@@ -2100,7 +2358,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/data:320": {
       "desborde": 0,
@@ -2114,7 +2373,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/en/data:360": {
       "desborde": 0,
@@ -2128,7 +2390,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/en/data:390": {
       "desborde": 0,
@@ -2142,7 +2407,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/en/data:768": {
       "desborde": 0,
@@ -2156,7 +2424,10 @@
       "linea_larga": 7,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/en/data:1280": {
       "desborde": 0,
@@ -2170,7 +2441,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "label-content-name-mismatch": 10
+      }
     },
     "/en/tools:320": {
       "desborde": 0,
@@ -2184,7 +2458,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/tools:360": {
       "desborde": 0,
@@ -2198,7 +2473,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/tools:390": {
       "desborde": 0,
@@ -2212,7 +2488,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/tools:768": {
       "desborde": 0,
@@ -2226,7 +2503,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/tools:1280": {
       "desborde": 0,
@@ -2240,7 +2518,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/team:320": {
       "desborde": 0,
@@ -2254,7 +2533,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/team:360": {
       "desborde": 0,
@@ -2268,7 +2548,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/team:390": {
       "desborde": 0,
@@ -2282,7 +2563,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/team:768": {
       "desborde": 0,
@@ -2296,7 +2578,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/team:1280": {
       "desborde": 0,
@@ -2310,7 +2593,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/mapa-metastasis:320": {
       "desborde": 0,
@@ -2324,7 +2608,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 4,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/en/mapa-metastasis:360": {
       "desborde": 0,
@@ -2338,7 +2627,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 5,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/en/mapa-metastasis:390": {
       "desborde": 0,
@@ -2352,7 +2646,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 3,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/en/mapa-metastasis:768": {
       "desborde": 0,
@@ -2366,7 +2665,12 @@
       "linea_larga": 3,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/en/mapa-metastasis:1280": {
       "desborde": 0,
@@ -2380,7 +2684,12 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 1,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "aria-allowed-role": 1,
+        "label-content-name-mismatch": 23,
+        "landmark-unique": 1
+      }
     },
     "/en/timeline:320": {
       "desborde": 0,
@@ -2394,7 +2703,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/timeline:360": {
       "desborde": 0,
@@ -2408,7 +2718,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/timeline:390": {
       "desborde": 0,
@@ -2422,7 +2733,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/timeline:768": {
       "desborde": 0,
@@ -2436,7 +2748,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/timeline:1280": {
       "desborde": 0,
@@ -2450,7 +2763,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/collaborate:320": {
       "desborde": 0,
@@ -2464,7 +2778,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/collaborate:360": {
       "desborde": 0,
@@ -2478,7 +2793,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/collaborate:390": {
       "desborde": 0,
@@ -2492,7 +2808,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/collaborate:768": {
       "desborde": 0,
@@ -2506,7 +2823,8 @@
       "linea_larga": 2,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/collaborate:1280": {
       "desborde": 0,
@@ -2520,7 +2838,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/contact:320": {
       "desborde": 0,
@@ -2534,7 +2853,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/contact:360": {
       "desborde": 0,
@@ -2548,7 +2868,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/contact:390": {
       "desborde": 0,
@@ -2562,7 +2883,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/contact:768": {
       "desborde": 0,
@@ -2576,7 +2898,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/contact:1280": {
       "desborde": 0,
@@ -2590,7 +2913,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/expenses:320": {
       "desborde": 0,
@@ -2604,7 +2928,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/expenses:360": {
       "desborde": 0,
@@ -2618,7 +2943,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/expenses:390": {
       "desborde": 0,
@@ -2632,7 +2958,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/expenses:768": {
       "desborde": 0,
@@ -2646,7 +2973,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/expenses:1280": {
       "desborde": 0,
@@ -2660,7 +2988,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/brands:320": {
       "desborde": 0,
@@ -2674,7 +3003,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/brands:360": {
       "desborde": 0,
@@ -2688,7 +3018,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/brands:390": {
       "desborde": 0,
@@ -2702,7 +3033,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/brands:768": {
       "desborde": 0,
@@ -2716,7 +3048,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/brands:1280": {
       "desborde": 0,
@@ -2730,7 +3063,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/press:320": {
       "desborde": 0,
@@ -2744,7 +3078,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/press:360": {
       "desborde": 0,
@@ -2758,7 +3093,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/press:390": {
       "desborde": 0,
@@ -2772,7 +3108,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/press:768": {
       "desborde": 0,
@@ -2786,7 +3123,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/press:1280": {
       "desborde": 0,
@@ -2800,7 +3138,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/lesiones:320": {
       "desborde": 0,
@@ -2814,7 +3153,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/lesiones:360": {
       "desborde": 0,
@@ -2828,7 +3168,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/lesiones:390": {
       "desborde": 0,
@@ -2842,7 +3183,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/lesiones:768": {
       "desborde": 0,
@@ -2856,7 +3198,8 @@
       "linea_larga": 3,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/lesiones:1280": {
       "desborde": 0,
@@ -2870,7 +3213,8 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {}
     },
     "/en/reservorio:320": {
       "desborde": 0,
@@ -2884,7 +3228,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/en/reservorio:360": {
       "desborde": 0,
@@ -2898,7 +3245,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/en/reservorio:390": {
       "desborde": 0,
@@ -2912,7 +3262,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/en/reservorio:768": {
       "desborde": 0,
@@ -2926,7 +3279,10 @@
       "linea_larga": 1,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     },
     "/en/reservorio:1280": {
       "desborde": 0,
@@ -2940,7 +3296,10 @@
       "linea_larga": 0,
       "sticky_tapado": 0,
       "recorte_1412": 0,
-      "foco_tapado": 0
+      "foco_tapado": 0,
+      "axe": {
+        "landmark-unique": 1
+      }
     }
   }
 }

@@ -94,6 +94,7 @@
     "@types/node": "^25.9.1",
     "@types/openseadragon": "5.0.1",
     "@zarrita/storage": "0.2.0",
+    "axe-core": "4.14.0",
     "nuxt-seo-utils": "^8.1.11",
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",

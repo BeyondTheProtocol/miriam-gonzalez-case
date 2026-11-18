@@ -31,7 +31,7 @@
       "app/pages/datos.vue": 1,
       "app/pages/gastos.vue": 3,
       "app/pages/gracias.vue": 6,
-      "app/pages/mapa-metastasis.vue": 420,
+      "app/pages/mapa-metastasis.vue": 419,
       "app/pages/marcas.vue": 9,
       "app/pages/timeline.vue": 4,
       "app/utils/timeline.ts": 9
