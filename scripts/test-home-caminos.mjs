@@ -693,7 +693,7 @@ try {
   await evaluate(`document.querySelector('button[aria-controls=mobile-nav]').click()`)
   // y cambia de idioma: ES → /en y EN → /
   await cargar('/')
-  await evaluate(`document.querySelector('[data-cabecera-fija] [role=group] button[aria-label="English"]').click()`)
+  await evaluate(`document.querySelector('[data-cabecera-fija] [role=group] button[aria-label$="English"]').click()`)
   ok(await enRuta('/en'), '375px: pulsar «EN» en la cabecera lleva a /en')
   await sleep(500)
   await evaluate(`document.querySelector('[data-cabecera-fija] [role=group] button[aria-label="Español"]').click()`)

@@ -2672,7 +2672,7 @@ const manifestValidated = (() => {
                    del navegador; aria-activedescendant + la tabla como alternativa. -->
               <ul data-foco-list data-foco-nav role="listbox"
                 :aria-label="L('Focos — flechas para recorrer, Intro para fijar, o escribe un número', 'Foci — arrows to step, Enter to set, or type a number')"
-                :aria-activedescendant="'list-opt-' + selected"
+                :aria-activedescendant="tableFocusList.some((l) => l.id === selected) ? 'list-opt-' + selected : undefined"
                 aria-describedby="tabla-focos-alt"
                 class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
                 <li v-if="!tableFocusList.length" class="px-2 py-3 text-xs text-tinta text-center" role="presentation">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>

@@ -457,7 +457,7 @@ if (process.env.SIN_NAVEGADOR) {
     }
     // C2b · Idioma { de, a, pagina } (T2d): el selector de la cabecera. `pagina` es donde se cambió; pulsar el idioma activo no manda nada
     {
-      const selectorIdioma = (nombre: string) => `[data-cabecera-fija] [role=group] button[aria-label="${nombre}"]`
+      const selectorIdioma = (nombre: string) => `[data-cabecera-fija] [role=group] button[aria-label$="${nombre}"]`
       await nav.cargar('/ciencia')
       await vaciar()
       ok(await nav.evaluate(`!!document.querySelector('${selectorIdioma('English')}')`), '/ciencia tiene el selector de idioma en la cabecera')
