@@ -571,7 +571,7 @@ function neShare(le: Lesion): number {
 }
 function phenoColor(le: Lesion) { return PHENO[le.pheno].c }
 /* Relleno de la ficha con el número del foco (`.foco-id-casing`): el color de la rampa aclarado un 8 %. La tinta berenjena da 4,34 a 4,42:1 sobre el teal y el neutro
-   de la rampa (AA pide 4,5); con el 8 % de blanco da de 4,9 a 5,3:1 en los cinco fenotipos. El casing blanco del dígito sigue. Los discos del esqueleto y del diagrama
+   de la rampa (AA pide 4,5); con el 8 % de blanco da de 4,9 a 5,3:1 en los cinco fenotipos, y el casing blanco del dígito sobra (se quitó el 18-nov-2026). Los discos del esqueleto y del diagrama
    (SVG) no cambian: ahí el dígito lleva su contorno y no hay texto corrido. */
 function aclara8(color: string) { return 'color-mix(in srgb, ' + color + ' 92%, white)' }
 function phenoChipFill(le: Lesion) { return aclara8(PHENO[le.pheno].c) }
@@ -1977,6 +1977,13 @@ function registerSkOpt(id: number, el: unknown) {
   if (el) skOptEls.set(id, el as Element)
   else skOptEls.delete(id)
 }
+/* los marcadores del diagrama de fenotipo: options del listbox `sc-opt-*` (axe: el listbox llevaba role=button
+   dentro y su aria-activedescendant apuntaba a un id que no existía). */
+const scOptEls = new Map<number, Element>()
+function registerScOpt(id: number, el: unknown) {
+  if (el) scOptEls.set(id, el as Element)
+  else scOptEls.delete(id)
+}
 const listOptEls = new Map<number, HTMLElement>()
 function registerListOpt(id: number, el: unknown) {
   if (el) listOptEls.set(id, el as HTMLElement)
@@ -1988,6 +1995,11 @@ function registerListOpt(id: number, el: unknown) {
 function focusActiveOption() {
   if (!import.meta.client) return
   const active = document.activeElement
+  // el diagrama de fenotipo lleva su propio roving tabindex: el foco sigue a la selección dentro de él
+  if (active && active.id.startsWith('sc-opt-')) {
+    nextTick(() => (scOptEls.get(selected.value) as SVGElement | undefined)?.focus?.())
+    return
+  }
   const insideNav = active && (skOptEls.has(idOfEl(active)) || listOptEls.has(idOfEl(active)) || (active instanceof HTMLElement && active.closest('[data-foco-nav]')))
   if (!insideNav) return
   nextTick(() => {
@@ -2660,7 +2672,7 @@ const manifestValidated = (() => {
                    del navegador; aria-activedescendant + la tabla como alternativa. -->
               <ul data-foco-list data-foco-nav role="listbox"
                 :aria-label="L('Focos — flechas para recorrer, Intro para fijar, o escribe un número', 'Foci — arrows to step, Enter to set, or type a number')"
-                :aria-activedescendant="'list-opt-' + selected"
+                :aria-activedescendant="tableFocusList.some((l) => l.id === selected) ? 'list-opt-' + selected : undefined"
                 aria-describedby="tabla-focos-alt"
                 class="space-y-1 overflow-y-auto pr-0.5" style="max-height:600px">
                 <li v-if="!tableFocusList.length" class="px-2 py-3 text-xs text-tinta text-center" role="presentation">{{ L('Sin focos que coincidan.', 'No matching foci.') }}</li>
@@ -3684,7 +3696,8 @@ const manifestValidated = (() => {
                     :stroke="selected === d.le.id ? '#2d1b3d' : (focoHovered(d.le) ? '#9d44ab' : '#ffffff')"
                     :stroke-width="selected === d.le.id ? 2.5 : (focoHovered(d.le) ? 2.2 : 1.2)"
                     :stroke-dasharray="sourceOf(d.le) === 'ia-david' ? '2 1.6' : undefined"
-                    class="cursor-pointer sk-marker" tabindex="0" role="button" :aria-pressed="selected === d.le.id"
+                    class="cursor-pointer sk-marker" role="option" :id="'sc-opt-' + d.le.id" :ref="(el) => registerScOpt(d.le.id, el)"
+                    :tabindex="selected === d.le.id ? 0 : -1" :aria-selected="selected === d.le.id"
                     :aria-label="`#${d.le.id} ${d.le.level[lang]} — Ga ${d.le.dota ?? '—'} / FDG ${d.le.fdg ?? '—'}`"
                     @click="pickAndShow(d.le.id)" @keydown.enter="pickAndShow(d.le.id)" @keydown.space.prevent="pickAndShow(d.le.id)"
                     @mouseenter="canHoverFine() && (showTip($event, lesionTipText(d.le)), setHover(d.le.id))" @mouseleave="hideTip(); clearHover()" @focus="showTip($event, lesionTipText(d.le)); setHover(d.le.id)" @blur="hideTip(); clearHover()" @keydown.escape="hideTip" />
@@ -4840,15 +4853,10 @@ svg [role="option"]:focus-visible {
   stroke: #9d44ab;
   stroke-width: 3;
 }
-/* Casing blanco opaco del nº de foco en los <span> HTML (el disco SVG ya lo lleva
-   vía paint-order:stroke): el dígito berenjena no alcanza AA texto sobre los
-   rellenos teal/neutro (4.34–4.42:1); el stroke blanco DETRÁS del glifo da
-   separación (dígito 15.7:1 vs casing; casing ≥3:1 vs relleno). paint-order pinta
-   el contorno primero → no adelgaza el núcleo del glifo a 12px. */
-.foco-id-casing {
-  -webkit-text-stroke: 1.1px #ffffff;
-  paint-order: stroke fill;
-}
+/* Nº de foco en los <span> HTML: SIN casing blanco (18-nov-2026). El casing tapaba que la tinta berenjena no llegaba a AA sobre el relleno
+   de la rampa, pero desde que el relleno se aclara un 8 % (`phenoChipFill`) el dígito solo da de 4,9 a 5,3:1 en los cinco fenotipos, y el
+   contorno de 1,1 px hacía que axe leyera el texto como BLANCO sobre el relleno (2,97 a 3,2:1, `color-contrast` en /mapa-metastasis): para
+   un lector de contraste el dígito era el contorno. Los discos SVG conservan su paint-order:stroke. La clase `.foco-id-casing` queda como gancho, sin estilo. */
 /* ── «Detalle del foco» PLEGABLE (reducido por defecto, se expande) ───────── */
 .foco-detalle > summary { list-style: none; }
 .foco-detalle > summary::-webkit-details-marker { display: none; }

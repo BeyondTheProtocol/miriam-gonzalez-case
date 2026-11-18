@@ -62,7 +62,7 @@
           <button
             type="button"
             @click="switchLang('es')"
-            aria-label="Español"
+            aria-label="ES · Español"
             :aria-pressed="locale === 'es'"
             class="inline-flex items-center justify-center px-1 py-2 min-h-control min-w-control uppercase transition-colors"
             :class="locale === 'es' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"
@@ -70,7 +70,7 @@
           <button
             type="button"
             @click="switchLang('en')"
-            aria-label="English"
+            aria-label="EN · English"
             :aria-pressed="locale === 'en'"
             class="inline-flex items-center justify-center px-1 py-2 min-h-control min-w-control uppercase transition-colors"
             :class="locale === 'en' ? 'bg-berenjena text-cream' : 'text-tinta hover:text-berenjena'"

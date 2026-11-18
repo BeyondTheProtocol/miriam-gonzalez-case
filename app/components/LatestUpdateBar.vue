@@ -8,12 +8,12 @@
     ellipsis en el título): así nunca crece en móvil y nunca puede tapar el
     logo ni el CTA del header, ni reducir su altura táctil.
   -->
-  <div v-if="latest && !isHome" class="latest-bar bg-cream-card">
+  <!-- <aside> con nombre (axe `region`): la barra vive fuera del <header> de SiteNav y, sin landmark, su texto quedaba fuera de toda región. -->
+  <aside v-if="latest && !isHome" class="latest-bar bg-cream-card" :aria-label="$t('hero.latest_label')">
     <div class="section-wide latest-bar__inner">
       <NuxtLink
         :to="localePath({ name: 'timeline' }) + '#lo-ultimo'"
         class="latest-bar__link group"
-        :aria-label="`${$t('hero.latest_label')}: ${latest.title}`"
         @click="trackLatest('barra')"
       >
         <span class="hero-live-dot h-2 w-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
@@ -29,7 +29,7 @@
         </span>
       </NuxtLink>
     </div>
-  </div>
+  </aside>
 </template>
 
 <script setup lang="ts">

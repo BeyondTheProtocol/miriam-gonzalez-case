@@ -628,7 +628,8 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
           </div>
           <details class="dt-det">
             <summary>{{ L('Lesión a lesión', 'Lesion by lesion') }}</summary>
-            <div class="dt-tabla-wrap">
+            <!-- tabindex + región con nombre: con el scroll horizontal, quien va con teclado tiene que poder entrar a desplazarla (axe scrollable-region-focusable, WCAG 2.1.1) -->
+            <div class="dt-tabla-wrap" tabindex="0" role="region" :aria-label="L('Tabla lesión a lesión', 'Lesion-by-lesion table')">
               <table class="data-table dt-compacta">
                 <thead><tr><th>{{ L('Lesión', 'Lesion') }}</th><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Diám. mm', 'Diam. mm') }}</th><th>{{ L('Vol. ml', 'Vol. ml') }}</th><th>SUVmax</th></tr></thead>
                 <tbody>
@@ -706,7 +707,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
           <!-- lo medido una o dos veces: tabla, no línea (con un año de ventana saldría vacío) -->
           <div v-if="pocasVeces.length" class="dt-pocas">
             <p class="dt-pocas__t">{{ L('Medidas una o dos veces', 'Measured once or twice') }}</p>
-            <div class="dt-tabla-wrap">
+            <div class="dt-tabla-wrap" tabindex="0" role="region" :aria-label="L('Tabla de pruebas medidas una o dos veces', 'Table of tests measured once or twice')">
               <table class="data-table dt-compacta">
                 <thead><tr><th>{{ L('Prueba', 'Test') }}</th><th>{{ L('Fecha', 'Date') }}</th><th>{{ L('Valor', 'Value') }}</th><th>{{ L('Rango del informe', 'Report range') }}</th></tr></thead>
                 <tbody>
@@ -986,6 +987,7 @@ const imagenGalio = computed(() => ciencia.value?.imaging ?? null)
   border-bottom: 2px solid var(--color-miriam); transform: rotate(45deg) translateY(-3px); transition: transform var(--dur-micro) var(--curva-salida); }
 .dt-det[open] > summary::after { transform: rotate(-135deg) translateY(-3px); }
 .dt-tabla-wrap { overflow-x: auto; border: 1px solid rgb(var(--color-text-rgb) / 0.08); border-radius: 12px; }
+.dt-tabla-wrap:focus-visible { outline: 2px solid var(--color-miriam-claro); outline-offset: 2px; }
 .dt-compacta :deep(td), .dt-compacta :deep(th) { padding: 6px 10px !important; }
 .dt-tarjetas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 @media (min-width: 700px) { .dt-tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
