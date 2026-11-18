@@ -157,7 +157,7 @@ defineExpose({ abrir })
       <span ref="resCaja" class="qc-res__filas" :class="{ 'qc-res--armado': resArmado, 'qc-res--visto': resVisto }">
         <span v-for="(c, i) in top" :key="c.a.key" class="qc-res__fila" :style="{ '--i': i }">
           <span class="qc-res__n">{{ nombre(c.a) }}</span>
-          <span class="qc-res__v nums"><span class="qc-fila__forma">{{ forma(c.antes) }}</span>{{ n(c.antes.v) }} → <span class="qc-fila__forma">{{ forma(c.ahora) }}</span><strong>{{ n(c.ahora.v) }}</strong> <span class="qc-res__u">{{ unidadTxt(c.a.unidad) }}</span></span>
+          <span class="qc-res__v nums"><span class="qc-res__lado"><span class="qc-fila__forma">{{ forma(c.antes) }}</span>{{ n(c.antes.v) }} →</span> <span class="qc-res__lado"><span class="qc-fila__forma">{{ forma(c.ahora) }}</span><strong>{{ n(c.ahora.v) }}</strong> <span class="qc-res__u">{{ unidadTxt(c.a.unidad) }}</span></span></span>
           <span class="qc-res__p nums"><span aria-hidden="true">{{ DIR[dir(c)]![0] }}</span> {{ pct(c) }}</span>
           <svg v-if="geo(c, ejeRes)" :viewBox="`0 0 ${WR} ${HF}`" :width="WR" :height="HF" class="qc-res__pista" aria-hidden="true">
             <rect :x="geo(c, ejeRes)!.b0" :y="Y - 6" :width="Math.max(2, geo(c, ejeRes)!.b1 - geo(c, ejeRes)!.b0)" height="12" rx="3" class="qc-banda" />
@@ -275,7 +275,16 @@ defineExpose({ abrir })
    debajo de 768 px y NADA desde 768 (a 1280, 140 px antes y después). */
 .qc-res__fila { display: grid; grid-template-columns: minmax(8rem, 1fr) auto auto; gap: 0 10px; align-items: baseline; }
 .qc-res__n { font: 700 14px/1.25 var(--font-body); color: var(--color-text); min-width: 0; overflow-wrap: anywhere; }
-.qc-res__v { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); white-space: nowrap; }
+/* El valor puede partir tras la flecha (17-nov-2026): con dos marcas de fuera de rango («▲87 → ▲53 U/L») y el espaciado
+   de WCAG 1.4.12, la fila entera medía 408 px a 390 y `.dt-raiz` la recortaba. Cada lado de la flecha sigue de una pieza. */
+.qc-res__v { font: 500 var(--texto-xs) var(--font-mono); color: var(--color-text-soft); white-space: normal; text-align: right; }
+.qc-res__v > * , .qc-res__lado { white-space: nowrap; }
+/* Por debajo de 360 px no caben nombre (8rem), valor y porcentaje en una fila: el nombre sube a su propia línea. */
+@media (max-width: 359.98px) {
+  .qc-res__fila { grid-template-columns: 1fr auto; }
+  .qc-res__n { grid-column: 1 / -1; }
+  .qc-res__v { text-align: left; }
+}
 .qc-res__v strong { color: var(--color-text); }
 .qc-res__u { font-size: var(--texto-xs); }
 .qc-res__p { font: 700 var(--texto-xs) var(--font-mono); color: var(--color-text); min-width: 52px; text-align: right; }
