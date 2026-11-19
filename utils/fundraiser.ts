@@ -21,38 +21,44 @@ export interface GoFundMeFundraiser {
   origen?: 'vivo' | 'semilla'
 }
 
-export interface GoFundMeResponse {
-  data: {
-    fundraiser: GoFundMeFundraiser
-  }
-}
-
 // Semilla FUERA de public/: si viviera en public/ se publicaría como
 // dist/fundraiser.json y SOMBREARÍA el routeRule que enruta /fundraiser.json a
 // la función viva (misma trampa que los enlaces cortos, ver nuxt.config.ts).
 const path = 'seed/fundraiser.json'
-const request = 'https://graphql.gofundme.com/graphql'
-const operationName = 'GetFundraiser'
-const query = `query GetFundraiser($slug: ID!) {
-  fundraiser(slug: $slug) {
-    currentAmount {
-      amount
-      currencyCode
-    }
-    donationCount
-    donationsEnabled
-  }
-}`
-const variables = { slug: 'biopsia-molecular-que-puede-cambiar-su-tratamiento' }
+// Desde el 11-nov-2026 la API GraphQL de GoFundMe solo acepta consultas de su lista blanca («persisted query safelist») y
+// nuestra consulta no está. La página pública de la campaña sí trae la cifra: va en el estado de Apollo que Next.js incrusta en
+// `__NEXT_DATA__` (comprobado el 19-nov-2026: mismas cifras que la página). Se lee de ahí.
+const slug = 'biopsia-molecular-que-puede-cambiar-su-tratamiento'
+export const PAGINA_CAMPANA = `https://www.gofundme.com/f/${slug}`
 
 const headers = {
-  'Content-Type': 'application/json',
-  'Graphql-Client-Name': 'SSR Frontend Client',
-  'Graphql-Client-Version': '1.0.0',
-  Origin: 'https://www.gofundme.com',
-  Referer: 'https://www.gofundme.com/',
+  Accept: 'text/html',
+  'Accept-Language': 'es-ES,es;q=0.9',
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36',
+}
+
+/** Saca la campaña del HTML de su página pública. Lanza un error que dice qué faltó, nunca un TypeError mudo. */
+export function leerCampana(html: string): GoFundMeFundraiser {
+  const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)
+  if (!m) throw new Error('GoFundMe no devolvió la campaña: la página no trae __NEXT_DATA__')
+  let estado: Record<string, unknown> | undefined
+  try {
+    estado = JSON.parse(m[1]!)?.props?.pageProps?.__APOLLO_STATE__
+  } catch {
+    throw new Error('GoFundMe no devolvió la campaña: __NEXT_DATA__ no es JSON')
+  }
+  const campana = Object.values(estado ?? {}).find(
+    (o) => (o as { __typename?: string; slug?: string })?.__typename === 'Fundraiser' && (o as { slug?: string }).slug === slug
+  ) as Partial<GoFundMeFundraiser> | undefined
+  if (!campana || typeof campana.donationCount !== 'number' || typeof campana.currentAmount?.amount !== 'number') {
+    throw new Error('GoFundMe no devolvió la campaña: la página no trae sus cifras')
+  }
+  return {
+    currentAmount: { amount: campana.currentAmount.amount, currencyCode: campana.currentAmount.currencyCode },
+    donationCount: campana.donationCount,
+    donationsEnabled: campana.donationsEnabled !== false,
+  }
 }
 
 /** Marca de dónde y cuándo se trajo la cifra (ver `GoFundMeFundraiser.origen`). */
@@ -62,26 +68,11 @@ export const estampar = (
   actualizado: string = new Date().toISOString()
 ): GoFundMeFundraiser => ({ ...fundraiser, origen, actualizado })
 
-export const getFundraiser = () =>
-  fetch(request, {
-    method: 'POST',
-    body: JSON.stringify({
-      operationName,
-      query,
-      variables,
-    }),
-    headers,
-  })
-    .then((res) => res.json())
-    .then((r: Partial<GoFundMeResponse> & { errors?: Array<{ message?: string }> }) => {
-      // Desde el 11-nov-2026 GoFundMe contesta sin `data.fundraiser` (antes salía un TypeError mudo). Se dice qué pasó.
-      const fundraiser = r?.data?.fundraiser
-      if (!fundraiser) {
-        const motivo = r?.errors?.map((e) => e?.message).filter(Boolean).join('; ') || 'respuesta sin data.fundraiser'
-        throw new Error(`GoFundMe no devolvió la campaña: ${motivo}`.slice(0, 300))
-      }
-      return fundraiser
-    })
+export const getFundraiser = async (): Promise<GoFundMeFundraiser> => {
+  const res = await fetch(PAGINA_CAMPANA, { headers, signal: AbortSignal.timeout(20000) })
+  if (!res.ok) throw new Error(`GoFundMe no devolvió la campaña: la página respondió ${res.status}`)
+  return leerCampana(await res.text())
+}
 
 /**
  * La última cifra que sirve la web publicada (la función viva o, si GoFundMe falla, su semilla). Es el respaldo del
@@ -154,7 +145,7 @@ export async function saveFundraiser(overwrite = false) {
 // Re-publicamos lo mismo. OPT_OUT: nombres (no anónimos) a excluir si alguien
 // pide quitarse (red de seguridad RGPD). Los anónimos salen como "Anónimo".
 const donationsPath = 'seed/donations.json'
-const donationsFeed = `https://gateway.gofundme.com/web-gateway/v1/feed/${variables.slug}/donations`
+const donationsFeed = `https://gateway.gofundme.com/web-gateway/v1/feed/${slug}/donations`
 const OPT_OUT: string[] = []
 
 export interface PublicDonation {

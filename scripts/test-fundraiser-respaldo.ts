@@ -34,7 +34,7 @@ function simular(gofundme: Resp, copia: Resp) {
     pedidas.push(u)
     const r = u === COPIA_PUBLICADA ? copia : gofundme
     if (r === 'red') throw new TypeError('fetch failed')
-    return new Response(JSON.stringify(r.body), { status: r.status ?? 200 })
+    return new Response(typeof r.body === 'string' ? r.body : JSON.stringify(r.body), { status: r.status ?? 200 })
   }) as typeof fetch
 }
 
@@ -57,7 +57,11 @@ async function enCarpeta(fn: () => Promise<void>, semillaPrevia?: unknown) {
   }
 }
 const semilla = () => (existsSync('seed/fundraiser.json') ? JSON.parse(readFileSync('seed/fundraiser.json', 'utf8')) : null)
-const SIN_CAMPANA = { body: { data: null, errors: [{ message: 'Fundraiser not found' }] } }
+// Desde el 19-nov-2026 se lee la página pública de la campaña (HTML con __NEXT_DATA__), no la API GraphQL.
+const SLUG = 'biopsia-molecular-que-puede-cambiar-su-tratamiento'
+const pagina = (campana: object | null) =>
+  `<html><script id="__NEXT_DATA__" type="application/json">${JSON.stringify({ props: { pageProps: { __APOLLO_STATE__: campana ? { 'Fundraiser:1': { __typename: 'Fundraiser', slug: SLUG, ...campana } } : {} } } })}</script></html>`
+const SIN_CAMPANA = { body: pagina(null) }
 
 console.log('1 · GoFundMe sin campaña y sin semilla → copia publicada')
 await enCarpeta(async () => {
@@ -72,7 +76,7 @@ await enCarpeta(async () => {
 console.log('2 · el error de GoFundMe se explica')
 simular(SIN_CAMPANA, 'red')
 const err = await getFundraiser().then(() => null, (e: Error) => e)
-check(!!err && !(err instanceof TypeError) && /Fundraiser not found/.test(err.message), `error legible: ${err?.message}`)
+check(!!err && !(err instanceof TypeError) && /no trae sus cifras/.test(err.message), `error legible: ${err?.message}`)
 
 console.log('3 · semilla en disco y GoFundMe caído → se conserva')
 await enCarpeta(async () => {
@@ -104,13 +108,23 @@ await enCarpeta(async () => {
 
 console.log('6 · GoFundMe bien → su cifra')
 await enCarpeta(async () => {
-  simular({ body: { data: { fundraiser: { ...CIFRA, donationCount: 99 } } } }, { body: COPIA })
+  simular({ body: pagina({ ...CIFRA, donationCount: 99 }) }, { body: COPIA })
   await saveFundraiser(false)
   check(semilla()?.donationCount === 99 && !pedidas.includes(COPIA_PUBLICADA), 'la semilla es la de GoFundMe y no se toca la copia')
 })
+
+console.log('7 · la página real del 19-nov-2026 (recortada) se lee bien')
+{
+  const { leerCampana } = await import('../utils/fundraiser')
+  const html = pagina({ currentAmount: { __typename: 'Money', amount: 100417, currencyCode: 'EUR' }, donationCount: 2405, donationsEnabled: true })
+  const c = leerCampana(html)
+  check(c.currentAmount.amount === 100417 && c.donationCount === 2405 && c.donationsEnabled, 'saca importe, donativos y estado de la campaña')
+  check(!('__typename' in c.currentAmount), 'no arrastra campos internos de GoFundMe')
+}
 
 if (fallos) {
   console.log(`\n${fallos} FALLO(S)`)
   process.exit(1)
 }
 console.log('\nOK test-fundraiser-respaldo')
+
