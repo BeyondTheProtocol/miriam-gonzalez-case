@@ -27,7 +27,7 @@ export interface GoFundMeFundraiser {
 const path = 'seed/fundraiser.json'
 // Desde el 11-nov-2026 la API GraphQL de GoFundMe solo acepta consultas de su lista blanca («persisted query safelist») y
 // nuestra consulta no está. La página pública de la campaña sí trae la cifra: va en el estado de Apollo que Next.js incrusta en
-// `__NEXT_DATA__` (comprobado el 19-nov-2026: 100.417 € y 2.405 donativos, igual que la página). Se lee de ahí.
+// `__NEXT_DATA__` (comprobado el 19-nov-2026: mismas cifras que la página). Se lee de ahí.
 const slug = 'biopsia-molecular-que-puede-cambiar-su-tratamiento'
 export const PAGINA_CAMPANA = `https://www.gofundme.com/f/${slug}`
 
