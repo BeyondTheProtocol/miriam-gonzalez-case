@@ -209,10 +209,10 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | `--viz-sev-3` | `color-mix(in srgb, var(--color-text) 60%, var(--color-bg))` |  | `color-mix(in srgb, var(--color-miriam) 60%, var(--color-bg))` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
 | `--viz-sev-4` | `color-mix(in srgb, var(--color-text) 82%, var(--color-bg))` |  | `color-mix(in srgb, var(--color-miriam) 82%, var(--color-bg))` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
 | `--viz-sev-5` | `var(--color-text)` |  | `var(--color-miriam)` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
-| `--viz-cat-frio-1` | `#3f7986; --viz-cat-frio-1-osc: #5595a3` |  |  |  |  |
-| `--viz-cat-frio-2` | `#788fb3; --viz-cat-frio-2-osc: #5e769b` |  |  |  |  |
-| `--viz-cat-frio-3` | `#5c758a; --viz-cat-frio-3-osc: #738ea4` |  |  |  |  |
-| `--viz-cat-frio-4` | `#6d9098; --viz-cat-frio-4-osc: #53767f` |  |  |  |  |
+| `--viz-cat-frio-1` | `#427883; --viz-cat-frio-1-osc: #6196a4` |  |  |  |  |
+| `--viz-cat-frio-2` | `#7a8fb4; --viz-cat-frio-2-osc: #596e95` |  |  |  |  |
+| `--viz-cat-frio-3` | `#5483a2; --viz-cat-frio-3-osc: #52819f` |  |  |  |  |
+| `--viz-cat-frio-4` | `#6297a2; --viz-cat-frio-4-osc: #407681` |  |  |  |  |
 | `--viz-cat-tierra-1` | `#9b8b7b; --viz-cat-tierra-1-osc: #7c6c5d` |  |  |  |  |
 | `--viz-cat-tierra-2` | `#ab7f61; --viz-cat-tierra-2-osc: #996e51` |  |  |  |  |
 | `--viz-cat-tierra-3` | `#896b4d; --viz-cat-tierra-3-osc: #a88a6c` |  |  |  |  |
@@ -285,10 +285,10 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | `--color-cta-rgb` | `255 107 71` |  |  |  |  |
 | `--color-cta-hover-rgb` | `229 87 58` |  |  |  |  |
 | `--berenjena-2-rgb` | `58 35 80` |  |  |  |  |
-| `--viz-cat-frio-1-rgb` | `63 121 134; --viz-cat-frio-1-osc-rgb: 85 149 163` |  |  |  |  |
-| `--viz-cat-frio-2-rgb` | `120 143 179; --viz-cat-frio-2-osc-rgb: 94 118 155` |  |  |  |  |
-| `--viz-cat-frio-3-rgb` | `92 117 138; --viz-cat-frio-3-osc-rgb: 115 142 164` |  |  |  |  |
-| `--viz-cat-frio-4-rgb` | `109 144 152; --viz-cat-frio-4-osc-rgb: 83 118 127` |  |  |  |  |
+| `--viz-cat-frio-1-rgb` | `66 120 131; --viz-cat-frio-1-osc-rgb: 97 150 164` |  |  |  |  |
+| `--viz-cat-frio-2-rgb` | `122 143 180; --viz-cat-frio-2-osc-rgb: 89 110 149` |  |  |  |  |
+| `--viz-cat-frio-3-rgb` | `84 131 162; --viz-cat-frio-3-osc-rgb: 82 129 159` |  |  |  |  |
+| `--viz-cat-frio-4-rgb` | `98 151 162; --viz-cat-frio-4-osc-rgb: 64 118 129` |  |  |  |  |
 | `--viz-cat-tierra-1-rgb` | `155 139 123; --viz-cat-tierra-1-osc-rgb: 124 108 93` |  |  |  |  |
 | `--viz-cat-tierra-2-rgb` | `171 127 97; --viz-cat-tierra-2-osc-rgb: 153 110 81` |  |  |  |  |
 | `--viz-cat-tierra-3-rgb` | `137 107 77; --viz-cat-tierra-3-osc-rgb: 168 138 108` |  |  |  |  |
