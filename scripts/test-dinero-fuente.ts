@@ -121,8 +121,16 @@ ok(!/banc|saldo|cuenta|account|balance|extracto|factura|invoice/i.test(JSON.stri
 ok(!/deuda|debt|tarjeta|card\b|proveedor|supplier|vendor|movimiento|transaction|devoluc|reembols|refund|reimburs|iban|swift|sello|rango|desglose/i.test(JSON.stringify(dinero)), 'el JSON no lleva deuda, tarjetas, proveedores, movimientos, devoluciones, rangos ni sellos internos (lista blanca del corte)')
 // Miriam quitó el 25-oct-2026 la fila de lo recibido (`ingresado`), el cuadre de GoFundMe (`gofundme`) y la nota del cargo duplicado
 // (`correccion`): no vuelven al JSON sin que ella lo pida (§9).
-ok(JSON.stringify(Object.keys(dinero).sort()) === JSON.stringify(['comprometido', 'corte', 'disponible', 'fases', 'moneda', 'partidas', 'rebiopsia'].sort()), 'el JSON tiene los campos previstos y ninguno más (un campo nuevo se piensa antes de publicarlo; ingresado, gofundme y correccion los quitó Miriam el 25-oct-2026)')
+ok(JSON.stringify(Object.keys(dinero).sort()) === JSON.stringify(['comprometido', 'corte', 'disponible', 'fases', 'moneda', 'partidas', 'rebiopsia', 'viajes'].sort()), 'el JSON tiene los campos previstos y ninguno más (un campo nuevo se piensa antes de publicarlo; ingresado, gofundme y correccion los quitó Miriam el 25-oct-2026)')
 ok(dinero.partidas.every((p) => JSON.stringify(Object.keys(p).sort()) === JSON.stringify(['clave', 'importe'])), 'cada partida es solo {clave, importe}: la etiqueta vive en i18n (es y en) y ningún sello ni nota viaja con ella')
+// Reparto de viajes por destino (Miriam, 19-nov-2026): cuatro cifras que suman la partida `travel`, pintadas dentro de su rótulo.
+{
+  const v = (dinero as unknown as { viajes: Record<string, number> }).viajes
+  ok(JSON.stringify(Object.keys(v).sort()) === JSON.stringify(['congresos', 'ensayos', 'otros', 'zurich']), 'el reparto de viajes tiene sus cuatro destinos y nada más')
+  const travel = dinero.partidas.find((p) => p.clave === 'travel')!.importe
+  ok(Object.values(v).reduce((a, n) => a + centimos(n), 0) === centimos(travel), `el reparto de viajes suma la partida de viajes (${travel})`)
+  for (const [loc, d] of [['es', es], ['en', en]] as const) ok(['{zurich}', '{ensayos}', '{congresos}', '{otros}'].every((k) => d.expenses.report_item_travel.includes(k)), `${loc}: el rótulo de viajes rellena los cuatro destinos desde el JSON`)
+}
 ok(JSON.stringify(Object.keys(dinero.rebiopsia).sort()) === JSON.stringify(['biopsia', 'ejecutado', 'fecha', 'imagen', 'secuenciacion']), 'la rebiopsia es solo su fecha, lo ejecutado y las tres sublíneas')
 {
   const fechaReal = (f: string) => /^\d{4}-\d{2}-\d{2}$/.test(f) && !Number.isNaN(Date.parse(f)) && Date.parse(f) <= Date.now()

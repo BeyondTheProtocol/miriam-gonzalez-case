@@ -37,7 +37,7 @@
               class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/[0.07]"
             >
               <span class="text-sm text-tinta leading-relaxed">
-                {{ $t(`expenses.report_item_${item.clave}`) }}
+                {{ $t(`expenses.report_item_${item.clave}`, item.clave === 'travel' ? repartoViajes : {}) }}
               </span>
               <span
                 class="text-sm font-mono text-berenjena shrink-0"
@@ -263,6 +263,12 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 // Informe de gastos. Las cifras, con su fecha de corte, viven en app/data/dinero.json (app/utils/dinero.ts): aquí no se escribe
 // ninguna a mano (lo vigila scripts/test-dinero-fuente.ts). El informe se reconstruye movimiento a movimiento desde los extractos.
 const money = (n: number) => euros(n, locale.value)
+const repartoViajes = computed(() => ({
+  zurich: money(DINERO.viajes.zurich),
+  ensayos: money(DINERO.viajes.ensayos),
+  congresos: money(DINERO.viajes.congresos),
+  otros: money(DINERO.viajes.otros),
+}))
 const corte = computed(() => fechaDeCorte(DINERO.corte, locale.value))
 // El bloque de la rebiopsia lleva su fecha, que no es la del corte del informe.
 const fechaRebiopsia = computed(() => fechaDeCorte(DINERO.rebiopsia.fecha, locale.value))

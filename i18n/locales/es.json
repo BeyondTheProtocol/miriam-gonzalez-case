@@ -1172,7 +1172,7 @@
     "report_intro": "Reconstruido movimiento a movimiento desde los extractos bancarios, con cifras a {fecha}.",
     "cuadre": "Lo recaudado en GoFundMe es la cifra bruta, en directo; este informe muestra lo gastado y lo disponible a su fecha de corte.",
     "report_available_label": "Queda disponible",
-    "report_item_travel": "Viajes del caso: biopsia en Zúrich, ensayos clínicos en Barcelona y congresos, ya descontado lo que han reembolsado los ensayos",
+    "report_item_travel": "Viajes del caso, ya descontado lo que han reembolsado los ensayos: biopsia en Zúrich ({zurich}), ensayos clínicos en Barcelona ({ensayos}), congresos ({congresos}) y otros ({otros})",
     "report_item_ai": "IA y herramientas de análisis",
     "report_item_tax": "Impuesto de donaciones",
     "report_item_diagnostics": "Pruebas diagnósticas: biopsia, secuenciación e imagen",
