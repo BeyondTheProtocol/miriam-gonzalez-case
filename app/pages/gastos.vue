@@ -152,7 +152,7 @@
           <p class="text-sm text-tinta leading-relaxed mb-5 measure">
             {{ $t('expenses.rebiopsy_intro') }}
           </p>
-          <div class="grid sm:grid-cols-2 gap-4">
+          <div class="grid gap-4"><!-- El bloque «Pendiente / por determinar» se quitó el 19-nov-2026: el banco de tejido no hizo falta (Dana-Farber). -->
             <div
               class="rounded-card bg-cream p-4"
               style="border: 1px solid rgba(45,27,61,0.08)"
@@ -170,25 +170,6 @@
               </p>
               <p class="text-sm text-tinta leading-relaxed">
                 {{ $t('expenses.rebiopsy_now_desc', lineasRebiopsia) }}
-              </p>
-            </div>
-            <div
-              class="rounded-card bg-cream p-4"
-              style="border: 1px solid rgba(45,27,61,0.08)"
-            >
-              <p
-                class="font-mono uppercase text-2xs tracking-[0.12em] font-medium text-tinta mb-1"
-              >
-                {{ $t('expenses.rebiopsy_bank_label') }}
-              </p>
-              <p
-                class="font-display font-semibold text-berenjena text-xl mb-2"
-                style="font-variant-numeric: tabular-nums"
-              >
-                {{ $t('expenses.rebiopsy_bank_range') }}
-              </p>
-              <p class="text-sm text-tinta leading-relaxed">
-                {{ $t('expenses.rebiopsy_bank_desc') }}
               </p>
             </div>
           </div>
