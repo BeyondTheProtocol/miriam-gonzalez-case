@@ -106,7 +106,7 @@ const MAT = {
   // real lo es («unique purple coloring», resumen 510(k) K072549 de la FDA). La opacidad la pone
   // quien mira, con el deslizador: casi sólido para verlo «tal como es», o translúcido para ver
   // dentro el portal medido (Miriam, 8-oct-26). Ver aplicaOpacidad().
-  modelo: () => new THREE.MeshPhysicalMaterial({ color: 0x7d4be0, roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
+  modelo: () => new THREE.MeshPhysicalMaterial({ color: 0x804fc3, roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
   traquea: () => rayosX(new THREE.MeshPhysicalMaterial({ color: 0x9aa4b2, roughness: 0.9, transparent: true, depthWrite: false }), 0.04, 0.42, 0.25),
 }
 
@@ -492,9 +492,9 @@ function fechaLegible(f: string) {
 .rv-muestra { display: inline-block; width: 22px; height: 7px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
 .rv-muestra--lisa { background: #ff6b47; }
 .rv-muestra--rayas { background: repeating-linear-gradient(90deg, #ff6b47 0 5px, #ffe3d9 5px 8px); }
-.rv-muestra--lila { background: #7d4be0; }
+.rv-muestra--lila { background: var(--identidad); }
 .rv-opacidad { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: var(--texto-xs); min-height: 32px; }
-.rv-opacidad input { flex: 1 1 140px; max-width: 260px; accent-color: #7c4ddb; min-height: 24px; }
+.rv-opacidad input { flex: 1 1 140px; max-width: 260px; accent-color: var(--identidad); min-height: 24px; }
 .rv-opacidad output { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
 @media (pointer: coarse) { .rv-opacidad { min-height: 44px; } .rv-opacidad input { min-height: 44px; } }
 </style>

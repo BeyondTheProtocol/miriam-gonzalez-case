@@ -3,7 +3,7 @@
   "nota": "Generado por scripts/test-diseno.ts (pnpm test:diseno --actualizar). Un recuento puede bajar, nunca subir. No se edita a mano.",
   "reglas": {
     "R1": {
-      "app/assets/css/main.css": 9,
+      "app/assets/css/main.css": 8,
       "app/components/BoneTriView.client.vue": 28,
       "app/components/BreastView.client.vue": 4,
       "app/components/celula/CelulaProximosPasos.vue": 1,
@@ -22,7 +22,7 @@
       "app/components/MarcasContactPrompt.vue": 1,
       "app/components/MobileSupportBar.vue": 2,
       "app/components/OgImage/Default.takumi.vue": 12,
-      "app/components/ReservoirView.client.vue": 16,
+      "app/components/ReservoirView.client.vue": 14,
       "app/components/SpineMRIViewer.vue": 9,
       "app/components/StarMap.vue": 35,
       "app/components/TimelineEntry.vue": 6,
@@ -31,7 +31,7 @@
       "app/pages/datos.vue": 1,
       "app/pages/gastos.vue": 2,
       "app/pages/gracias.vue": 2,
-      "app/pages/mapa-metastasis.vue": 379,
+      "app/pages/mapa-metastasis.vue": 377,
       "app/pages/marcas.vue": 8,
       "app/pages/timeline.vue": 2,
       "app/utils/timeline.ts": 6
@@ -184,7 +184,7 @@
     "R14": {
       "app/app.vue": 1,
       "app/assets/css/design-system-v2/btp-tokens.css": 8,
-      "app/assets/css/main.css": 10,
+      "app/assets/css/main.css": 9,
       "app/components/BoneFrameViewer.client.vue": 2,
       "app/components/BoneTriView.client.vue": 5,
       "app/components/BreastView.client.vue": 1,
