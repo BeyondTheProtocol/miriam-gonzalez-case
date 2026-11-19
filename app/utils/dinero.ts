@@ -41,8 +41,6 @@ export const DINERO = dinero as {
   moneda: string
   comprometido: number
   disponible: number
-  /** De dónde está lo que queda por gastar (Miriam, 19-nov-2026: empezar de cero contando lo que ella debe a la campaña). Suma `disponible`. */
-  queda: { en_caja: number; en_gofundme: number; por_reponer: number }
   partidas: { clave: string; importe: number }[]
   /** Reparto de la partida `travel` por destino (19-nov-2026, Miriam: «pon entre paréntesis lo que ha ido a cada cosa»). Suma `travel`. */
   viajes: { zurich: number; ensayos: number; congresos: number }

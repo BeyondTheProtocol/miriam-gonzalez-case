@@ -1173,7 +1173,7 @@
     "report_title": "Dónde ha ido el dinero",
     "report_intro": "Reconstruido movimiento a movimiento desde los extractos bancarios, con cifras a {fecha}.",
     "cuadre": "Lo recaudado en GoFundMe es la cifra bruta, en directo; este informe muestra lo gastado y lo disponible a su fecha de corte.",
-    "report_available_label": "Queda por gastar",
+    "report_available_label": "Queda disponible",
     "report_item_travel": "Viajes del caso",
     "report_travel_zurich": "Biopsia en Zúrich",
     "report_travel_ensayos": "Ensayos clínicos y consultas médicas, ya descontado lo que han reembolsado los ensayos",
@@ -1188,10 +1188,7 @@
     "report_item_treatment": "Medicación y tratamiento de soporte",
     "report_item_samples": "Envío de muestras al laboratorio",
     "report_total": "Total gastado y comprometido",
-    "report_available_desc": "Estimado a {fecha}: lo recaudado menos las comisiones de GoFundMe, los gastos y el impuesto de donaciones, también el pendiente de pago.",
-    "report_queda_en_caja": "En la cuenta",
-    "report_queda_en_gofundme": "Pendiente de transferir por GoFundMe",
-    "report_queda_por_reponer": "Pendiente de reponer por Miriam"
+    "report_available_desc": "Estimado: es lo que quedaba el {fecha}, con el impuesto de donaciones pendiente de pago ya apartado."
   },
   "links": {
     "meta_title": "Miriam González · Enlaces",

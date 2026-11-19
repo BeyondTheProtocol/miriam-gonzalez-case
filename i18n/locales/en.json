@@ -1173,7 +1173,7 @@
     "report_title": "Where the money has gone",
     "report_intro": "Rebuilt transaction by transaction from the bank statements, with figures as of {fecha}.",
     "cuadre": "The amount raised on GoFundMe is the gross figure, live; this report shows what has been spent and what is available as of its cutoff date.",
-    "report_available_label": "Still to be spent",
+    "report_available_label": "Still available",
     "report_item_travel": "Case-related travel",
     "report_travel_zurich": "Biopsy in Zurich",
     "report_travel_ensayos": "Clinical trials and medical consultations, net of what the trials have reimbursed",
@@ -1188,10 +1188,7 @@
     "report_item_treatment": "Medication and supportive care",
     "report_item_samples": "Shipping samples to the lab",
     "report_total": "Total spent and committed",
-    "report_available_desc": "Estimated as of {fecha}: what was raised minus GoFundMe fees, spending and the gift tax, including the tax still pending.",
-    "report_queda_en_caja": "Already in the bank",
-    "report_queda_en_gofundme": "Still to be transferred by GoFundMe",
-    "report_queda_por_reponer": "Still to be paid back by Miriam"
+    "report_available_desc": "Estimated: what was left as of {fecha}, with the pending gift tax already set aside."
   },
   "links": {
     "meta_title": "Miriam González · Links",
