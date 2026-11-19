@@ -316,7 +316,7 @@
       },
       "bank": {
         "label": "Banco de tejido",
-        "desc": "Preservar y bancar el tejido y completar la secuenciación."
+        "desc": "Las muestras se analizan en Dana-Farber, dentro de un proyecto de investigación: solo costó el envío."
       },
       "treatment": {
         "label": "Terapia personalizada",
@@ -1162,7 +1162,7 @@
     "phase1_title": "Fase 1 · Rebiopsia y análisis inmediato",
     "phase1_desc": "Biopsia ósea en Zúrich, hecha en julio de 2026. Gastado a {fecha}: {gastado}, con la secuenciación genómica del tumor y el envío de imagen incluidos. Los análisis del tejido siguen en curso.",
     "phase2_title": "Fase 2 · Preservación y banco de tejido",
-    "phase2_desc": "Congelado, OCT y tejido vivo almacenado para análisis futuros sin volver a biopsiar.",
+    "phase2_desc": "Al final no hizo falta pagar un banco de tejido: las muestras se enviaron a Dana-Farber (Boston), que las analiza dentro de un proyecto de investigación. Este bloque solo costó el envío.",
     "phase3_title": "Fase 3 · Tratamiento y seguimiento",
     "phase3_desc": "Segundas opiniones internacionales, ensayo N-of-1 y monitorización según lo que confirme la biología.",
     "help_cta": "Apoyar el caso",

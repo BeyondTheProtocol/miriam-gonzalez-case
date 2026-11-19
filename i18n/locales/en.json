@@ -316,7 +316,7 @@
       },
       "bank": {
         "label": "Tissue bank",
-        "desc": "Preserve and bank the tissue and complete sequencing."
+        "desc": "The samples are analysed at Dana-Farber as part of a research project: only the shipping was paid."
       },
       "treatment": {
         "label": "Personalized therapy",
@@ -1162,7 +1162,7 @@
     "phase1_title": "Phase 1 · Rebiopsy and immediate analysis",
     "phase1_desc": "Bone biopsy in Zürich, done in July 2026. Spent as of {fecha}: {gastado}, including tumor genomic sequencing and imaging shipping. Analysis of the tissue is still under way.",
     "phase2_title": "Phase 2 · Preservation and tissue banking",
-    "phase2_desc": "Freezing, OCT and live tissue stored for future analysis without another biopsy.",
+    "phase2_desc": "In the end there was no need to pay for a tissue bank: the samples were sent to Dana-Farber (Boston), which analyses them as part of a research project. This block only cost the shipping.",
     "phase3_title": "Phase 3 · Treatment and monitoring",
     "phase3_desc": "International second opinions, N-of-1 trial and monitoring as biology confirms.",
     "help_cta": "Support the case",
