@@ -26,6 +26,18 @@ Los componentes no pintan con la paleta: pintan con **roles** (`--fondo`, `--sup
 
 Los puntos de ruptura son los de Tailwind: `sm` 640, `md` 768, `lg` 1024, `xl` 1280. No hay tokens de breakpoint (los `--bp-*` de la v2 no los leía nadie).
 
+### Capas de marca
+
+El violeta es del piloto. Lo llevan los roles bajo `data-capa="piloto"` y el BrandMark; dentro de la casa aparece solo en el borde del hueco «Caso piloto» (`--hueco-piloto-borde`).
+
+La casa, Beyond the Protocol, es la base: sin atributo, una página sale en crema, berenjena y coral para la acción, con la trama. El piloto se pide con `data-capa="piloto"`; helpmiriam.com lo pone en `<html>` desde `nuxt.config.ts`. Una isla de casa dentro del piloto lleva `data-capa="casa"`, y no admite otro piloto dentro. Polaris no tiene capa: pinta sus destellos y sus líneas con `--texto-1`. Un rol que cambia con la capa se declara en los bloques de capa; un token que solo cambia con el tema, como `--hueco-piloto-borde`, se declara en `:root` y en `[data-tema="oscuro"]`.
+
+Un destello es siempre Polaris y toma el color del texto de su superficie. Dentro del BrandMark no cambia de color, porque el logo es una pieza fija del piloto.
+
+En la casa, los fondos tenues (marcador, seleccionado, hecho, pendiente) son berenjena o crema al 6-16 % y no significan nada solos: cada uno va con su forma (subrayado, borde, icono y palabra). Ningún enlace en línea va dentro de una píldora de estado. Cada estado lleva el mismo icono y la misma palabra en las dos capas.
+
+Cómo leer las tablas de abajo: cada token tiene cuatro columnas de valor, «Casa», «Casa · banda oscura», «Piloto» y «Piloto · banda oscura». Una celda vacía hereda: en oscuro, el valor en claro de su capa; en el piloto, el de la casa. Las copias de la isla de casa (`[data-capa="casa"]`) no generan filas: son literales de la base, y `pnpm test:diseno` (R15) lo comprueba. El orden de los siete bloques del canon y el porqué están en la cabecera de `btp-tokens.css`.
+
 ### Tokens del canon
 
 Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:diseno` lo marca.
@@ -34,236 +46,252 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 
 #### Paleta
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--color-bg` | `#faf6f0` |  | Crema — fondo claro siempre (nunca blanco) |
-| `--color-bg-card` | `#f5efe6` |  | Crema profunda — superficies elevadas |
-| `--color-text` | `#2d1b3d` |  | Berenjena — texto/trazo/fondo oscuro (nunca negro) |
-| `--color-text-soft` | `#3a3340` |  | Tinta — texto secundario |
-| `--color-miriam` | `#9d44ab` |  | Violeta FIRMA — validado por Ceci/MCP: 5.07:1 sobre crema y 4.77:1 sobre tarjeta elevada = AA-normal en AMBAS. Gana a #a44db2 (4.55/4.29 = solo AA-large). Producción sirve aún #a44db2 → alinear vía PR. |
-| `--color-miriam-soft` | `#e8d4ed` |  | Violeta soft — fondo de badges |
-| `--color-cta` | `#ff6b47` |  | Coral — SOLO acción (nunca porta significado sobre crema) |
-| `--color-cta-hover` | `#e5573a` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--color-bg` | `#faf6f0` |  |  |  | Crema — fondo claro siempre (nunca blanco) |
+| `--color-bg-card` | `#f5efe6` |  |  |  | Crema profunda — superficies elevadas |
+| `--color-text` | `#2d1b3d` |  |  |  | Berenjena — texto/trazo/fondo oscuro (nunca negro) |
+| `--color-text-soft` | `#3a3340` |  |  |  | Tinta — texto secundario |
+| `--color-miriam` | `#9d44ab` |  |  |  | Violeta FIRMA — validado por Ceci/MCP: 5.07:1 sobre crema y 4.77:1 sobre tarjeta elevada = AA-normal en AMBAS. Gana a #a44db2 (4.55/4.29 = solo AA-large). Producción sirve aún #a44db2 → alinear vía PR. |
+| `--color-miriam-soft` | `#e8d4ed` |  |  |  | Violeta soft — fondo de badges |
+| `--color-cta` | `#ff6b47` |  |  |  | Coral — SOLO acción (nunca porta significado sobre crema) |
+| `--color-cta-hover` | `#e5573a` |  |  |  |  |
 
 #### Derivados oficiales
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--color-miriam-claro` | `#c77dd2` |  | Violeta sobre fondo oscuro (berenjena); NUNCA sobre crema |
-| `--cielo-resplandor` | `#3a2450` |  | SOLO fondos de "cielo" (universo constelación) |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--color-miriam-claro` | `#c77dd2` |  |  |  | Violeta sobre fondo oscuro (berenjena); NUNCA sobre crema |
+| `--cielo-resplandor` | `#3a2450` |  |  |  | SOLO fondos de "cielo" (universo constelación) |
 
 #### Estados derivados
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--cta-active` | `color-mix(in srgb, var(--color-cta) 85%, var(--color-text))` |  |  |
-| `--miriam-hover` | `color-mix(in srgb, var(--color-miriam) 88%, var(--color-text))` | `color-mix(in srgb, var(--color-miriam-claro) 88%, var(--color-bg))` |  |
-| `--miriam-active` | `color-mix(in srgb, var(--color-miriam) 78%, var(--color-text))` | `color-mix(in srgb, var(--color-miriam-claro) 78%, var(--color-bg))` |  |
-| `--secundario-hover` | `color-mix(in srgb, var(--color-text) 6%, transparent)` | `color-mix(in srgb, var(--color-bg) 8%, transparent)` |  |
-| `--seleccionado-bg` | `var(--color-miriam-soft)` |  |  |
-| `--seleccionado-text` | `var(--color-text)` |  |  |
-| `--btn-dark-hover` | `color-mix(in srgb, var(--color-text) 84%, var(--color-miriam))` |  | #3f224f; antes #3d2752 escrito a mano |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--cta-active` | `color-mix(in srgb, var(--color-cta) 85%, var(--color-text))` |  |  |  |  |
+| `--miriam-hover` | `color-mix(in srgb, var(--color-miriam) 88%, var(--color-text))` | `color-mix(in srgb, var(--color-miriam-claro) 88%, var(--color-bg))` |  |  | EN DESUSO: usa --identidad-hover / --identidad-active |
+| `--miriam-active` | `color-mix(in srgb, var(--color-miriam) 78%, var(--color-text))` | `color-mix(in srgb, var(--color-miriam-claro) 78%, var(--color-bg))` |  |  | EN DESUSO: usa --identidad-hover / --identidad-active |
+| `--secundario-hover` | `color-mix(in srgb, var(--color-text) 6%, transparent)` | `color-mix(in srgb, var(--color-bg) 8%, transparent)` |  |  |  |
+| `--seleccionado-bg` | `color-mix(in srgb, var(--color-text) 12%, var(--color-bg))` |  | `var(--color-miriam-soft)` |  | fondo del control activo; nunca es la única señal: va con borde o con subrayado |
+| `--seleccionado-text` | `var(--color-text)` |  |  |  |  |
+| `--btn-dark-hover` | `color-mix(in srgb, var(--color-text) 88%, var(--color-bg))` |  | `color-mix(in srgb, var(--color-text) 84%, var(--color-miriam))` |  | hover del botón oscuro: berenjena aclarada en la casa, berenjena con violeta en el piloto |
+| `--subrayado-mezcla` | `55%` |  | `45%` |  | porcentaje de --identidad en el subrayado: 55 % casa (3,60 crema · 3,54 tarjeta · 5,36 berenjena; mínimo 50 %), 45 % piloto |
+| `--hecho-borde-mezcla` | `55%` |  | `45%` |  | porcentaje de --identidad en el borde de «hecho»: 55 % casa (3,60 · 5,36), 45 % piloto |
 
 #### Velos
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--velo-berenjena-60` | `color-mix(in srgb, var(--color-text) 60%, transparent)` |  | backdrop de dialog |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--velo-berenjena-60` | `color-mix(in srgb, var(--color-text) 60%, transparent)` |  |  |  | backdrop de dialog |
 
 #### Sombra
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--sombra-flotante` | `0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent), 0 1px 2px color-mix(in srgb, var(--color-text) 8%, transparent), 0 8px 24px color-mix(in srgb, var(--color-text) 6%, transparent)` |  |  |
-| `--sombra-hover` | `0 14px 34px color-mix(in srgb, var(--color-text) 10%, transparent)` |  |  |
-| `--sombra-dura` | `6px 6px 0 color-mix(in srgb, var(--color-text) 90%, transparent)` |  |  |
-| `--sombra-dura-hover` | `8px 8px 0 color-mix(in srgb, var(--color-text) 90%, transparent)` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--sombra-flotante` | `0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent), 0 1px 2px color-mix(in srgb, var(--color-text) 8%, transparent), 0 8px 24px color-mix(in srgb, var(--color-text) 6%, transparent)` |  |  |  |  |
+| `--sombra-hover` | `0 14px 34px color-mix(in srgb, var(--color-text) 10%, transparent)` |  |  |  |  |
+| `--sombra-dura` | `6px 6px 0 color-mix(in srgb, var(--color-text) 90%, transparent)` |  |  |  |  |
+| `--sombra-dura-hover` | `8px 8px 0 color-mix(in srgb, var(--color-text) 90%, transparent)` |  |  |  |  |
 
 #### Tipografía
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--font-display` | `'Fraunces', Georgia, serif` |  | italic = gesto de firma (eyebrow) |
-| `--font-body` | `'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif` |  | cuerpo/UI: elección del tipógrafo (9-jul) — auto-hospedada, no system-ui |
-| `--font-mono` | `'JetBrains Mono', ui-monospace, monospace` |  | SOLO datos tabulares |
-| `--texto-2xs` | `12px` |  | RESERVADO a mono en mayúsculas (ejes de gráfico y las instancias que aún lo escriben a mano). Nunca prosa. |
-| `--texto-xs` | `13px` |  |  |
-| `--texto-sm` | `15px` |  |  |
-| `--texto-ui` | `16px` |  | cuerpo de tarjetas y UI: lo que usa la home |
-| `--texto-base` | `17px` |  |  |
-| `--texto-lg` | `clamp(19px, 1.6vw, 21px)` |  |  |
-| `--texto-xl` | `clamp(22px, 2.2vw, 26px)` |  |  |
-| `--texto-3xl` | `clamp(32px, 4.2vw, 44px)` |  | cifra grande (--tipo-cifra) |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--font-display` | `'Fraunces', Georgia, serif` |  |  |  | italic = gesto de firma (eyebrow) |
+| `--font-body` | `'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif` |  |  |  | cuerpo/UI: elección del tipógrafo (9-jul) — auto-hospedada, no system-ui |
+| `--font-mono` | `'JetBrains Mono', ui-monospace, monospace` |  |  |  | SOLO datos tabulares |
+| `--texto-2xs` | `12px` |  |  |  | RESERVADO a mono en mayúsculas (ejes de gráfico y las instancias que aún lo escriben a mano). Nunca prosa. |
+| `--texto-xs` | `13px` |  |  |  |  |
+| `--texto-sm` | `15px` |  |  |  |  |
+| `--texto-ui` | `16px` |  |  |  | cuerpo de tarjetas y UI: lo que usa la home |
+| `--texto-base` | `17px` |  |  |  |  |
+| `--texto-lg` | `clamp(19px, 1.6vw, 21px)` |  |  |  |  |
+| `--texto-xl` | `clamp(22px, 2.2vw, 26px)` |  |  |  |  |
+| `--texto-3xl` | `clamp(32px, 4.2vw, 44px)` |  |  |  | cifra grande (--tipo-cifra) |
 
 #### Espaciado
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--sp-4` | `4px` |  |  |
-| `--sp-8` | `8px` |  |  |
-| `--sp-12` | `12px` |  |  |
-| `--sp-16` | `16px` |  |  |
-| `--sp-24` | `24px` |  |  |
-| `--sp-32` | `32px` |  |  |
-| `--sp-48` | `48px` |  |  |
-| `--sp-64` | `64px` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--sp-4` | `4px` |  |  |  |  |
+| `--sp-8` | `8px` |  |  |  |  |
+| `--sp-12` | `12px` |  |  |  |  |
+| `--sp-16` | `16px` |  |  |  |  |
+| `--sp-24` | `24px` |  |  |  |  |
+| `--sp-32` | `32px` |  |  |  |  |
+| `--sp-48` | `48px` |  |  |  |  |
+| `--sp-64` | `64px` |  |  |  |  |
 
 #### Radios
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--radius-sm` | `6px` |  |  |
-| `--radius-md` | `8px` |  |  |
-| `--radius-btn` | `12px` |  |  |
-| `--radius-card` | `16px` |  |  |
-| `--radius-pill` | `9999px` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--radius-sm` | `6px` |  |  |  |  |
+| `--radius-md` | `8px` |  |  |  |  |
+| `--radius-btn` | `12px` |  |  |  |  |
+| `--radius-card` | `16px` |  |  |  |  |
+| `--radius-pill` | `9999px` |  |  |  |  |
 
 #### Movimiento
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--dur-micro` | `150ms` |  | hovers, focos |
-| `--dur-transicion` | `300ms` |  | entradas, toasts, dialog |
-| `--curva-salida` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |  |
-| `--curva-entrada` | `cubic-bezier(0.16, 1, 0.3, 1)` |  |  |
-| `--dur-explica` | `450ms` |  |  |
-| `--curva-mover` | `cubic-bezier(0.77, 0, 0.175, 1)` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--dur-micro` | `150ms` |  |  |  | hovers, focos |
+| `--dur-transicion` | `300ms` |  |  |  | entradas, toasts, dialog |
+| `--curva-salida` | `cubic-bezier(0.22, 1, 0.36, 1)` |  |  |  |  |
+| `--curva-entrada` | `cubic-bezier(0.16, 1, 0.3, 1)` |  |  |  |  |
+| `--dur-explica` | `450ms` |  |  |  |  |
+| `--curva-mover` | `cubic-bezier(0.77, 0, 0.175, 1)` |  |  |  |  |
 
 #### Lectura
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--measure` | `68ch` |  | valor mío para Hanken a 17 px (inferencia, sin probar con lectores). MEDIDO (26-oct-2026): da de 81 a 90 caracteres por línea con Hanken a 13 a 16 px, no los 75 o menos que daría 58ch; se baja a 58ch cuando entre el PR #290 (DS sección 8, punto d) |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--measure` | `68ch` |  |  |  | valor mío para Hanken a 17 px (inferencia, sin probar con lectores). MEDIDO (26-oct-2026): da de 81 a 90 caracteres por línea con Hanken a 13 a 16 px, no los 75 o menos que daría 58ch; se baja a 58ch cuando entre el PR #290 (DS sección 8, punto d) |
 
 #### Retícula
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--shell-max` | `75rem` |  | 1200 px: ancho único de cabecera, cuerpo y pie (.section-wide) |
-| `--gutter` | `1.5rem` |  | 24 px; 32 desde 640 y 48 desde 1024 (abajo, tras los roles) |
-| `--control-min` | `44px` |  | táctil mínimo y alto de campo |
-| `--cabecera-alto` | `4.0625rem` |  | 65 px: la cabecera fija sola en móvil; 73 desde 640. app/plugins/cabecera-alto.client.ts lo sustituye por el real (con la barra «lo último» llega a +38) |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--shell-max` | `75rem` |  |  |  | 1200 px: ancho único de cabecera, cuerpo y pie (.section-wide) |
+| `--gutter` | `1.5rem` |  |  |  | 24 px; 32 desde 640 y 48 desde 1024 (abajo, tras los roles) |
+| `--control-min` | `44px` |  |  |  | táctil mínimo y alto de campo |
+| `--cabecera-alto` | `4.0625rem` |  |  |  | 65 px: la cabecera fija sola en móvil; 73 desde 640. app/plugins/cabecera-alto.client.ts lo sustituye por el real (con la barra «lo último» llega a +38) |
+
+#### Trama
+
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--trama-paso` | `32px` |  |  |  | geometría de la trama de la casa (Banda oscura) |
+| `--trama-punto` | `2px` |  |  |  | diámetro del punto de la trama web (el componente usa la mitad como radio) |
+| `--trama-opacidad` | `0.04` |  |  |  | opacidad de la trama en pantalla; en @media print toma --trama-opacidad-papel (valores: Iris) |
+| `--trama-opacidad-papel` | `0.24` |  |  |  | opacidad de la trama en papel: dossier y piezas impresas (valor: Iris) |
 
 #### Tipografía compuesta
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--tipo-h1` | `600 clamp(1.875rem, 1.2rem + 2.8vw, 3rem)/1.08 var(--font-display)` |  | H1 de página: 30 a 48 px |
-| `--tipo-hero` | `600 clamp(1.75rem, 1.1rem + 2.6vw, 2.875rem)/1.08 var(--font-display)` |  | hero y /marcas: 28 a 46 px |
-| `--tipo-h2` | `600 clamp(1.875rem, 1.45rem + 1.7vw, 2.25rem)/1.12 var(--font-display)` |  | H2 de sección: 30 a 36 px; manda la home (D1) |
-| `--tipo-h3` | `600 clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem)/1.2 var(--font-display)` |  | H3 de sección: 20 a 24 px |
-| `--tipo-h2-declaracion` | `600 clamp(1.875rem, 1.2rem + 2.8vw, 3rem)/1.1 var(--font-display)` |  | «Dónde estamos»: 30 a 48 px; máximo uno por página |
-| `--tipo-h4` | `700 var(--texto-base)/1.3 var(--font-body)` |  | título de tarjeta |
-| `--tipo-prosa` | `400 var(--texto-base)/1.6 var(--font-body)` |  | lectura larga: 17/1.6 |
-| `--tipo-ui` | `400 var(--texto-ui)/1.5 var(--font-body)` |  | tarjetas y UI: 16/1.5 (la home) |
-| `--tipo-body` | `var(--tipo-prosa)` |  | alias heredado de --tipo-prosa: no lo uses en código nuevo |
-| `--tipo-body-sm` | `400 var(--texto-sm)/1.5 var(--font-body)` |  |  |
-| `--tipo-cifra` | `700 var(--texto-3xl)/1 var(--font-display)` |  | «Cifra Fraunces» |
-| `--tipo-eyebrow` | `500 var(--texto-xs)/1.5 var(--font-body)` |  | la línea sobre un titular: Hanken, 13 px, caja baja |
-| `--tipo-etiqueta` | `600 var(--texto-xs)/1.4 var(--font-body)` |  | kicker de tarjeta o control: Hanken, 13 px, caja baja |
-| `--track-eyebrow` | `0.12em` |  | versalitas espaciadas: recurso del sistema, a mano y con tope (.eyebrow--versal) |
-| `--track-etiqueta` | `0.1em` |  |  |
-| `--track-titular` | `-0.03em` |  | H1, H2 y hero: la home lo escribía en línea, seis veces |
-| `--track-cifra` | `-0.02em` |  | display grande: tracking negativo |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--tipo-h1` | `600 clamp(1.875rem, 1.2rem + 2.8vw, 3rem)/1.08 var(--font-display)` |  |  |  | H1 de página: 30 a 48 px |
+| `--tipo-hero` | `600 clamp(1.75rem, 1.1rem + 2.6vw, 2.875rem)/1.08 var(--font-display)` |  |  |  | hero y /marcas: 28 a 46 px |
+| `--tipo-h2` | `600 clamp(1.875rem, 1.45rem + 1.7vw, 2.25rem)/1.12 var(--font-display)` |  |  |  | H2 de sección: 30 a 36 px; manda la home (D1) |
+| `--tipo-h3` | `600 clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem)/1.2 var(--font-display)` |  |  |  | H3 de sección: 20 a 24 px |
+| `--tipo-h2-declaracion` | `600 clamp(1.875rem, 1.2rem + 2.8vw, 3rem)/1.1 var(--font-display)` |  |  |  | «Dónde estamos»: 30 a 48 px; máximo uno por página |
+| `--tipo-h4` | `700 var(--texto-base)/1.3 var(--font-body)` |  |  |  | título de tarjeta |
+| `--tipo-prosa` | `400 var(--texto-base)/1.6 var(--font-body)` |  |  |  | lectura larga: 17/1.6 |
+| `--tipo-ui` | `400 var(--texto-ui)/1.5 var(--font-body)` |  |  |  | tarjetas y UI: 16/1.5 (la home) |
+| `--tipo-body` | `var(--tipo-prosa)` |  |  |  | alias heredado de --tipo-prosa: no lo uses en código nuevo |
+| `--tipo-body-sm` | `400 var(--texto-sm)/1.5 var(--font-body)` |  |  |  |  |
+| `--tipo-cifra` | `700 var(--texto-3xl)/1 var(--font-display)` |  |  |  | «Cifra Fraunces» |
+| `--tipo-eyebrow` | `500 var(--texto-xs)/1.5 var(--font-body)` |  |  |  | la línea sobre un titular: Hanken, 13 px, caja baja |
+| `--tipo-etiqueta` | `600 var(--texto-xs)/1.4 var(--font-body)` |  |  |  | kicker de tarjeta o control: Hanken, 13 px, caja baja |
+| `--track-eyebrow` | `0.12em` |  |  |  | versalitas espaciadas: recurso del sistema, a mano y con tope (.eyebrow--versal) |
+| `--track-etiqueta` | `0.1em` |  |  |  |  |
+| `--track-titular` | `-0.03em` |  |  |  | H1, H2 y hero: la home lo escribía en línea, seis veces |
+| `--track-cifra` | `-0.02em` |  |  |  | display grande: tracking negativo |
 
 #### Data-viz clínica
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--viz-eje` | `var(--trazo-fuerte)` |  |  |
-| `--viz-rejilla` | `var(--trazo-sutil)` |  |  |
-| `--viz-tooltip-bg` | `var(--color-text)` |  |  |
-| `--viz-tooltip-text` | `var(--color-bg)` |  |  |
-| `--viz-div-1` | `var(--color-text)` |  |  |
-| `--viz-div-2` | `color-mix(in srgb, var(--color-text) 55%, var(--color-bg))` |  |  |
-| `--viz-div-3` | `color-mix(in srgb, var(--color-text) 22%, var(--color-bg))` |  |  |
-| `--viz-div-mid` | `var(--color-bg-card)` |  |  |
-| `--viz-div-5` | `color-mix(in srgb, var(--color-cta) 32%, var(--color-bg))` |  |  |
-| `--viz-div-6` | `color-mix(in srgb, var(--color-cta) 62%, var(--color-bg))` |  |  |
-| `--viz-div-7` | `var(--color-cta)` |  |  |
-| `--viz-sev-1` | `color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg))` |  |  |
-| `--viz-sev-2` | `color-mix(in srgb, var(--color-miriam) 38%, var(--color-bg))` |  |  |
-| `--viz-sev-3` | `color-mix(in srgb, var(--color-miriam) 60%, var(--color-bg))` |  |  |
-| `--viz-sev-4` | `color-mix(in srgb, var(--color-miriam) 82%, var(--color-bg))` |  |  |
-| `--viz-sev-5` | `var(--color-miriam)` |  |  |
-| `--viz-cat-frio-1` | `#3f7986; --viz-cat-frio-1-osc: #5595a3` |  |  |
-| `--viz-cat-frio-2` | `#788fb3; --viz-cat-frio-2-osc: #5e769b` |  |  |
-| `--viz-cat-frio-3` | `#5c758a; --viz-cat-frio-3-osc: #738ea4` |  |  |
-| `--viz-cat-frio-4` | `#6d9098; --viz-cat-frio-4-osc: #53767f` |  |  |
-| `--viz-cat-tierra-1` | `#9b8b7b; --viz-cat-tierra-1-osc: #7c6c5d` |  |  |
-| `--viz-cat-tierra-2` | `#ab7f61; --viz-cat-tierra-2-osc: #996e51` |  |  |
-| `--viz-cat-tierra-3` | `#896b4d; --viz-cat-tierra-3-osc: #a88a6c` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--viz-eje` | `var(--trazo-fuerte)` |  |  |  |  |
+| `--viz-rejilla` | `var(--trazo-sutil)` |  |  |  |  |
+| `--viz-tooltip-bg` | `var(--color-text)` |  |  |  |  |
+| `--viz-tooltip-text` | `var(--color-bg)` |  |  |  |  |
+| `--viz-div-1` | `var(--color-text)` |  |  |  |  |
+| `--viz-div-2` | `color-mix(in srgb, var(--color-text) 55%, var(--color-bg))` |  |  |  |  |
+| `--viz-div-3` | `color-mix(in srgb, var(--color-text) 22%, var(--color-bg))` |  |  |  |  |
+| `--viz-div-mid` | `var(--color-bg-card)` |  |  |  |  |
+| `--viz-div-5` | `color-mix(in srgb, var(--color-cta) 32%, var(--color-bg))` |  |  |  |  |
+| `--viz-div-6` | `color-mix(in srgb, var(--color-cta) 62%, var(--color-bg))` |  |  |  |  |
+| `--viz-div-7` | `var(--color-cta)` |  |  |  |  |
+| `--viz-sev-1` | `color-mix(in srgb, var(--color-text) 16%, var(--color-bg))` |  | `color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg))` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
+| `--viz-sev-2` | `color-mix(in srgb, var(--color-text) 38%, var(--color-bg))` |  | `color-mix(in srgb, var(--color-miriam) 38%, var(--color-bg))` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
+| `--viz-sev-3` | `color-mix(in srgb, var(--color-text) 60%, var(--color-bg))` |  | `color-mix(in srgb, var(--color-miriam) 60%, var(--color-bg))` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
+| `--viz-sev-4` | `color-mix(in srgb, var(--color-text) 82%, var(--color-bg))` |  | `color-mix(in srgb, var(--color-miriam) 82%, var(--color-bg))` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
+| `--viz-sev-5` | `var(--color-text)` |  | `var(--color-miriam)` |  | severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* |
+| `--viz-cat-frio-1` | `#3f7986; --viz-cat-frio-1-osc: #5595a3` |  |  |  |  |
+| `--viz-cat-frio-2` | `#788fb3; --viz-cat-frio-2-osc: #5e769b` |  |  |  |  |
+| `--viz-cat-frio-3` | `#5c758a; --viz-cat-frio-3-osc: #738ea4` |  |  |  |  |
+| `--viz-cat-frio-4` | `#6d9098; --viz-cat-frio-4-osc: #53767f` |  |  |  |  |
+| `--viz-cat-tierra-1` | `#9b8b7b; --viz-cat-tierra-1-osc: #7c6c5d` |  |  |  |  |
+| `--viz-cat-tierra-2` | `#ab7f61; --viz-cat-tierra-2-osc: #996e51` |  |  |  |  |
+| `--viz-cat-tierra-3` | `#896b4d; --viz-cat-tierra-3-osc: #a88a6c` |  |  |  |  |
 
 #### ROLES SEMÁNTICOS POR TEMA
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--fondo` | `var(--color-bg)` | `var(--color-text)` |  |
-| `--superficie` | `var(--color-bg-card)` | `color-mix(in srgb, var(--color-text) 88%, var(--color-bg))` |  |
-| `--texto-1` | `var(--color-text)` | `var(--color-bg)` | texto principal |
-| `--texto-2` | `var(--color-text-soft)` | `color-mix(in srgb, var(--color-bg) 78%, transparent)` | texto secundario |
-| `--texto-3` | `color-mix(in srgb, var(--color-text-soft) 72%, var(--color-bg))` | `color-mix(in srgb, var(--color-bg) 58%, transparent)` | terciario / mute — 72% = 4.9:1 AA verificado (62% daba 3.7, fallaba) |
-| `--identidad` | `var(--color-miriam)` | `var(--color-miriam-claro)` | violeta que porta identidad sobre este fondo |
-| `--anillo-foco` | `var(--color-miriam)` | `var(--color-miriam-claro)` |  |
-| `--marcador` | `var(--color-miriam-soft)` | `color-mix(in srgb, var(--color-miriam-claro) 30%, var(--color-text))` | resaltado «de rotulador» de un enlace al pasar o enfocar; el texto encima es --texto-1 |
-| `--cta-texto` | `var(--color-text)` | `var(--color-cta)` |  |
-| `--trazo-sutil` | `color-mix(in srgb, var(--color-text) 8%, transparent)` | `color-mix(in srgb, var(--color-bg) 10%, transparent)` |  |
-| `--trazo-medio` | `color-mix(in srgb, var(--color-text) 12%, transparent)` | `color-mix(in srgb, var(--color-bg) 16%, transparent)` |  |
-| `--trazo-fuerte` | `color-mix(in srgb, var(--color-text) 20%, transparent)` | `color-mix(in srgb, var(--color-bg) 26%, transparent)` |  |
-| `--trazo-interactivo` | `color-mix(in srgb, var(--color-text) 55%, transparent)` | `color-mix(in srgb, var(--color-bg) 40%, transparent)` | borde de controles ≥3:1 sobre crema (3.59) — MCP/Ceci |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--fondo` | `var(--color-bg)` | `var(--color-text)` |  |  |  |
+| `--superficie` | `var(--color-bg-card)` | `color-mix(in srgb, var(--color-text) 88%, var(--color-bg))` |  |  |  |
+| `--texto-1` | `var(--color-text)` | `var(--color-bg)` |  |  | texto principal |
+| `--texto-2` | `var(--color-text-soft)` | `color-mix(in srgb, var(--color-bg) 78%, transparent)` |  |  | texto secundario |
+| `--texto-3` | `color-mix(in srgb, var(--color-text-soft) 72%, var(--color-bg))` | `color-mix(in srgb, var(--color-bg) 58%, transparent)` |  |  | terciario / mute — 72% = 4.9:1 AA verificado (62% daba 3.7, fallaba) |
+| `--identidad` | `var(--color-text)` | `var(--color-bg)` | `var(--color-miriam)` | `var(--color-miriam-claro)` | color que porta identidad sobre este fondo: berenjena o crema en la casa, violeta en el piloto |
+| `--anillo-foco` | `var(--color-text)` | `var(--color-bg)` | `var(--color-miriam)` | `var(--color-miriam-claro)` | anillo de foco: tinta en la casa, violeta en el piloto |
+| `--marcador` | `color-mix(in srgb, var(--color-text) 12%, var(--color-bg))` | `color-mix(in srgb, var(--color-bg) 16%, var(--color-text))` | `var(--color-miriam-soft)` | `color-mix(in srgb, var(--color-miriam-claro) 30%, var(--color-text))` | resaltado «de rotulador» de un enlace al pasar o enfocar; el texto encima es --texto-1 |
+| `--hueco-piloto-borde` | `var(--color-miriam)` | `var(--color-miriam-claro)` |  |  | borde del hueco «Caso piloto» dentro de la casa; único violeta de la casa |
+| `--cta-texto` | `var(--color-text)` | `var(--color-cta)` |  |  |  |
+| `--trazo-sutil` | `color-mix(in srgb, var(--color-text) 8%, transparent)` | `color-mix(in srgb, var(--color-bg) 10%, transparent)` |  |  |  |
+| `--trazo-medio` | `color-mix(in srgb, var(--color-text) 12%, transparent)` | `color-mix(in srgb, var(--color-bg) 16%, transparent)` |  |  |  |
+| `--trazo-fuerte` | `color-mix(in srgb, var(--color-text) 20%, transparent)` | `color-mix(in srgb, var(--color-bg) 26%, transparent)` |  |  |  |
+| `--trazo-interactivo` | `color-mix(in srgb, var(--color-text) 55%, transparent)` | `color-mix(in srgb, var(--color-bg) 40%, transparent)` |  |  | borde de controles ≥3:1 sobre crema (3.59) — MCP/Ceci |
 
 #### Estados derivados de los ROLES
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--estado-hecho-fondo` | `color-mix(in srgb, var(--identidad) 16%, var(--fondo))` | igual, resuelto con los roles de la banda |  |
-| `--estado-hecho-texto` | `var(--texto-1)` | igual, resuelto con los roles de la banda |  |
-| `--estado-hecho-borde` | `color-mix(in srgb, var(--identidad) 45%, var(--fondo))` | igual, resuelto con los roles de la banda |  |
-| `--estado-curso-fondo` | `var(--texto-1)` | igual, resuelto con los roles de la banda |  |
-| `--estado-curso-texto` | `var(--fondo)` | igual, resuelto con los roles de la banda |  |
-| `--estado-curso-borde` | `var(--texto-1)` | igual, resuelto con los roles de la banda |  |
-| `--estado-pendiente-fondo` | `color-mix(in srgb, var(--texto-1) 6%, transparent)` | igual, resuelto con los roles de la banda |  |
-| `--estado-pendiente-texto` | `var(--texto-2)` | igual, resuelto con los roles de la banda |  |
-| `--estado-pendiente-borde` | `var(--trazo-medio)` | igual, resuelto con los roles de la banda |  |
-| `--estado-nopuede-fondo` | `transparent` | igual, resuelto con los roles de la banda |  |
-| `--estado-nopuede-texto` | `var(--texto-3)` | igual, resuelto con los roles de la banda |  |
-| `--estado-nopuede-borde` | `var(--trazo-interactivo)` | igual, resuelto con los roles de la banda |  |
-| `--estado-atencion-fondo` | `color-mix(in srgb, var(--color-cta) 18%, var(--fondo))` | igual, resuelto con los roles de la banda |  |
-| `--estado-atencion-texto` | `var(--texto-1)` | igual, resuelto con los roles de la banda |  |
-| `--estado-atencion-borde` | `color-mix(in srgb, var(--color-cta) 60%, var(--fondo))` | igual, resuelto con los roles de la banda |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--estado-hecho-fondo` | `color-mix(in srgb, var(--identidad) 16%, var(--fondo))` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-hecho-texto` | `var(--texto-1)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-hecho-borde` | `color-mix(in srgb, var(--identidad) var(--hecho-borde-mezcla), var(--fondo))` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-curso-fondo` | `var(--texto-1)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-curso-texto` | `var(--fondo)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-curso-borde` | `var(--texto-1)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-pendiente-fondo` | `color-mix(in srgb, var(--texto-1) 6%, transparent)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-pendiente-texto` | `var(--texto-2)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-pendiente-borde` | `var(--trazo-medio)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-nopuede-fondo` | `transparent` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-nopuede-texto` | `var(--texto-3)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-nopuede-borde` | `var(--trazo-interactivo)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-atencion-fondo` | `color-mix(in srgb, var(--color-cta) 18%, var(--fondo))` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-atencion-texto` | `var(--texto-1)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--estado-atencion-borde` | `color-mix(in srgb, var(--color-cta) 60%, var(--fondo))` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda |  |
+| `--identidad-hover` | `color-mix(in srgb, var(--identidad) 88%, var(--texto-1))` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | subrayado del enlace al pasar; sigue a --identidad |
+| `--identidad-active` | `color-mix(in srgb, var(--identidad) 78%, var(--texto-1))` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | subrayado del enlace al pulsar; sigue a --identidad |
+| `--subrayado` | `color-mix(in srgb, var(--identidad) var(--subrayado-mezcla), transparent)` | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | igual, resuelto con los roles de la banda | subrayado del enlace en reposo; en la casa es la única pista del enlace: ≥3:1 (Iris) |
 
 #### Escena de los visores 3D
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--escena-fondo` | `color-mix(in srgb, var(--color-text) 62%, black)` |  |  |
-| `--escena-texto` | `color-mix(in srgb, var(--color-bg) 70%, var(--color-text))` |  |  |
-| `--escena-velo` | `color-mix(in srgb, var(--escena-fondo) 92%, transparent)` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--escena-fondo` | `color-mix(in srgb, var(--color-text) 62%, black)` |  |  |  |  |
+| `--escena-texto` | `color-mix(in srgb, var(--color-bg) 70%, var(--color-text))` |  |  |  |  |
+| `--escena-velo` | `color-mix(in srgb, var(--escena-fondo) 92%, transparent)` |  |  |  |  |
 
 #### Responsive de la retícula
 
-| Token | Valor | En banda oscura | Nota |
-|---|---|---|---|
-| `--gutter` | `2rem` |  | solo (min-width: 640px) |
-| `--cabecera-alto` | `4.5625rem` |  | solo (min-width: 640px) |
-| `--gutter` | `3rem` |  | solo (min-width: 1024px) |
-| `--color-bg-rgb` | `250 246 240` |  |  |
-| `--color-bg-card-rgb` | `245 239 230` |  |  |
-| `--color-text-rgb` | `45 27 61` |  |  |
-| `--color-text-soft-rgb` | `58 51 64` |  |  |
-| `--color-miriam-rgb` | `157 68 171` |  |  |
-| `--color-miriam-soft-rgb` | `232 212 237` |  |  |
-| `--color-miriam-claro-rgb` | `199 125 210` |  |  |
-| `--color-cta-rgb` | `255 107 71` |  |  |
-| `--color-cta-hover-rgb` | `229 87 58` |  |  |
-| `--berenjena-2-rgb` | `58 35 80` |  |  |
-| `--viz-cat-frio-1-rgb` | `63 121 134; --viz-cat-frio-1-osc-rgb: 85 149 163` |  |  |
-| `--viz-cat-frio-2-rgb` | `120 143 179; --viz-cat-frio-2-osc-rgb: 94 118 155` |  |  |
-| `--viz-cat-frio-3-rgb` | `92 117 138; --viz-cat-frio-3-osc-rgb: 115 142 164` |  |  |
-| `--viz-cat-frio-4-rgb` | `109 144 152; --viz-cat-frio-4-osc-rgb: 83 118 127` |  |  |
-| `--viz-cat-tierra-1-rgb` | `155 139 123; --viz-cat-tierra-1-osc-rgb: 124 108 93` |  |  |
-| `--viz-cat-tierra-2-rgb` | `171 127 97; --viz-cat-tierra-2-osc-rgb: 153 110 81` |  |  |
-| `--viz-cat-tierra-3-rgb` | `137 107 77; --viz-cat-tierra-3-osc-rgb: 168 138 108` |  |  |
+| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
+|---|---|---|---|---|---|
+| `--gutter` | `2rem` |  |  |  | solo (min-width: 640px) |
+| `--cabecera-alto` | `4.5625rem` |  |  |  | solo (min-width: 640px) |
+| `--gutter` | `3rem` |  |  |  | solo (min-width: 1024px) |
+| `--trama-opacidad` | `var(--trama-opacidad-papel)` |  |  |  | solo print |
+| `--color-bg-rgb` | `250 246 240` |  |  |  |  |
+| `--color-bg-card-rgb` | `245 239 230` |  |  |  |  |
+| `--color-text-rgb` | `45 27 61` |  |  |  |  |
+| `--color-text-soft-rgb` | `58 51 64` |  |  |  |  |
+| `--color-miriam-rgb` | `157 68 171` |  |  |  |  |
+| `--color-miriam-soft-rgb` | `232 212 237` |  |  |  |  |
+| `--color-miriam-claro-rgb` | `199 125 210` |  |  |  |  |
+| `--color-cta-rgb` | `255 107 71` |  |  |  |  |
+| `--color-cta-hover-rgb` | `229 87 58` |  |  |  |  |
+| `--berenjena-2-rgb` | `58 35 80` |  |  |  |  |
+| `--viz-cat-frio-1-rgb` | `63 121 134; --viz-cat-frio-1-osc-rgb: 85 149 163` |  |  |  |  |
+| `--viz-cat-frio-2-rgb` | `120 143 179; --viz-cat-frio-2-osc-rgb: 94 118 155` |  |  |  |  |
+| `--viz-cat-frio-3-rgb` | `92 117 138; --viz-cat-frio-3-osc-rgb: 115 142 164` |  |  |  |  |
+| `--viz-cat-frio-4-rgb` | `109 144 152; --viz-cat-frio-4-osc-rgb: 83 118 127` |  |  |  |  |
+| `--viz-cat-tierra-1-rgb` | `155 139 123; --viz-cat-tierra-1-osc-rgb: 124 108 93` |  |  |  |  |
+| `--viz-cat-tierra-2-rgb` | `171 127 97; --viz-cat-tierra-2-osc-rgb: 153 110 81` |  |  |  |  |
+| `--viz-cat-tierra-3-rgb` | `137 107 77; --viz-cat-tierra-3-osc-rgb: 168 138 108` |  |  |  |  |
 
 <!-- GENERADO:TOKENS:FIN -->
 
@@ -522,6 +550,8 @@ La plantilla del PR (`.github/pull_request_template.md`) pregunta: ¿añade toke
 | R9 documento | Tablas de este documento o `tokens.css` público desfasados del canon, y tokens que nadie lee |
 | R12 contenedor | Un `max-w-[Npx]` con `px-4 sm:px-6 lg:px-8` (contenedor propio) o `section-container` fuera de `/gracias` y `/links`. Con baseline |
 | R13 medida | `max-w-2xl` o `max-w-3xl` en un `<p>`: la medida es `.measure`. Con baseline |
+| R14 violeta | Tokens o utilidades `miriam` del color, los hex `#9d44ab`, `#a44db2`, `#c77dd2`, `#e8d4ed` y `#5a2466`, y sus canales RGB, fuera de la lista permitida (en el canon, los átomos, los bloques del piloto y `--hueco-piloto-borde`; `BrandMark.vue`). Con baseline: la deuda que hoy vive en el piloto puede bajar, no subir |
+| R15 capas | Los bloques de isla del canon (`[data-capa="casa"]`) copian literalmente los roles de la base, y ningún `data-capa` va dentro de otro en una plantilla. Sin baseline: falla siempre. En el DOM lo vigila `test:diseno-render` (además: `--identidad` resuelve a `#9d44ab` en `/`, `/links`, `/guia-de-estilo` y la 404, y a `#c77dd2` en una banda oscura) |
 | R11 espacios | Un espacio al principio o al final de un elemento en una plantilla (`<span> {{ x }}</span>`, `<template> <em>`): Vue, en modo condense, lo elimina y el texto sale pegado. El espacio va como texto (`{{ ' ' }}` o `&nbsp;`). Con baseline |
 | R10 render | `pnpm test:diseno-render`, en Chrome sobre el build estático (`diseno.yml`): desborde, borde del H1 bajo el logo, texto bajo 13 px, texto de un SVG bajo 13 px a su tamaño de pantalla (`texto_svg_bajo_suelo`: el `font-size` del `<text>` por la escala de su viewBox; el recuento anterior salta todo lo que cuelga de un `<svg>`), controles bajo 44 px, contraste, foco tapado por la cabecera fija, línea larga (`linea_larga`: bloques de texto cuya línea más larga pasa de 90 caracteres) y pegajoso tapado (`sticky_tapado`: un `sticky` cuyo `top` queda bajo la cabecera). Mismo ratchet, con `scripts/diseno-render-baseline.json`. El contraste mide también el enlace en línea (su degradado de marcador no lo exime); solo se salta el texto con una imagen o un degradado en un antepasado |
 | R10 render, sin baseline | En `scripts/test-diseno-render.mjs`, o cumplen o no: el visor 3D de `/lesiones`, `.rejilla-par`, el cielo de `/links`, la barra «Lo último» (no crece, mide 44 px tocables de verdad con `elementFromPoint` y no tapa el borde de ningún control de la cabecera) y los `<h3>` de la prosa legal (rol `.h4-tarjeta`, 32 px de aire arriba y 12 abajo, con el H2 de capítulo mayor). Los dos últimos, a 390 y 1280 px |
@@ -550,6 +580,7 @@ Los documentos viejos (el Consolidado de junio, el cuadernillo v1 y v2) usaban o
 
 ## 11. Registro de cambios
 
+- **Capas de marca: la casa de base, el piloto en `<html>` (19 de noviembre de 2026, dictado de estudio-identidad, Iris y diseno; pendiente del OK de Miriam).** El canon sin atributo es la casa (Beyond the Protocol: crema, berenjena y coral) y helpmiriam.com pide su piloto con `data-capa="piloto"` desde `nuxt.config.ts`. Siete bloques en `btp-tokens.css` (orden y porqué en su cabecera). Roles nuevos: `--identidad-hover`, `--identidad-active`, `--subrayado` y `--hueco-piloto-borde`; porcentajes por capa `--subrayado-mezcla` y `--hecho-borde-mezcla`; la trama pasa a `--trama-*` (al 4 % en pantalla, como antes; el 6 % va aparte como par de gusto). `--miriam-hover` y `--miriam-active` quedan en desuso. En `main.css`, el subrayado, el hover y el activo del enlace, `::selection` y `.link-logo` pintan con roles. **En helpmiriam.com no cambia ni un píxel:** medido sobre el build de `main` y el del PR en las 38 rutas del sitemap, `/guia-de-estilo` y la 404, a 1280 y 390 px (valores computados de roles, de cada elemento y de los enlaces con hover, foco y activo forzados, más capturas a pantalla completa de seis rutas): 0 diferencias. Lo único que cambia fuera de la pantalla: al imprimir, la trama toma `--trama-opacidad-papel` (24 %). Tests nuevos: R14 (violeta en trinquete) y R15 (capas) en `test:diseno`, y la comprobación de capas en `test:diseno-render`.
 - **Vidrio y desenfoque: de «nada» a «solo como función» (11 de noviembre de 2026, firmado por Miriam).** La regla decía «Nada de glassmorphism/blur» sin motivo ni fuente, y el sitio ya usaba desenfoque en tres capas funcionales (controles del mapa de estrellas, barra fija de `/datos` y velo del visor de `/mapa-metastasis`). Ahora: como decoración, no; como función, sí, si la capa va sobre contenido que se mueve o que no se controla, su fondo es casi opaco (0,82 o más) con texto AA, y con `prefers-reduced-transparency: reduce` pasa a opaco. Las tres capas ganan esa alternativa opaca. Sale la frase «tell nº1 de IA», que no tenía fuente. Sin tokens, hex ni textos nuevos. Fuente: NN/g, «Glassmorphism: Definition and Best Practices» (7-jun-2024). La regla vive en el comentario de `--sombra-flotante` de `btp-tokens.css`.
 - **V1: el canon que ya estaba escrito (2 de noviembre de 2026).** No es un rediseño: es que el código obedezca al sistema. Medido en Chrome a 390 px (sonda propia; el «antes» sobre el build de `main`, el «después» sobre el preview del PR #344). **Mono fuera de datos:** `--font-mono` dice «SOLO datos tabulares» y `.eyebrow` y `.etiqueta` son rótulos. Los dos roles pasan a Hanken, caja baja. Home: **54 textos en mono → 14** (de dato, 3 de 3: del 6 % al 21 %); `/prensa` **26 → 8**; `/ciencia` **117 → 106** a propósito (sus rótulos conservan el mono con `.ci-raiz`: es la página de datos y el canon se lo da; lo que sale del mono ahí son las cinco insignias de estado, el resumen de notas y los cinco rótulos del PIE, que son de todas las páginas); `/expertos` **7 → 7**, idéntico, porque no usa ninguno de los dos roles. `/marcas` conserva el mono con `.mk-raiz`: sus cuatro eyebrow empiezan por «// », un comentario de código. También salen del mono el titular de «Lo último» del hero (es un titular, no un dato) y los rótulos de la tarjeta de la campaña; la cifra, el recuento de donaciones, las fechas de actualización y los sellos se quedan. **Versales:** dejan de ser el estado por defecto de ningún rol y se piden a mano (`.eyebrow--versal`, `.etiqueta--versal`) con tope de 6 por página. Home **29 → 3**, `/prensa` **20 → 2**, `/ciencia` **34 → 2**, `/expertos` **2 → 2**. Las que quedan en todas las páginas son los dos botones de idioma (ES/EN, códigos ISO de dos letras) y, en la home, el rótulo del retrato. Motivo (dato externo, 248 sitios, 5-oct-2026): están en el 16 % de los sitios buenos y el 57 % de los flojos; con 3 o más, en el 6 % frente al 43 %. **Suelo: no se toca, pero cambia quién se acoge al 12** (sección 4). El permiso de los 12 px es para mono EN MAYÚSCULAS; `.eyebrow`, `.etiqueta` y `.status-badge` dejan de serlo y pasan al suelo de 13. `.status-badge` venía de **10 px** en sus variantes de legado —el texto más pequeño del sitio y el único que estaba bajo el suelo— y de 12 en las cinco variantes v3; su relleno no se toca, así que la insignia crece 1,4 px (24,8 → 26,2), lo que cuesta la letra más grande. Textos por debajo de 13: cero nuevos. **Lo que se intentó y se retiró:** el encargo pedía subir el suelo a 14 px citando un «v1.1 §13» que no existe; se aplicó, se midió y se retiró al comprobar el canon (v3, línea 25: 13 px, 12 solo en mono y mayúsculas). La frase «nunca por debajo de 14 px (badges, captions)» sí existe, en la página de sistema de julio de 2026 (`helpmiriam-site/index.html`, línea 1452, sección WCAG), pero el v3 la supera. Subirlo es una propuesta de diseño y se decide aparte. **Texto visible:** cero cambios en `content/`, y en las plantillas solo un atributo `class` y el guion del captcha. Quitar `text-transform` no cambia el HTML. De copy publicado cambian **cuatro cadenas y solo su primera letra**, autorizadas por Miriam en el PR #344 («Sí, cámbialas»): `gofundme.estado.*` pasa a caja de frase («en curso» → «En curso»; EN, «in progress» → «In progress»), porque al dejar de ser versales se leían en minúscula junto a las cinco insignias de `ciencia.ruta.estados`, que sí estaban en caja de frase. Se pintan solo como contenido completo de la insignia, nunca dentro de una frase. Antes de ese cambio se comprobó el texto palabra a palabra contra producción en 14 páginas (ES y EN): solo diferían las cifras en vivo de la campaña. **Captcha (WCAG 1.4.10):** ver el PR; `R10` pasa de medir 390 y 1280 a medir **320, 360, 390, 768 y 1280**, con un doble del widget y la clave de pruebas de Cloudflare en el workflow, sin los cuales el gate no veía el widget que desbordaba.
 - **v3, tanda 3, cierre (T3-CIERRE, 26 de octubre de 2026).** Ocho decisiones de diseño que la sesión tomó por delegación de Miriam y que ella ve con el preview. Sin tokens ni hex nuevos, sin ningún texto nuevo ni cambiado y sin claves de i18n borradas. **A.** Las cinco opciones recomendadas de la tabla de la sección 8 que ya estaban aplicadas (tira de cifras de `/marcas` en una columna, año de `/timeline` con su chip, diagrama y gráfica del mapa deslizables, barra fija de apoyo de 106 px, enlaces rápidos de `/colabora` a 44 px) constan como «decidido 26-oct-2026, en revisión de Miriam con el preview». **B.** `/contacto` lleva `variante="pagina"` como `/datos`: a 375 mide 3 px menos (3404 a 3401; EN, 3429 a 3426) y a 1280, 9 más (1990 a 1999; EN, +6). **C.** Controles del mapa con el dedo: `min-height` de `--control-min` en `(pointer: coarse)` (las flechas redondas del visor de RMN, a 44 × 44, y las cajas de los deslizadores, a `height` de 44 px) y el selector Esqueleto/Lista como `Segmentado`, con 12 px de relleno lateral por opción; los `.seg*` de `mapa-metastasis.vue` se borran (R1, R3 y R4 de ese fichero bajan en 8, 1 y 2). Con el dedo a 375: de 35 controles bajo 44 a 5 (ES) y a 6 (EN), y la página +168 y +161 px; con ratón, +11 y +12 a 375 y +63 y +57 a 1280. Detalle y lo que no se alcanza (fechas, «All», «T1», la casilla) en la sección 8 (f). **D.** Barra «Lo último»: `::after` de 44 px que arranca en el borde de arriba de la pantalla y no hace crecer la barra (38,7 px antes y después); lo que se toca de verdad pasa de 26 a 44. `objetivos_pequenos` baja 1 en cada ruta con barra, a 390 y a 1280, y también en las filas de célula (autorizado solo para esa métrica y a la baja); ningún fichero de `celula/` ni de alphafold cambia. **E.** Medida de 58ch por página (`[--measure:58ch]` en la raíz) en `/datos`, `/ciencia`, `/ciencia/evidencia`, `/gastos`, `/prensa`, `/marcas` y `/equipo`: a 375 no cambia nada y a 1280 las páginas crecen (sección 8, d); el token global, el pie y `/celula-a-celula` esperan a #290, y `.lede` y `Nota` heredan los 58ch dentro de esas siete páginas. **F.** `lg:leading-*` donde un `lg:text-*` pisaba el interlineado: 22 clases en `/ciencia/evidencia`, `TeamCard`, `TimelineEntry` y 19 del mapa; a 1280, `/timeline` +292 px, `/ciencia/evidencia` +621 (de los +1599), `/equipo` +74. Queda sin tocar `app/pages/index.vue` (la cita de la home, `text-2xl sm:text-3xl lg:text-4xl leading-[1.2]`, ya venía así de `main`: a 1280 mide 36 px con 40 de interlineado, 1,11, y no los 43,2 que pide `leading-[1.2]`; a 375 y en `sm` sí cumple el 1,2; es la home, donde manda lo medido, y queda para decidir). **G.** `.prose-ink > h3` es el rol `.h4-tarjeta` con 32 px arriba y 12 abajo (sección 8). **H.** StarMap: la nota de M44 se midió con donaciones sintéticas a 320, 360, 375, 390 y 414 px, en ES y EN, contra el contenedor `overflow: hidden`: no se recorta en ninguno (la nota queda a 3 px o más del borde izquierdo y su subtítulo no desborda), así que `StarMap.vue` no cambia. **Texto visible:** el HTML prerenderizado de las 85 páginas (ES y EN) se comparó palabra a palabra, antes y después, sin `script`, `style`, `svg` ni `head`: idéntico en las 85 (solo lo prerenderizado; lo que pintan los `ClientOnly` no se comparó). **Baseline de R10:** se regeneró con `--actualizar` (solo bajó) y a mano se quitó la clave `desborde_oculto: 0` que el comando añade a las cuatro filas de `/celula-a-celula` (no la traían), para que esas filas cambien solo en `objetivos_pequenos`; un `--actualizar` futuro la volverá a añadir, y vale 0 como si faltara. **Tests nuevos (R10, sin baseline):** `BARRA_ULTIMO` y `PROSA_LEGAL`; canario con la build anterior: los dos ROJO (la zona tocable de la barra mide 26 px; los `<h3>` miden 20 px en Fraunces), con la nueva, verdes.
