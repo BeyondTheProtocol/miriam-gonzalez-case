@@ -34,17 +34,37 @@
             <li
               v-for="item in DINERO.partidas"
               :key="item.clave"
-              class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/[0.07]"
+              class="py-2.5 border-t border-berenjena/[0.07]"
             >
-              <span class="text-sm text-tinta leading-relaxed">
-                {{ $t(`expenses.report_item_${item.clave}`, item.clave === 'travel' ? repartoViajes : {}) }}
-              </span>
-              <span
-                class="text-sm font-mono text-berenjena shrink-0"
-                style="font-variant-numeric: tabular-nums"
-              >
-                {{ money(item.importe) }}
-              </span>
+              <div class="flex items-baseline justify-between gap-4">
+                <span class="text-sm text-tinta leading-relaxed">
+                  {{ $t(`expenses.report_item_${item.clave}`) }}
+                </span>
+                <span
+                  class="text-sm font-mono text-berenjena shrink-0"
+                  style="font-variant-numeric: tabular-nums"
+                >
+                  {{ money(item.importe) }}
+                </span>
+              </div>
+              <!-- Viajes con su reparto por destino debajo (Miriam, 19-nov-2026: «ponerlo más desglosado como subcategoría»). -->
+              <ul v-if="item.clave === 'travel'" class="mt-1.5 pl-4 space-y-1">
+                <li
+                  v-for="destino in DESTINOS_VIAJE"
+                  :key="destino"
+                  class="flex items-baseline justify-between gap-4"
+                >
+                  <span class="text-xs text-tinta/80 leading-relaxed">
+                    {{ $t(`expenses.report_travel_${destino}`) }}
+                  </span>
+                  <span
+                    class="text-xs font-mono text-berenjena/80 shrink-0"
+                    style="font-variant-numeric: tabular-nums"
+                  >
+                    {{ money(DINERO.viajes[destino]) }}
+                  </span>
+                </li>
+              </ul>
             </li>
             <li
               class="flex items-baseline justify-between gap-4 py-2.5 border-t border-berenjena/20"
@@ -107,6 +127,16 @@
                 <p class="text-sm text-tinta leading-relaxed measure">
                   {{ $t(`expenses.phase${n}_desc`, { gastado: money(DINERO.rebiopsia.ejecutado), fecha: fechaRebiopsia }) }}
                 </p>
+                <!-- Fase 2: enlace a la técnica de Dana-Farber, un artículo por idioma (Miriam, 19-nov-2026). -->
+                <a
+                  v-if="n === 2"
+                  :href="$t('expenses.phase2_link_url')"
+                  target="_blank"
+                  rel="noopener"
+                  class="inline-block mt-1.5 text-sm text-berenjena underline underline-offset-2"
+                >
+                  {{ $t('expenses.phase2_link') }}
+                </a>
               </div>
             </li>
           </ol>
@@ -263,11 +293,7 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 // Informe de gastos. Las cifras, con su fecha de corte, viven en app/data/dinero.json (app/utils/dinero.ts): aquí no se escribe
 // ninguna a mano (lo vigila scripts/test-dinero-fuente.ts). El informe se reconstruye movimiento a movimiento desde los extractos.
 const money = (n: number) => euros(n, locale.value)
-const repartoViajes = computed(() => ({
-  zurich: money(DINERO.viajes.zurich),
-  ensayos: money(DINERO.viajes.ensayos),
-  congresos: money(DINERO.viajes.congresos),
-}))
+const DESTINOS_VIAJE = ['zurich', 'ensayos', 'congresos'] as const
 const corte = computed(() => fechaDeCorte(DINERO.corte, locale.value))
 // El bloque de la rebiopsia lleva su fecha, que no es la del corte del informe.
 const fechaRebiopsia = computed(() => fechaDeCorte(DINERO.rebiopsia.fecha, locale.value))

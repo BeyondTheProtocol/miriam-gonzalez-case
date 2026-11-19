@@ -129,7 +129,7 @@ ok(dinero.partidas.every((p) => JSON.stringify(Object.keys(p).sort()) === JSON.s
   ok(JSON.stringify(Object.keys(v).sort()) === JSON.stringify(['congresos', 'ensayos', 'zurich']), 'el reparto de viajes tiene sus tres destinos y nada más (sin «otros»: Miriam, 19-nov-2026)')
   const travel = dinero.partidas.find((p) => p.clave === 'travel')!.importe
   ok(Object.values(v).reduce((a, n) => a + centimos(n), 0) === centimos(travel), `el reparto de viajes suma la partida de viajes (${travel})`)
-  for (const [loc, d] of [['es', es], ['en', en]] as const) ok(['{zurich}', '{ensayos}', '{congresos}'].every((k) => d.expenses.report_item_travel.includes(k)) && !/\b(otros|other)\b/i.test(d.expenses.report_item_travel), `${loc}: el rótulo de viajes rellena sus tres destinos desde el JSON y no dice «otros»`)
+  for (const [loc, d] of [['es', es], ['en', en]] as const) ok(Object.keys(v).every((k) => typeof d.expenses[`report_travel_${k}`] === 'string') && !Object.keys(v).some((k) => /\b(otros|other)\b/i.test(d.expenses[`report_travel_${k}`])), `${loc}: cada destino de viajes tiene su rótulo debajo de la partida, sin «otros»`)
 }
 ok(JSON.stringify(Object.keys(dinero.rebiopsia).sort()) === JSON.stringify(['biopsia', 'ejecutado', 'fecha', 'imagen', 'secuenciacion']), 'la rebiopsia es solo su fecha, lo ejecutado y las tres sublíneas')
 {
