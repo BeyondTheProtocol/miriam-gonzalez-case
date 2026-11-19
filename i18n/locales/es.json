@@ -1188,7 +1188,7 @@
     "report_item_treatment": "Medicación y tratamiento de soporte",
     "report_item_samples": "Envío de muestras al laboratorio",
     "report_total": "Total gastado y comprometido",
-    "report_available_desc": "Estimado: es lo que quedaba el {fecha}, con el impuesto de donaciones pendiente de pago ya apartado."
+    "report_available_desc": "Estimado a {fecha}: lo recaudado menos las comisiones de GoFundMe, los gastos y el impuesto de donaciones, también el pendiente de pago."
   },
   "links": {
     "meta_title": "Miriam González · Enlaces",
