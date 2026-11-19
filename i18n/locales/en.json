@@ -1188,7 +1188,7 @@
     "report_item_treatment": "Medication and supportive care",
     "report_item_samples": "Shipping samples to the lab",
     "report_total": "Total spent and committed",
-    "report_available_desc": "Estimated as of {fecha}: what was raised minus GoFundMe fees, spending and the gift tax, including the tax still pending."
+    "report_available_desc": "Estimated as of {fecha}: what was raised minus GoFundMe fees, spending and the gift tax, including the part still pending payment to the tax office."
   },
   "links": {
     "meta_title": "Miriam González · Links",
