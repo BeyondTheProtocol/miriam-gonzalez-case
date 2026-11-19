@@ -89,7 +89,9 @@ export function capasCanon(css: string): string[] {
   const piloto = de('[data-capa="piloto"]'), pilotoOsc = de('[data-capa="piloto"] [data-tema="oscuro"], [data-capa="piloto"][data-tema="oscuro"]')
   const isla = de('[data-capa="casa"]'), islaOsc = de('[data-capa="casa"] [data-tema="oscuro"], [data-capa="casa"][data-tema="oscuro"]')
   const fallos: string[] = []
-  if (!piloto.size) fallos.push('el canon no tiene el bloque 3 ([data-capa="piloto"])')
+  // Ningún bloque puede leerse vacío: un selector mal escrito dejaría la comparación sin nada que comparar y R15 en verde.
+  const vacios = [[piloto, 3], [pilotoOsc, 4], [isla, 5], [islaOsc, 6]].filter(([m]) => !(m as Map<string, string>).size).map(([, n]) => n)
+  if (vacios.length) fallos.push(`el canon no tiene, o no se leen, los bloques ${vacios.join(', ')} de las capas`)
   const comparar = (nombre: string, copia: Map<string, string>, roles: Map<string, string>, fuente: Map<string, string>, n: string) => {
     for (const k of roles.keys()) if (!copia.has(k)) fallos.push(`${nombre}: falta ${k}, que el piloto redeclara`)
     for (const [k, v] of copia) {
@@ -725,6 +727,7 @@ function autotest(): string[] {
   const capas = (isla: string) => `:root {\n  --identidad: var(--color-text);\n}\n[data-tema="oscuro"] {\n  --identidad: var(--color-bg);\n}\n[data-capa="piloto"] {\n  --identidad: var(--color-miriam);\n}\n[data-capa="piloto"] [data-tema="oscuro"],\n[data-capa="piloto"][data-tema="oscuro"] {\n  --identidad: var(--color-miriam-claro);\n}\n[data-capa="casa"] {\n  --identidad: ${isla};\n}\n[data-capa="casa"] [data-tema="oscuro"],\n[data-capa="casa"][data-tema="oscuro"] {\n  --identidad: var(--color-bg);\n}\n`
   eq('R15 isla igual a la base', capasCanon(capas('var(--color-text)')).length, 0)
   eq('R15 isla que deriva de la base', capasCanon(capas('var(--color-text-soft)')).length, 1)
+  eq('R15 bloque de capa vacío o ilegible', capasCanon(capas('var(--color-text)').replace('[data-capa="casa"] [data-tema="oscuro"],', '[data-capa="casa"] .x,')).length > 0 ? 1 : 0, 1)
   // R9
   eq('R9 tokens con consumo', tokensSinConsumo(':root {\n  --a-b: 1px;\n  --c-d: var(--a-b);\n  --e-f: 2px;\n  --viz-cat-x: 3px;\n}\n', 'var(--c-d) var(--e-f)').length, 0)
   eq('R9 token huérfano', tokensSinConsumo(':root {\n  --a-b: 1px;\n  --e-f: 2px;\n}\n', 'var(--e-f)').length, 1)
