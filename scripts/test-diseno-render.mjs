@@ -998,6 +998,36 @@ async function medirCanario(ruta, ancho) {
   }
 }
 
+// Capas de marca (dictado de tres capas, 19-nov-2026). helpmiriam.com es el piloto: nuxt.config.ts pone data-capa="piloto" en <html>
+// y el canon, sin atributo, es la casa (berenjena). Si el atributo se perdiera, el sitio perdería el violeta en silencio. Por eso, en
+// /, /links, /guia-de-estilo y la 404 (error.vue no pasa por el layout), --identidad tiene que resolver a #9d44ab en <html> y a
+// #c77dd2 dentro de una banda oscura (la real de la página si la hay, y siempre una sonda). Y en TODAS las rutas medidas: <html> lleva
+// data-capa="piloto" y ningún [data-capa] va dentro de otro que no sea <html> (página + una isla, y nada más).
+const RUTAS_CAPA = ['/', '/links', '/guia-de-estilo', '/404']
+const ESPERADO_CAPA = { claro: '#9d44ab', oscuro: '#c77dd2' }
+const CAPAS = `(() => {
+  const html = document.documentElement
+  const val = (el) => getComputedStyle(el).getPropertyValue('--identidad').trim().toLowerCase()
+  const sonda = document.createElement('div')
+  sonda.setAttribute('data-tema', 'oscuro')
+  document.body.appendChild(sonda)
+  const banda = document.querySelector('[data-tema="oscuro"]:not([data-sonda])')
+  const r = {
+    capa: html.getAttribute('data-capa'),
+    claro: val(html),
+    oscuroSonda: val(sonda),
+    oscuroBanda: banda && banda !== sonda ? val(banda) : null,
+    error404: !!document.querySelector('main h1') && /404/.test(document.body.innerText),
+  }
+  sonda.remove()
+  return r
+})()`
+const CAPA_ANIDADA = `(() => {
+  const html = document.documentElement
+  const malos = [...document.querySelectorAll('[data-capa]')].filter((el) => el !== html && el.parentElement.closest('[data-capa]') && el.parentElement.closest('[data-capa]') !== html)
+  return { capa: html.getAttribute('data-capa'), anidados: malos.map((el) => el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : '')) }
+})()`
+
 async function medir(rutas) {
   // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
   // pintada y el corte de línea depende de ese avance; sin el flag, un Chrome de Linux con hinting podría partir una línea una palabra antes o
@@ -1013,6 +1043,8 @@ async function medir(rutas) {
   let cielo
   let barra
   let prosa
+  let capas
+  const capaPorRuta = {}
   try {
     for (const ruta of rutas) {
       for (const ancho of ANCHOS) {
@@ -1025,6 +1057,7 @@ async function medir(rutas) {
           await nav.evaluate('document.fonts.ready.then(() => true)')
           await nav.evaluate("(() => { const s = document.createElement('style'); s.textContent = '*{animation:none!important;transition:none!important}'; document.documentElement.appendChild(s) })()")
           await nav.sleep(300)
+          if (!(ruta in capaPorRuta)) capaPorRuta[ruta] = await nav.evaluate(CAPA_ANIDADA)
           const { cuenta, ej } = await nav.evaluate(MEDIR)
           // axe, con la página tal cual la mide MEDIR: scroll 0, sin animaciones, antes de pulsar Tab ni de bajar a la barra fija.
           const axe = await nav.evaluate(`${AXE_FUENTE};${AXE_CORRER}`)
@@ -1056,6 +1089,12 @@ async function medir(rutas) {
         }
       }
     }
+    capas = []
+    for (const ruta of RUTAS_CAPA) {
+      await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
+      await nav.cargar(ruta)
+      capas.push({ ruta, ...(await nav.evaluate(CAPAS)) })
+    }
     await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ANCHO_MOVIL, height: 900, deviceScaleFactor: 1, mobile: false })
     await nav.cargar('/guia-de-estilo')
     rejilla = await nav.evaluate(REJILLA_PAR)
@@ -1078,7 +1117,7 @@ async function medir(rutas) {
   } finally {
     await nav.cerrar()
   }
-  return { res, ejemplos, tipos, rejilla, cielo, barra, prosa }
+  return { res, ejemplos, tipos, rejilla, cielo, barra, prosa, capas, capaPorRuta }
 }
 
 const args = process.argv.slice(2)
@@ -1120,12 +1159,29 @@ if (args.includes('--canario')) {
   process.exit(0)
 }
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
-const { res, ejemplos, tipos, rejilla, cielo, barra, prosa } = await medir(rutas)
+const { res, ejemplos, tipos, rejilla, cielo, barra, prosa, capas, capaPorRuta } = await medir(rutas)
 const errores = Object.entries(res).filter(([, v]) => v.error)
 if (errores.length) {
   console.log(`\n✘ ${errores.length} medición(es) con error: ${errores.map(([k]) => k).join(', ')}`)
   process.exit(1)
 }
+const fallosCapa = []
+for (const c of capas) {
+  if (c.ruta === '/404' && !c.error404) fallosCapa.push('/404: no se pintó error.vue (sin <main h1> ni «404»): la comprobación no vale sobre una página vacía')
+  if (c.capa !== 'piloto') fallosCapa.push(`${c.ruta}: <html data-capa="${c.capa}"> y no "piloto"`)
+  if (c.claro !== ESPERADO_CAPA.claro) fallosCapa.push(`${c.ruta}: --identidad en <html> = ${c.claro} (esperado ${ESPERADO_CAPA.claro})`)
+  if (c.oscuroSonda !== ESPERADO_CAPA.oscuro) fallosCapa.push(`${c.ruta}: --identidad en una banda oscura (sonda) = ${c.oscuroSonda} (esperado ${ESPERADO_CAPA.oscuro})`)
+  if (c.oscuroBanda !== null && c.oscuroBanda !== ESPERADO_CAPA.oscuro) fallosCapa.push(`${c.ruta}: --identidad en la banda oscura de la página = ${c.oscuroBanda} (esperado ${ESPERADO_CAPA.oscuro})`)
+}
+for (const [ruta, c] of Object.entries(capaPorRuta)) {
+  if (c.capa !== 'piloto') fallosCapa.push(`${ruta}: <html data-capa="${c.capa}"> y no "piloto"`)
+  if (c.anidados.length) fallosCapa.push(`${ruta}: data-capa dentro de otro data-capa (${c.anidados.join(', ')}): página + una isla, y nada más`)
+}
+if (fallosCapa.length) {
+  console.log(`\n✘ Capas de marca:\n   ${fallosCapa.join('\n   ')}`)
+  process.exit(1)
+}
+console.log(`  capas: ${capas.map((c) => `${c.ruta} ${c.claro} / banda ${c.oscuroBanda ?? '—'} / sonda ${c.oscuroSonda}`).join(' · ')} · ${Object.keys(capaPorRuta).length} rutas con <html data-capa="piloto"> y sin anidar`)
 if (rejilla.texto > rejilla.ancho) {
   console.log(`\n✘ .rejilla-par a ${ANCHO_MOVIL} px: el texto mide ${rejilla.texto} px en una ventana de ${rejilla.ancho} (pista «${rejilla.pista}»). Una pieza ancha ensancha la columna: la pista de la pila debe ser minmax(0, 1fr).`)
   process.exit(1)
