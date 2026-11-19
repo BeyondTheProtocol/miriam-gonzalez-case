@@ -1174,7 +1174,7 @@
     "report_available_label": "Queda disponible",
     "report_item_travel": "Viajes del caso: biopsia en Zúrich, ensayos clínicos en Barcelona y congresos, ya descontado lo que han reembolsado los ensayos",
     "report_item_ai": "IA y herramientas de análisis",
-    "report_item_tax": "Impuesto de donaciones (declarado, pendiente de pago)",
+    "report_item_tax": "Impuesto de donaciones",
     "report_item_diagnostics": "Pruebas diagnósticas: biopsia, secuenciación e imagen",
     "report_item_equipment": "Material técnico: ordenadores, vídeo y monitorización de salud",
     "report_item_ops": "Operativo",
@@ -1183,7 +1183,7 @@
     "report_item_treatment": "Medicación y tratamiento de soporte",
     "report_item_samples": "Envío de muestras al laboratorio",
     "report_total": "Total gastado y comprometido",
-    "report_available_desc": "Estimado, descontado el impuesto de donaciones pendiente. No sale de restar lo gastado a lo recaudado: parte de lo que había a {fecha}."
+    "report_available_desc": "Estimado: es lo que quedaba el {fecha}, con el impuesto de donaciones pendiente de pago ya apartado."
   },
   "links": {
     "meta_title": "Miriam González · Enlaces",

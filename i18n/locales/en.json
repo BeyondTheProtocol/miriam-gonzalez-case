@@ -1174,7 +1174,7 @@
     "report_available_label": "Still available",
     "report_item_travel": "Case-related travel: biopsy in Zurich, clinical trials in Barcelona and conferences, net of what the trials have reimbursed",
     "report_item_ai": "AI and analysis tools",
-    "report_item_tax": "Gift tax (filed, payment pending)",
+    "report_item_tax": "Gift tax",
     "report_item_diagnostics": "Diagnostic tests: biopsy, sequencing and imaging",
     "report_item_equipment": "Hardware: computers, video and health monitoring",
     "report_item_ops": "Operations",
@@ -1183,7 +1183,7 @@
     "report_item_treatment": "Medication and supportive care",
     "report_item_samples": "Shipping samples to the lab",
     "report_total": "Total spent and committed",
-    "report_available_desc": "Estimated, net of the pending gift tax. It does not come from subtracting what was spent from what was raised: it starts from what there was as of {fecha}."
+    "report_available_desc": "Estimated: what was left as of {fecha}, with the pending gift tax already set aside."
   },
   "links": {
     "meta_title": "Miriam González · Links",

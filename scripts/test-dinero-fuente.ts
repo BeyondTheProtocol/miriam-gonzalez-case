@@ -154,7 +154,8 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   ok(d.expenses.report_available_desc.includes('{fecha}'), `${loc}: la nota de lo disponible lleva la fecha del corte del JSON, no una escrita a mano`)
   ok(!/\d|[€$%]|\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|january|february|march|april|june|july|august|september|october|november|december)\b/i.test(d.expenses.report_available_desc), `${loc}: la nota de lo disponible no lleva una cifra ni una fecha escritas a mano (ni un mes por su nombre)`)
   // «Recaudado» y no «recibido» desde el 25-oct-2026: sin la fila de lo recibido, la única cifra de entrada que se ve es la recaudada.
-  const noEsResta = loc === 'es' ? /no sale de restar lo gastado a lo recaudado: parte de lo que había a \{fecha\}/i : /does not come from subtracting what was spent from what was raised: it starts from what there was as of \{fecha\}/i
+  // 19-nov-2026 (Miriam): la frase «no sale de restar…» no se entendía; ahora dice qué es: lo que quedaba a la fecha del corte.
+  const noEsResta = loc === 'es' ? /lo que quedaba el \{fecha\}/i : /what was left as of \{fecha\}/i
   const circular = loc === 'es' ? /se calcula sobre lo disponible|calculad[oa] sobre lo disponible/i : /worked out from what was available|calculated (on|from) what was available/i
   ok(noEsResta.test(d.expenses.report_available_desc) && !circular.test(d.expenses.report_available_desc), `${loc}: lo disponible dice de dónde parte y que no sale de restar lo gastado a lo recibido, sin la frase circular («${d.expenses.report_available_desc}»)`)
   ok(['rebiopsy_now_label', 'phase1_desc', 'rebiopsy_note'].every((k) => d.expenses[k].includes('{fecha}')) && d.expenses.rebiopsy_note.includes('{corte}'), `${loc}: el bloque de la rebiopsia dice a qué fecha están sus cifras (la suya, no la del corte) y por qué el informe suma más`)
