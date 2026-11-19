@@ -2448,7 +2448,7 @@ const manifestValidated = (() => {
               @click="pickAndShow(le.id)"
               :aria-pressed="selected === le.id"
               class="foco-card text-left rounded-card border-2 px-3.5 py-3 flex flex-col items-stretch justify-start"
-              :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card hover:border-[#9d44ab]'">
+              :class="selected === le.id ? 'border-miriam bg-miriam/[0.07]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card hover:border-miriam'">
               <span v-if="focoKey(le).hasReliable" class="block rounded-lg overflow-hidden mb-2 bg-[#0d1117]" style="aspect-ratio:16/10"><img :src="fk(le.id, 'axial')" :alt="L('Imagen clave del foco #' + le.id, 'Key image of focus #' + le.id)" class="w-full h-full object-cover" loading="lazy" /></span>
               <div class="flex items-center justify-between gap-2">
                 <span class="inline-flex items-center gap-2 min-w-0">
@@ -2665,7 +2665,7 @@ const manifestValidated = (() => {
                 type="search"
                 :placeholder="L('Buscar por nombre o zona…', 'Search by name or area…')"
                 :aria-label="L('Buscar foco por nombre o zona', 'Search focus by name or area')"
-                class="w-full mb-1.5 rounded-card border border-[rgba(45,27,61,0.14)] bg-cream-card px-2.5 py-1.5 text-xs text-berenjena placeholder:text-tinta focus:outline-none focus:border-[#9d44ab]" />
+                class="w-full mb-1.5 rounded-card border border-[rgba(45,27,61,0.14)] bg-cream-card px-2.5 py-1.5 text-xs text-berenjena placeholder:text-tinta focus:outline-none focus:border-miriam" />
               <!-- (A · a11y) la lista de focos es un LISTBOX: role=listbox + cada
                    botón role=option con roving tabindex (solo el seleccionado es
                    tabbable). Las flechas/Home/End/número los gobierna onFocoNavKey
@@ -2687,7 +2687,7 @@ const manifestValidated = (() => {
                     :tabindex="le.id === selected ? 0 : -1"
                     @mouseenter="setHover(le.id)" @mouseleave="clearHover()" @focus="setHover(le.id)" @blur="clearHover()"
                     class="foco-card w-full text-left rounded-card border px-2 py-1.5 flex items-center gap-2"
-                    :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : (focoHovered(le) ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.05)]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]')"
+                    :class="le.id === selected ? 'border-berenjena bg-[rgba(45,27,61,0.05)]' : (focoHovered(le) ? 'border-miriam bg-miriam/[0.05]' : 'border-transparent hover:bg-[rgba(45,27,61,0.035)]')"
                     :aria-selected="le.id === selected"
                     :aria-label="`#${le.id} ${le.level[lang]} — ${phenoLabel(le)}`">
                     <span class="shrink-0 w-3 h-3 rounded-full" :style="{ background: phenoColor(le), boxShadow: sourceOf(le) === 'ia-david' ? '0 0 0 1.5px #fff, 0 0 0 3px ' + phenoColor(le) : 'none' }" aria-hidden="true" />
@@ -3416,8 +3416,8 @@ const manifestValidated = (() => {
           <!-- CONTROL · activa la lente de idoneidad (no es el orden por defecto). Texto SIEMPRE
                visible; nunca un botón que oculte contenido. -->
           <label class="flex items-start gap-2.5 mb-3 cursor-pointer select-none rounded-card border px-3 py-2.5"
-            :class="orderByIdoneidad ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.06)]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card'">
-            <input type="checkbox" v-model="orderByIdoneidad" class="mt-0.5 accent-[#9d44ab] w-4 h-4 shrink-0"
+            :class="orderByIdoneidad ? 'border-miriam bg-miriam/[0.06]' : 'border-[rgba(45,27,61,0.14)] bg-cream-card'">
+            <input type="checkbox" v-model="orderByIdoneidad" class="mt-0.5 accent-miriam w-4 h-4 shrink-0"
               :aria-label="L('Ordenar por idoneidad (heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic, not validated)')" />
             <span class="min-w-0 measure">
               <span class="text-[13px] font-semibold text-berenjena leading-snug block measure">{{ L('Ordenar por idoneidad (estimación heurística orientativa, no validada)', 'Sort by suitability (indicative heuristic estimate, not validated)') }}</span>
@@ -3430,10 +3430,10 @@ const manifestValidated = (() => {
                REORDENAN ante sus ojos. La demostración es el movimiento. Pesos por
                defecto = los actuales (no cambia nada hasta que toca). Etiqueta permanente
                de NO-VALIDACIÓN + botón de reset. Sliders táctiles ≥44px (pointer:coarse). -->
-          <div class="rounded-card border px-4 py-4 mb-3" :style="{ borderColor: '#9d44ab', background: 'rgba(157,68,171,0.04)' }">
+          <div class="rounded-card border px-4 py-4 mb-3" :style="{ borderColor: 'var(--color-miriam)', background: 'rgb(var(--color-miriam-rgb) / 0.04)' }">
             <div class="flex items-start justify-between gap-3 flex-wrap mb-2">
               <p class="eyebrow--sm flex items-center gap-2 flex-wrap" :style="{ color: '#7a3486' }">
-                <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: '#9d44ab' }" />
+                <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: 'var(--color-miriam)' }" />
                 {{ L('Stress-test: mueve los pesos', 'Stress-test: move the weights') }}
                 <span class="status-badge status-badge--firma">{{ L('heurística, no validada', 'heuristic, not validated') }}</span>
                 <span v-if="weightsDirty" class="status-badge status-badge--candidate">{{ L('pesos modificados', 'weights modified') }}</span>
@@ -3493,7 +3493,7 @@ const manifestValidated = (() => {
             <li v-for="le in rankedFoci" :key="le.id">
               <button type="button" :aria-pressed="selected === le.id" @click="pickAndShow(le.id)"
                 class="foco-card w-full text-left rounded-card border px-3.5 py-3"
-                :class="selected === le.id ? 'border-[#9d44ab] bg-[rgba(157,68,171,0.07)]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
+                :class="selected === le.id ? 'border-miriam bg-miriam/[0.07]' : 'border-[rgba(45,27,61,0.12)] bg-cream-card hover:border-[rgba(45,27,61,0.3)]'">
                 <div class="flex items-center gap-3">
                   <span class="foco-id-casing inline-flex w-7 h-7 shrink-0 rounded-full items-center justify-center text-xs font-semibold leading-none" :style="{ background: phenoChipFill(le), color: markerInk(le) }">{{ le.id }}</span>
                   <div class="flex-1 min-w-0">
@@ -3693,7 +3693,7 @@ const manifestValidated = (() => {
                   <line :x1="d.px" :y1="d.py - DOT_R" :x2="d.px" :y2="d.py + DOT_R" stroke="#ffffff" stroke-width="0.9" class="pointer-events-none" />
                   <circle :cx="d.px" :cy="d.py" :r="DOT_R + (selected === d.le.id ? 0 : (focoHovered(d.le) ? 1.5 : 0))"
                     fill="none"
-                    :stroke="selected === d.le.id ? '#2d1b3d' : (focoHovered(d.le) ? '#9d44ab' : '#ffffff')"
+                    :stroke="selected === d.le.id ? '#2d1b3d' : (focoHovered(d.le) ? 'var(--color-miriam)' : '#ffffff')"
                     :stroke-width="selected === d.le.id ? 2.5 : (focoHovered(d.le) ? 2.2 : 1.2)"
                     :stroke-dasharray="sourceOf(d.le) === 'ia-david' ? '2 1.6' : undefined"
                     class="cursor-pointer sk-marker" role="option" :id="'sc-opt-' + d.le.id" :ref="(el) => registerScOpt(d.le.id, el)"
@@ -4047,7 +4047,7 @@ const manifestValidated = (() => {
                     </span>
                   </td>
                 </tr>
-                <tr v-else class="cursor-pointer" :aria-selected="selected === row.le.id" :class="selected === row.le.id ? 'bg-[rgba(157,68,171,0.08)]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
+                <tr v-else class="cursor-pointer" :aria-selected="selected === row.le.id" :class="selected === row.le.id ? 'bg-miriam/[0.08]' : (isAiDavid(row.le) ? 'ai-row' : '')" @click="pickAndShow(row.le.id)">
                   <template v-if="row.kind === 'lesion'">
                   <th scope="row" class="!font-normal !text-left"><span class="foco-id-casing inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-semibold leading-none" :class="isAiDavid(row.le) ? 'ai-dot' : ''" :style="{ background: phenoChipFill(row.le), color: markerInk(row.le) }">{{ row.le.id }}</span></th>
                   <td class="font-semibold text-berenjena">{{ row.le.level[lang] }}</td>
@@ -4850,7 +4850,7 @@ const manifestValidated = (() => {
 svg [role="button"]:focus-visible,
 svg [role="option"]:focus-visible {
   outline: none;
-  stroke: #9d44ab;
+  stroke: var(--color-miriam);
   stroke-width: 3;
 }
 /* Nº de foco en los <span> HTML: SIN casing blanco (18-nov-2026). El casing tapaba que la tinta berenjena no llegaba a AA sobre el relleno
@@ -4945,7 +4945,7 @@ svg [role="option"]:focus-visible {
   border-radius: 6px;
 }
 .th-sort:hover { color: #2d1b3d; }
-.th-sort:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
+.th-sort:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 1px; }
 .th-arrow { font-size: var(--texto-xs); color: var(--texto-3); }
 /* grupo de focos detectados por IA (al final de la tabla) — fila de subtítulo
    + tinte cálido sutil en las filas; el marcado fuerte es la POSICIÓN + rótulo. */
@@ -4970,8 +4970,8 @@ svg [role="option"]:focus-visible {
   cursor: zoom-in;
   transition: box-shadow var(--ease-salida), border-color var(--ease-salida), transform var(--ease-salida);
 }
-.foco-key-thumb:hover { border-color: rgba(157, 68, 171, 0.55); box-shadow: 0 4px 16px rgba(45, 27, 61, 0.18); transition: box-shadow var(--ease-entrada), border-color var(--ease-entrada), transform var(--ease-entrada); }
-.foco-key-thumb:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.foco-key-thumb:hover { border-color: rgb(var(--color-miriam-rgb) / 0.55); box-shadow: 0 4px 16px rgba(45, 27, 61, 0.18); transition: box-shadow var(--ease-entrada), border-color var(--ease-entrada), transform var(--ease-entrada); }
+.foco-key-thumb:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .foco-key-thumb__img { display: block; width: 100%; height: auto; }
 .foco-key-thumb__zoom {
   position: absolute;
@@ -5019,8 +5019,8 @@ svg [role="option"]:focus-visible {
   cursor: zoom-in;
   transition: box-shadow var(--ease-salida), border-color var(--ease-salida);
 }
-.foco-key-strip:hover { border-color: rgba(157, 68, 171, 0.5); box-shadow: 0 3px 14px rgba(45, 27, 61, 0.14); transition: box-shadow var(--ease-entrada), border-color var(--ease-entrada); }
-.foco-key-strip:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.foco-key-strip:hover { border-color: rgb(var(--color-miriam-rgb) / 0.5); box-shadow: 0 3px 14px rgba(45, 27, 61, 0.14); transition: box-shadow var(--ease-entrada), border-color var(--ease-entrada); }
+.foco-key-strip:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .foco-key-strip__thumb {
   flex: 0 0 auto;
   width: 48px;
@@ -5051,7 +5051,7 @@ svg [role="option"]:focus-visible {
   border: 1px solid rgba(45, 27, 61, 0.18);
   color: #6b4a78;
 }
-.foco-key-strip:hover .foco-key-strip__zoom { background: rgba(157, 68, 171, 0.12); color: #4a2f55; }
+.foco-key-strip:hover .foco-key-strip__zoom { background: rgb(var(--color-miriam-rgb) / 0.12); color: #4a2f55; }
 
 /* ---- Galería contact-sheet de TODAS las key-images ---- */
 .foco-key-grid {
@@ -5119,8 +5119,8 @@ svg [role="option"]:focus-visible {
   border-color: rgba(138, 90, 26, 0.6);
 }
 .foco-key-tile.is-ai .foco-key-tile__frame { border-style: dashed; border-color: rgba(138, 90, 26, 0.6); }
-.foco-key-tile:hover .foco-key-tile__frame { border-color: rgba(157, 68, 171, 0.6); box-shadow: 0 4px 14px rgba(45, 27, 61, 0.18); }
-.foco-key-tile:focus-visible { outline: 2px solid #9d44ab; outline-offset: 3px; border-radius: 0.55rem; }
+.foco-key-tile:hover .foco-key-tile__frame { border-color: rgb(var(--color-miriam-rgb) / 0.6); box-shadow: 0 4px 14px rgba(45, 27, 61, 0.18); }
+.foco-key-tile:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 3px; border-radius: 0.55rem; }
 .foco-key-tile__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .foco-key-tile__zoom {
   position: absolute;
@@ -5235,8 +5235,8 @@ svg [role="option"]:focus-visible {
   border: 1px solid rgba(45, 27, 61, 0.18);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.study-thumb__btn:hover .study-thumb__frame { border-color: rgba(157, 68, 171, 0.6); box-shadow: 0 4px 14px rgba(45, 27, 61, 0.18); }
-.study-thumb__btn:focus-visible { outline: 2px solid #9d44ab; outline-offset: 3px; border-radius: 0.6rem; }
+.study-thumb__btn:hover .study-thumb__frame { border-color: rgb(var(--color-miriam-rgb) / 0.6); box-shadow: 0 4px 14px rgba(45, 27, 61, 0.18); }
+.study-thumb__btn:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 3px; border-radius: 0.6rem; }
 .study-thumb__img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .study-thumb__zoom {
   position: absolute;
@@ -5348,7 +5348,7 @@ svg [role="option"]:focus-visible {
 .foco-key-lb__plane + .foco-key-lb__plane { border-left: 1px solid rgba(45, 27, 61, 0.2); }
 .foco-key-lb__plane:hover { color: #2d1b3d; }
 .foco-key-lb__plane.is-active { background: #2d1b3d; color: #fdf6ef; }
-.foco-key-lb__plane:focus-visible { outline: 2px solid #9d44ab; outline-offset: -2px; }
+.foco-key-lb__plane:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: -2px; }
 .foco-key-lb__dl {
   display: inline-flex;
   align-items: center;
@@ -5365,8 +5365,8 @@ svg [role="option"]:focus-visible {
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
-.foco-key-lb__dl:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
-.foco-key-lb__dl:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
+.foco-key-lb__dl:hover { background: #f0e7f3; border-color: rgb(var(--color-miriam-rgb) / 0.5); }
+.foco-key-lb__dl:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 1px; }
 @media (max-width: 420px) { .foco-key-lb__dl-txt { display: none; } }
 /* botón de descarga del manifiesto (CSV/JSON) — sobrio, misma familia que la
    descarga de imágenes clave */
@@ -5385,8 +5385,8 @@ svg [role="option"]:focus-visible {
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
-.manifest-dl:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); }
-.manifest-dl:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
+.manifest-dl:hover { background: #f0e7f3; border-color: rgb(var(--color-miriam-rgb) / 0.5); }
+.manifest-dl:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 1px; }
 .manifest-card { background: #fbf7f0; }
 /* ── Método · pasos del pipeline + esquema-contrato (sobrio, instrumento) ── */
 .method-steps {
@@ -5462,7 +5462,7 @@ svg [role="option"]:focus-visible {
   cursor: pointer;
 }
 .foco-key-lb__close:hover { background: #f0e7f3; }
-.foco-key-lb__close:focus-visible { outline: 2px solid #9d44ab; outline-offset: 1px; }
+.foco-key-lb__close:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 1px; }
 /* contador «n / N» de la galería navegable (en la barra del título) */
 .foco-key-lb__count {
   margin-left: 0.5rem;
@@ -5529,8 +5529,8 @@ svg [role="option"]:focus-visible {
   cursor: pointer;
   transition: background var(--ease-salida), border-color var(--ease-salida);
 }
-.btn-expand3d:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); transition: background var(--ease-entrada), border-color var(--ease-entrada); }
-.btn-expand3d:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.btn-expand3d:hover { background: #f0e7f3; border-color: rgb(var(--color-miriam-rgb) / 0.5); transition: background var(--ease-entrada), border-color var(--ease-entrada); }
+.btn-expand3d:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 
 /* ── Copiar enlace · permalink citable del foco ──────────────────────
    Mismo lenguaje visual que .btn-expand3d (pill, tokens DS) pero más
@@ -5551,8 +5551,8 @@ svg [role="option"]:focus-visible {
   white-space: nowrap;
   transition: background var(--ease-salida), border-color var(--ease-salida), color var(--ease-salida);
 }
-.btn-copylink:hover { background: #f0e7f3; border-color: rgba(157, 68, 171, 0.5); transition: background var(--ease-entrada), border-color var(--ease-entrada), color var(--ease-entrada); }
-.btn-copylink:focus-visible { outline: 2px solid #9d44ab; outline-offset: 2px; }
+.btn-copylink:hover { background: #f0e7f3; border-color: rgb(var(--color-miriam-rgb) / 0.5); transition: background var(--ease-entrada), border-color var(--ease-entrada), color var(--ease-entrada); }
+.btn-copylink:focus-visible { outline: 2px solid var(--color-miriam); outline-offset: 2px; }
 .btn-copylink--done { border-color: rgba(31, 107, 87, 0.55); color: #1f6b57; }
 .btn-copylink--done:hover { background: #fbf7f0; border-color: rgba(31, 107, 87, 0.55); }
 
@@ -5668,14 +5668,14 @@ svg [role="option"]:focus-visible {
   outline: none;
   cursor: pointer;
 }
-.stress-slider:focus-visible { box-shadow: 0 0 0 3px rgba(157, 68, 171, 0.35); }
+.stress-slider:focus-visible { box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / 0.35); }
 .stress-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 9999px;
-  background: var(--slider-accent, #9d44ab);
+  background: var(--slider-accent, var(--color-miriam));
   border: 2px solid #fbf7f0;
   box-shadow: 0 1px 3px rgba(45, 27, 61, 0.4);
   cursor: pointer;
@@ -5684,7 +5684,7 @@ svg [role="option"]:focus-visible {
   width: 20px;
   height: 20px;
   border-radius: 9999px;
-  background: var(--slider-accent, #9d44ab);
+  background: var(--slider-accent, var(--color-miriam));
   border: 2px solid #fbf7f0;
   box-shadow: 0 1px 3px rgba(45, 27, 61, 0.4);
   cursor: pointer;

@@ -35,13 +35,13 @@
   --color-bg-card:   #f5efe6; /* Crema profunda — superficies elevadas */
   --color-text:      #2d1b3d; /* Berenjena — texto/trazo/fondo oscuro (nunca negro) */
   --color-text-soft: #3a3340; /* Tinta — texto secundario */
-  --color-miriam:    #9d44ab; /* Violeta FIRMA — validado por Ceci/MCP: 5.07:1 sobre crema y 4.77:1 sobre tarjeta elevada = AA-normal en AMBAS. Gana a #a44db2 (4.55/4.29 = solo AA-large). Producción sirve aún #a44db2 → alinear vía PR. */
-  --color-miriam-soft:#e8d4ed;/* Violeta soft — fondo de badges */
+  --color-miriam:    #804fc3; /* Violeta FIRMA — −22° en OKLCH sobre el violeta anterior (consejero-color, 19-nov-2026): 5,10:1 sobre crema y 4,80:1 sobre tarjeta elevada = AA-normal en AMBAS. */
+  --color-miriam-soft:#ded7f4;/* Violeta soft — fondo de badges (berenjena encima: 11,33:1) */
   --color-cta:       #ff6b47; /* Coral — SOLO acción (nunca porta significado sobre crema) */
   --color-cta-hover: #e5573a;
 
   /* ── Derivados oficiales (los 2 únicos "extra" permitidos) ───── */
-  --color-miriam-claro: #c77dd2; /* Violeta sobre fondo oscuro (berenjena); NUNCA sobre crema */
+  --color-miriam-claro: #ac87e9; /* Violeta sobre fondo oscuro (berenjena: 5,54:1); NUNCA sobre crema */
   --cielo-resplandor:   #3a2450; /* SOLO fondos de "cielo" (universo constelación) */
 
   /* ── Estados derivados (color-mix, sin hexes nuevos) — COL-5 ─── */
@@ -249,7 +249,7 @@
   --identidad:    var(--color-bg);
   --anillo-foco:  var(--color-bg);
   --marcador:     color-mix(in srgb, var(--color-bg) 16%, var(--color-text)); /* crema sobre él: 9,04:1 */
-  --hueco-piloto-borde: var(--color-miriam-claro); /* 5,46:1 sobre berenjena */
+  --hueco-piloto-borde: var(--color-miriam-claro); /* 5,54:1 sobre berenjena */
   --cta-texto:    var(--color-cta);        /* coral pleno ≈5.6:1 sobre berenjena — AA */
   --trazo-sutil:  color-mix(in srgb, var(--color-bg) 10%, transparent);
   --trazo-medio:  color-mix(in srgb, var(--color-bg) 16%, transparent);
@@ -318,7 +318,7 @@
    Se declaran en :root Y en [data-tema="oscuro"] a propósito: una variable que apunta a otra se resuelve donde se
    declara, así que sin esto una banda oscura heredaría los valores de la clara.
    Contrastes del texto sobre su fondo, medidos con color-mix en sRGB (claro sobre crema; en oscuro, sobre berenjena):
-   hecho 11,7 · en curso 14,6 · pendiente 10,1 · no puede 4,9 (la tarjeta crema da 4,6) · atención 12,3 (piloto).
+   hecho 11,8 · en curso 14,6 · pendiente 10,1 · no puede 4,9 (la tarjeta crema da 4,6) · atención 12,3 (piloto).
    Bloque 7 de las capas: el selector incluye [data-capa] para que cada elemento que redeclara un rol de capa recalcule sus
    derivados. --identidad-hover, --identidad-active y --subrayado viven aquí por la misma razón. */
 :root,
@@ -365,9 +365,9 @@
   --color-bg-card-rgb: 245 239 230;
   --color-text-rgb: 45 27 61;
   --color-text-soft-rgb: 58 51 64;
-  --color-miriam-rgb: 157 68 171;
-  --color-miriam-soft-rgb: 232 212 237;
-  --color-miriam-claro-rgb: 199 125 210;
+  --color-miriam-rgb: 128 79 195;
+  --color-miriam-soft-rgb: 222 215 244;
+  --color-miriam-claro-rgb: 172 135 233;
   --color-cta-rgb: 255 107 71;
   --color-cta-hover-rgb: 229 87 58;
   --berenjena-2-rgb: 58 35 80;

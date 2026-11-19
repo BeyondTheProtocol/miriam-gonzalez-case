@@ -52,7 +52,7 @@
               :key="i"
               :d="l.d"
               fill="none"
-              stroke="#9d44ab"
+              stroke="var(--color-miriam)"
               stroke-width="1.1"
               stroke-linecap="round"
               vector-effect="non-scaling-stroke"
@@ -85,7 +85,7 @@
             :style="{ left: a.x + '%', top: a.y + '%', width: a.size + 'px', height: a.size + 'px' }"
             viewBox="0 0 20 20"
           >
-            <path :fill="a.rank === 1 ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
+            <path :fill="a.rank === 1 ? '#ff6b47' : 'var(--color-miriam)'" :d="STAR_D" />
             <circle v-if="a.rank === 1" cx="10" cy="10" r="2.2" fill="#fff6fb" opacity="0.85" />
           </svg>
 
@@ -99,8 +99,8 @@
             viewBox="0 0 40 40"
             aria-hidden="true"
           >
-            <path d="M20 2 V38 M2 20 H38" stroke="#9d44ab" :stroke-width="0.7 + s.b * 0.5" stroke-linecap="round" :opacity="0.3 + s.b * 0.28" />
-            <path v-if="s.eight" d="M8 8 L32 32 M32 8 L8 32" stroke="#9d44ab" stroke-width="0.6" stroke-linecap="round" :opacity="0.14 + s.b * 0.14" />
+            <path d="M20 2 V38 M2 20 H38" stroke="var(--color-miriam)" :stroke-width="0.7 + s.b * 0.5" stroke-linecap="round" :opacity="0.3 + s.b * 0.28" />
+            <path v-if="s.eight" d="M8 8 L32 32 M32 8 L8 32" stroke="var(--color-miriam)" stroke-width="0.6" stroke-linecap="round" :opacity="0.14 + s.b * 0.14" />
           </svg>
 
           <!-- Donantes: una estrella por aportación; importe → magnitud (brillo +
@@ -127,7 +127,7 @@
             }"
             viewBox="0 0 20 20"
           >
-            <path :fill="s.newest ? '#ff6b47' : '#9d44ab'" :d="STAR_D" />
+            <path :fill="s.newest ? '#ff6b47' : 'var(--color-miriam)'" :d="STAR_D" />
             <circle v-if="s.tier === 'principal' && !s.newest" cx="10" cy="10" :r="1.4 + s.b * 1.2" fill="#fff6fb" :opacity="0.7 + s.b * 0.2" />
           </svg>
 
@@ -822,7 +822,7 @@ const tipStyle = computed(() => {
   height: 150px;
   transform: translate(-50%, -50%);
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(157, 68, 171, 0.16) 0%, rgba(157, 68, 171, 0) 70%);
+  background: radial-gradient(circle, rgb(var(--color-miriam-rgb) / 0.16) 0%, rgb(var(--color-miriam-rgb) / 0) 70%);
   pointer-events: none;
 }
 .starmap__anchor {
@@ -832,7 +832,7 @@ const tipStyle = computed(() => {
   opacity: 0.95;
 }
 .starmap-content.is-still .starmap__anchor {
-  filter: drop-shadow(0 0 5px rgba(157, 68, 171, 0.5));
+  filter: drop-shadow(0 0 5px rgb(var(--color-miriam-rgb) / 0.5));
 }
 .starmap__star {
   position: absolute;
@@ -843,10 +843,10 @@ const tipStyle = computed(() => {
 }
 /* Magnitud: las brillantes y principales ganan un halo (las mayores aportaciones). */
 .starmap-content.is-still .starmap__star--bright {
-  filter: drop-shadow(0 0 2.5px rgba(157, 68, 171, 0.42));
+  filter: drop-shadow(0 0 2.5px rgb(var(--color-miriam-rgb) / 0.42));
 }
 .starmap-content.is-still .starmap__star--principal {
-  filter: drop-shadow(0 0 7px rgba(157, 68, 171, 0.6));
+  filter: drop-shadow(0 0 7px rgb(var(--color-miriam-rgb) / 0.6));
 }
 /* Puntas de difracción de las principales (capa propia, detrás de los núcleos). */
 .starmap__spike {
@@ -857,7 +857,7 @@ const tipStyle = computed(() => {
 }
 .starmap__star--lit {
   opacity: 1;
-  filter: drop-shadow(0 0 6px rgba(157, 68, 171, 0.85));
+  filter: drop-shadow(0 0 6px rgb(var(--color-miriam-rgb) / 0.85));
 }
 .starmap-content--spotlight .starmap__star:not(.starmap__star--lit) {
   opacity: 0.14;
@@ -962,7 +962,7 @@ const tipStyle = computed(() => {
   color: rgba(250, 246, 240, 0.78);
 }
 .starmap__anchor--patron {
-  filter: drop-shadow(0 0 8px rgba(157, 68, 171, 0.65));
+  filter: drop-shadow(0 0 8px rgb(var(--color-miriam-rgb) / 0.65));
   z-index: 2;
 }
 .starmap__anchor--patron-1 {

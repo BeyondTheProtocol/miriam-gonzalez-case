@@ -1000,11 +1000,11 @@ async function medirCanario(ruta, ancho) {
 
 // Capas de marca (dictado de tres capas, 19-nov-2026). helpmiriam.com es el piloto: nuxt.config.ts pone data-capa="piloto" en <html>
 // y el canon, sin atributo, es la casa (berenjena). Si el atributo se perdiera, el sitio perdería el violeta en silencio. Por eso, en
-// /, /links, /guia-de-estilo y la 404 (error.vue no pasa por el layout), --identidad tiene que resolver a #9d44ab en <html> y a
-// #c77dd2 dentro de una banda oscura (la real de la página si la hay, y siempre una sonda). Y en TODAS las rutas medidas: <html> lleva
+// /, /links, /guia-de-estilo y la 404 (error.vue no pasa por el layout), --identidad tiene que resolver a #804fc3 (--color-miriam) en <html> y a
+// #ac87e9 (--color-miriam-claro) dentro de una banda oscura (la real de la página si la hay, y siempre una sonda). Y en TODAS las rutas medidas: <html> lleva
 // data-capa="piloto" y ningún [data-capa] va dentro de otro que no sea <html> (página + una isla, y nada más).
 const RUTAS_CAPA = ['/', '/links', '/guia-de-estilo', '/404']
-const ESPERADO_CAPA = { claro: '#9d44ab', oscuro: '#c77dd2' }
+const ESPERADO_CAPA = { claro: '#804fc3', oscuro: '#ac87e9' }
 const CAPAS = `(() => {
   const html = document.documentElement
   const val = (el) => getComputedStyle(el).getPropertyValue('--identidad').trim().toLowerCase()

@@ -52,8 +52,8 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | `--color-bg-card` | `#f5efe6` |  |  |  | Crema profunda — superficies elevadas |
 | `--color-text` | `#2d1b3d` |  |  |  | Berenjena — texto/trazo/fondo oscuro (nunca negro) |
 | `--color-text-soft` | `#3a3340` |  |  |  | Tinta — texto secundario |
-| `--color-miriam` | `#9d44ab` |  |  |  | Violeta FIRMA — validado por Ceci/MCP: 5.07:1 sobre crema y 4.77:1 sobre tarjeta elevada = AA-normal en AMBAS. Gana a #a44db2 (4.55/4.29 = solo AA-large). Producción sirve aún #a44db2 → alinear vía PR. |
-| `--color-miriam-soft` | `#e8d4ed` |  |  |  | Violeta soft — fondo de badges |
+| `--color-miriam` | `#804fc3` |  |  |  | Violeta FIRMA — −22° en OKLCH sobre el violeta anterior (consejero-color, 19-nov-2026): 5,10:1 sobre crema y 4,80:1 sobre tarjeta elevada = AA-normal en AMBAS. |
+| `--color-miriam-soft` | `#ded7f4` |  |  |  | Violeta soft — fondo de badges (berenjena encima: 11,33:1) |
 | `--color-cta` | `#ff6b47` |  |  |  | Coral — SOLO acción (nunca porta significado sobre crema) |
 | `--color-cta-hover` | `#e5573a` |  |  |  |  |
 
@@ -61,7 +61,7 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 
 | Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
 |---|---|---|---|---|---|
-| `--color-miriam-claro` | `#c77dd2` |  |  |  | Violeta sobre fondo oscuro (berenjena); NUNCA sobre crema |
+| `--color-miriam-claro` | `#ac87e9` |  |  |  | Violeta sobre fondo oscuro (berenjena: 5,54:1); NUNCA sobre crema |
 | `--cielo-resplandor` | `#3a2450` |  |  |  | SOLO fondos de "cielo" (universo constelación) |
 
 #### Estados derivados
@@ -279,9 +279,9 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | `--color-bg-card-rgb` | `245 239 230` |  |  |  |  |
 | `--color-text-rgb` | `45 27 61` |  |  |  |  |
 | `--color-text-soft-rgb` | `58 51 64` |  |  |  |  |
-| `--color-miriam-rgb` | `157 68 171` |  |  |  |  |
-| `--color-miriam-soft-rgb` | `232 212 237` |  |  |  |  |
-| `--color-miriam-claro-rgb` | `199 125 210` |  |  |  |  |
+| `--color-miriam-rgb` | `128 79 195` |  |  |  |  |
+| `--color-miriam-soft-rgb` | `222 215 244` |  |  |  |  |
+| `--color-miriam-claro-rgb` | `172 135 233` |  |  |  |  |
 | `--color-cta-rgb` | `255 107 71` |  |  |  |  |
 | `--color-cta-hover-rgb` | `229 87 58` |  |  |  |  |
 | `--berenjena-2-rgb` | `58 35 80` |  |  |  |  |
@@ -550,7 +550,7 @@ La plantilla del PR (`.github/pull_request_template.md`) pregunta: ¿añade toke
 | R9 documento | Tablas de este documento o `tokens.css` público desfasados del canon, y tokens que nadie lee |
 | R12 contenedor | Un `max-w-[Npx]` con `px-4 sm:px-6 lg:px-8` (contenedor propio) o `section-container` fuera de `/gracias` y `/links`. Con baseline |
 | R13 medida | `max-w-2xl` o `max-w-3xl` en un `<p>`: la medida es `.measure`. Con baseline |
-| R14 violeta | Tokens o utilidades `miriam` del color, los hex `#9d44ab`, `#a44db2`, `#c77dd2`, `#e8d4ed` y `#5a2466`, y sus canales RGB, fuera de la lista permitida (en el canon, los átomos, los bloques del piloto y `--hueco-piloto-borde`; `BrandMark.vue`). Con baseline: la deuda que hoy vive en el piloto puede bajar, no subir |
+| R14 violeta | Tokens o utilidades `miriam` del color, los hex de hoy (`#804fc3`, `#ac87e9`, `#ded7f4`) y los de antes, que se quedan para cazar restos (`#9d44ab`, `#a44db2`, `#c77dd2`, `#e8d4ed` y `#5a2466`), y sus canales RGB, fuera de la lista permitida (en el canon, los átomos, los bloques del piloto y `--hueco-piloto-borde`; `BrandMark.vue`). Con baseline: la deuda que hoy vive en el piloto puede bajar, no subir |
 | R15 capas | Los bloques de isla del canon (`[data-capa="casa"]`) copian literalmente los roles de la base, y ningún `data-capa` va dentro de otro en una plantilla. Sin baseline: falla siempre. En el DOM lo vigila `test:diseno-render` (además: `--identidad` resuelve a `#9d44ab` en `/`, `/links`, `/guia-de-estilo` y la 404, y a `#c77dd2` en una banda oscura) |
 | R11 espacios | Un espacio al principio o al final de un elemento en una plantilla (`<span> {{ x }}</span>`, `<template> <em>`): Vue, en modo condense, lo elimina y el texto sale pegado. El espacio va como texto (`{{ ' ' }}` o `&nbsp;`). Con baseline |
 | R10 render | `pnpm test:diseno-render`, en Chrome sobre el build estático (`diseno.yml`): desborde, borde del H1 bajo el logo, texto bajo 13 px, texto de un SVG bajo 13 px a su tamaño de pantalla (`texto_svg_bajo_suelo`: el `font-size` del `<text>` por la escala de su viewBox; el recuento anterior salta todo lo que cuelga de un `<svg>`), controles bajo 44 px, contraste, foco tapado por la cabecera fija, línea larga (`linea_larga`: bloques de texto cuya línea más larga pasa de 90 caracteres) y pegajoso tapado (`sticky_tapado`: un `sticky` cuyo `top` queda bajo la cabecera). Mismo ratchet, con `scripts/diseno-render-baseline.json`. El contraste mide también el enlace en línea (su degradado de marcador no lo exime); solo se salta el texto con una imagen o un degradado en un antepasado |
@@ -572,7 +572,8 @@ Los documentos viejos (el Consolidado de junio, el cuadernillo v1 y v2) usaban o
 | `campo-*` | `.form-input`, `.form-label` |
 | `toast` | no existe en el sitio |
 | `btp-components.css` | no existe: las clases viven en `main.css` y en los componentes |
-| violeta `#a44db2` | `#9d44ab` (`--color-miriam`) |
+| violeta `#a44db2`, y `#9d44ab` hasta el 19-nov-2026 | `#804fc3` (`--color-miriam`) |
+| violeta claro `#c77dd2` y soft `#e8d4ed`, hasta el 19-nov-2026 | `#ac87e9` (`--color-miriam-claro`) y `#ded7f4` (`--color-miriam-soft`) |
 | cuerpo `system-ui` | Hanken Grotesk (`--font-body`) |
 | `--tipo-body` | `--tipo-prosa` (el alias se mantiene) |
 | `.eyebrow--sm` | `.etiqueta` (el alias se mantiene) |

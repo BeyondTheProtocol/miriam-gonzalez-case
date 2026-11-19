@@ -24,7 +24,7 @@ defineProps({
     <!-- Portrait column -->
     <div
       class="flex items-center justify-center h-full shrink-0"
-      style="width: 420px; background-color: #e8d4ed;"
+      style="width: 420px; background-color: #ded7f4;"
     >
       <img
         src="/design-system/assets/miriam-avatar.png"
@@ -38,7 +38,7 @@ defineProps({
     <!-- Text column -->
     <div class="flex flex-col justify-center h-full" style="padding: 60px; gap: 24px; flex: 1;">
       <div class="flex items-center" style="gap: 12px;">
-        <div style="width: 32px; height: 4px; background-color: #9d44ab;" />
+        <div style="width: 32px; height: 4px; background-color: #804fc3;" />
         <span
           style="font-family: 'JetBrains Mono', monospace; font-size: 18px; letter-spacing: 0.16em; text-transform: uppercase; color: #6b5a78;"
         >
@@ -66,7 +66,7 @@ defineProps({
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #2d1b3d;">
           Miriam González · {{ caseData.currentAge }}
         </span>
-        <span style="color: #9d44ab;">·</span>
+        <span style="color: #804fc3;">·</span>
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #5a4a68;">
           {{ role }}
         </span>

@@ -80,11 +80,11 @@ function pintar() {
   const fila = ALTO_FILA.value
   const tope = desde + (hasta - desde) * barrido
   const crema = color('--color-bg') || '#faf6f0'
-  const violeta = color('--color-miriam-claro') || '#c77dd2'
+  const violeta = color('--color-miriam-claro') || '#ac87e9'
 
   // líneas de tratamiento (franjas) y progresiones (rayas)
-  // (199,125,210) = --color-miriam-claro: el canvas no mezcla variables CSS con alfa
-  cx.fillStyle = 'rgba(199,125,210,0.07)'
+  // (172,135,233) = --color-miriam-claro: el canvas no mezcla variables CSS con alfa
+  cx.fillStyle = 'rgba(172,135,233,0.07)'
   for (const b of props.contexto.bandas) {
     const a = Math.max(b.ini, desde), z = Math.min(b.fin, tope)
     if (z > a) cx.fillRect(X(a), 8, X(z) - X(a), filas.value.length * fila)
@@ -130,7 +130,7 @@ function pintar() {
   if (barrido < 1) {
     const xh = X(tope)
     const grad = cx.createLinearGradient(xh - 30, 0, xh, 0)
-    grad.addColorStop(0, 'rgba(199,125,210,0)'); grad.addColorStop(1, 'rgba(199,125,210,0.55)')
+    grad.addColorStop(0, 'rgba(172,135,233,0)'); grad.addColorStop(1, 'rgba(172,135,233,0.55)')
     cx.fillStyle = grad; cx.fillRect(xh - 30, 4, 30, filas.value.length * fila + 6)
   }
 
@@ -268,7 +268,7 @@ const lectura = computed(() => {
 .cielo__px { width: 6px; height: 5px; background: rgb(var(--color-bg-rgb) / 0.45); display: inline-block; }
 .cielo__px--fuera { background: var(--color-miriam-claro); box-shadow: 0 0 6px var(--color-miriam-claro); }
 .cielo__raya { width: 1px; height: 12px; border-left: 1px dashed rgb(var(--color-bg-rgb) / 0.5); display: inline-block; }
-.cielo__franja { width: 14px; height: 10px; background: rgb(199 125 210 / 0.25); display: inline-block; }
+.cielo__franja { width: 14px; height: 10px; background: rgb(var(--color-miriam-claro-rgb) / 0.25); display: inline-block; }
 /* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
 @media (min-width: 1024px) { .cielo__sub { font-size: var(--texto-sm); } }
 </style>
