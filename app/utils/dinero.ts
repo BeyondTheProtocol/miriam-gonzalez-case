@@ -42,6 +42,8 @@ export const DINERO = dinero as {
   comprometido: number
   disponible: number
   partidas: { clave: string; importe: number }[]
+  /** Reparto de la partida `travel` por destino (19-nov-2026, Miriam: «pon entre paréntesis lo que ha ido a cada cosa»). Suma `travel`. */
+  viajes: { zurich: number; ensayos: number; congresos: number }
   rebiopsia: { fecha: string; ejecutado: number; biopsia: number; secuenciacion: number; imagen: number }
   fases: { clave: 'rebiopsy' | 'bank' | 'treatment'; estado: EstadoFase }[]
 }

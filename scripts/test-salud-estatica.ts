@@ -1302,10 +1302,12 @@ if (existsSync('seed/fundraiser.json')) {
     const plano = txt.replace(/\s/g, ' ')
     const fechaRebiopsia = fechaDeCorte(DINERO.rebiopsia.fecha, loc)
     ok(!/cargo duplicado|duplicated? charge|no se imputa a la campa|not charged to the campaign|extractos originales|original statements|recibido de gofundme|received from gofundme|cuadre de gofundme|gofundme reconciliation|pendiente de transferir|waiting to be transferred/i.test(plano), `${pagina}: ni lo recibido, ni el cuadre de GoFundMe, ni la nota del cargo duplicado, ni la del gasto personal (quitados por Miriam el 25-oct-2026)`)
-    ok(plano.includes(t(loc, 'expenses.rebiopsy_now_label').replace('{fecha}', fechaRebiopsia)) && plano.includes(t(loc, 'expenses.phase1_desc').replace('{fecha}', fechaRebiopsia).replace('{gastado}', euros(DINERO.rebiopsia.ejecutado, loc)).replace(/\s/g, ' ')), `${pagina}: la rebiopsia conserva su cifra con su fecha (${fechaRebiopsia}) en su bloque y en la fase 1`)
+    ok(plano.includes(t(loc, 'expenses.rebiopsy_now_label')) && plano.includes(t(loc, 'expenses.phase1_desc').replace('{fecha}', fechaRebiopsia).replace('{gastado}', euros(DINERO.rebiopsia.ejecutado, loc)).replace(/\s/g, ' ')), `${pagina}: la rebiopsia conserva su cifra con su fecha (${fechaRebiopsia}) en su bloque y en la fase 1`)
     ok(plano.includes(t(loc, 'expenses.report_available_desc').replace('{fecha}', corte)), `${pagina}: lo disponible se rotula «${t(loc, 'expenses.report_available_desc').replace('{fecha}', corte)}»`)
     ok(!/\{\w+\}/.test(plano), `${pagina}: ningún marcador {…} sin rellenar en el texto de la página (una nota con {fecha} que no recibe su parámetro se vería en crudo)`)
+    // Viajes lleva debajo su reparto por destino, con cifras del JSON (Miriam, 19-nov-2026).
     ok(DINERO.partidas.every((p) => plano.includes(t(loc, `expenses.report_item_${p.clave}`))), `${pagina}: cada partida sale con su rótulo (${DINERO.partidas.length})`)
+    ok((Object.entries(DINERO.viajes) as [string, number][]).every(([k, n]) => plano.includes(t(loc, `expenses.report_travel_${k}`)) && plano.includes(euros(n, loc).replace(/\s/g, ' '))), `${pagina}: viajes enseña debajo cada destino con su cifra`)
     ok(!/\b(saldos? en cuentas?|account balance|deuda de tarjeta|card debt)\b/i.test(plano), `${pagina}: ni saldos en cuentas ni deuda de tarjeta (lista blanca del corte)`)
     ok(txt.includes(t(loc, 'money.transparencia')), `${pagina}: la frase única de transparencia (money.transparencia) está`)
     ok(!/40[.,]000/.test(txt) && !/primer objetivo|first €?\s?40|first target/i.test(txt), `${pagina}: ya no dice «el primer objetivo de 40.000 €»`)
