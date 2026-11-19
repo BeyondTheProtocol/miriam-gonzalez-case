@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="historia · libro abierto">
   <rect width="64" height="64" rx="8" fill="#FAF6F0"></rect>
   <path d="M 10 16 Q 22 14 32 20 L 32 50 Q 22 44 10 46 Z" fill="#2D1B3D"></path>
-  <path d="M 32 20 Q 42 14 54 16 L 54 46 Q 42 44 32 50 Z" fill="#A855B5"></path>
+  <path d="M 32 20 Q 42 14 54 16 L 54 46 Q 42 44 32 50 Z" fill="#804fc3"></path>
   <path d="M 16 24 L 26 26 M 16 30 L 26 32 M 16 36 L 26 38" stroke="#FAF6F0" stroke-width="1.4" stroke-linecap="round"></path>
   <path d="M 38 26 L 48 24 M 38 32 L 48 30 M 38 38 L 48 36" stroke="#FAF6F0" stroke-width="1.4" stroke-linecap="round"></path>
 </svg>

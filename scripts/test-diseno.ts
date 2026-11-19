@@ -53,7 +53,7 @@ export const REGLAS: Record<string, string> = {
 
 /** R14 · regla del violeta (dictado de tres capas, R2.3). Patrón sin distinguir mayúsculas: cualquier token o utilidad con
  *  `miriam` del color (no `miriam-avatar` ni el nombre), los hex del violeta y sus canales RGB: los de hoy (−22°, 19-nov-2026:
- *  #804fc3, #ac87e9, #ded7f4) y los de antes (#9d44ab, #c77dd2, #e8d4ed, #a44db2, #5a2466), que se quedan para cazar restos. Lista permitida, que no
+ *  #804fc3, #ac87e9, #ded7f4) y los de antes (#9d44ab, #c77dd2, #e8d4ed, #a44db2, #5a2466, #a855b5), que se quedan para cazar restos. Lista permitida, que no
  *  cuenta: en el canon, la definición de los átomos (y sus canales del puente), los bloques 3 y 4 (`[data-capa="piloto"]`) y la
  *  declaración de --hueco-piloto-borde; BrandMark.vue; y la copia pública de tokens (no se escanea). Lo demás es la deuda que
  *  hoy vive en el piloto, en trinquete: puede bajar, no subir. */
@@ -62,7 +62,7 @@ export const RE_VIOLETA = new RegExp(
     String.raw`(?<![\w-])(?:bg|text|border|ring|fill|stroke|from|to|via|outline|decoration|accent|caret|divide|shadow)-miriam(?![\w])(?:-[\w-]+)?(?:\/[\d.]+)?`,
     String.raw`(?<![\w])color-miriam(?:-[\w-]+)?`,
     String.raw`(?<![\w-])(?:--)?miriam-(?:soft|claro|rgb|hover|active)(?![\w])(?:-[\w-]+)?`,
-    String.raw`#(?:804fc3|ac87e9|ded7f4|9d44ab|a44db2|c77dd2|e8d4ed|5a2466)(?![0-9a-f])`,
+    String.raw`#(?:804fc3|ac87e9|ded7f4|9d44ab|a44db2|c77dd2|e8d4ed|5a2466|a855b5)(?![0-9a-f])`,
     String.raw`\b(?:128[\s,]+79[\s,]+195|172[\s,]+135[\s,]+233|222[\s,]+215[\s,]+244|157[\s,]+68[\s,]+171|199[\s,]+125[\s,]+210|232[\s,]+212[\s,]+237)\b`,
   ].join('|'),
   'gi',

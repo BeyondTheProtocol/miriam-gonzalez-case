@@ -2,7 +2,7 @@
   <rect width="64" height="64" rx="8" fill="#FAF6F0"></rect>
   <rect x="18" y="18" width="28" height="28" rx="3" fill="#2D1B3D"></rect>
   <rect x="26" y="26" width="12" height="12" rx="1" fill="#FAF6F0"></rect>
-  <path d="M 32 28 L 33 31 L 36 32 L 33 33 L 32 36 L 31 33 L 28 32 L 31 31 Z" fill="#A855B5"></path>
+  <path d="M 32 28 L 33 31 L 36 32 L 33 33 L 32 36 L 31 33 L 28 32 L 31 31 Z" fill="#804fc3"></path>
   <rect x="26" y="12" width="3" height="6" fill="#2D1B3D"></rect>
   <rect x="35" y="12" width="3" height="6" fill="#2D1B3D"></rect>
   <rect x="26" y="46" width="3" height="6" fill="#2D1B3D"></rect>

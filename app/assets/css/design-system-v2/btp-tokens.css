@@ -266,13 +266,13 @@
 }
 
 /* ── Capa piloto (helpmiriam.com): bloque 3, claro ──────────────────────────────────────────────────────────────
-   Cada valor es literalmente el de antes de las capas: en helpmiriam.com no cambia ni un píxel. */
+   Al introducir las capas (#364) cada valor era literalmente el de antes. Desde el #365 (19-nov-2026) el violeta es −22° más frío. */
 [data-capa="piloto"] {
   --identidad:    var(--color-miriam);
   --anillo-foco:  var(--color-miriam);
   --marcador:     var(--color-miriam-soft);
   --seleccionado-bg: var(--color-miriam-soft);
-  --btn-dark-hover:  color-mix(in srgb, var(--color-text) 84%, var(--color-miriam)); /* #3f224f */
+  --btn-dark-hover:  color-mix(in srgb, var(--color-text) 84%, var(--color-miriam)); /* #3a2352 (con el violeta −22°, 19-nov-2026) */
   --viz-sev-1: color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg));
   --viz-sev-2: color-mix(in srgb, var(--color-miriam) 38%, var(--color-bg));
   --viz-sev-3: color-mix(in srgb, var(--color-miriam) 60%, var(--color-bg));

@@ -3432,7 +3432,7 @@ const manifestValidated = (() => {
                de NO-VALIDACIÓN + botón de reset. Sliders táctiles ≥44px (pointer:coarse). -->
           <div class="rounded-card border px-4 py-4 mb-3" :style="{ borderColor: 'var(--color-miriam)', background: 'rgb(var(--color-miriam-rgb) / 0.04)' }">
             <div class="flex items-start justify-between gap-3 flex-wrap mb-2">
-              <p class="eyebrow--sm flex items-center gap-2 flex-wrap" :style="{ color: '#7a3486' }">
+              <p class="eyebrow--sm flex items-center gap-2 flex-wrap" :style="{ color: 'var(--identidad)' }">
                 <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ background: 'var(--color-miriam)' }" />
                 {{ L('Stress-test: mueve los pesos', 'Stress-test: move the weights') }}
                 <span class="status-badge status-badge--firma">{{ L('heurística, no validada', 'heuristic, not validated') }}</span>
@@ -4151,7 +4151,7 @@ const manifestValidated = (() => {
                 <!-- etiquetas externas para los segmentos que no admiten la cifra dentro -->
                 <div class="flex h-4 mb-0.5 text-xs font-semibold leading-none">
                   <div v-if="concordance.ne" :style="{ width: concPct(concordance.ne) }" class="flex items-end justify-center">
-                    <span v-if="concNarrow(concordance.ne)" :style="{ color: '#7a2e85' }">{{ concordance.ne }}</span>
+                    <span v-if="concNarrow(concordance.ne)" :style="{ color: 'var(--identidad)' }">{{ concordance.ne }}</span>
                   </div>
                   <div v-if="concordance.mix" :style="{ width: concPct(concordance.mix) }" class="flex items-end justify-center">
                     <span v-if="concNarrow(concordance.mix)" :style="{ color: '#8a4a1a' }">{{ concordance.mix }}</span>
