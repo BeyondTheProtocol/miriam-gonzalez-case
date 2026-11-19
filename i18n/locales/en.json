@@ -1136,7 +1136,7 @@
     "meta_description": "Where the money from Miriam's campaign goes: tissue analysis, sequencing and second opinions, with the expense report by category.",
     "rebiopsy_title": "What the rebiopsy costs",
     "rebiopsy_intro": "The centrepiece of the campaign was a single bone biopsy, done in July 2026 in Zürich, from which everything science allows today is extracted.",
-    "rebiopsy_now_label": "Spent as of {fecha}",
+    "rebiopsy_now_label": "What the tests cost",
     "rebiopsy_now_desc": "Biopsy in Zürich ({biopsia}), tumor genomic sequencing ({secuenciacion}), and medical imaging storage and shipping ({imagen}).",
     "rebiopsy_value": "One procedure, not several: each preserved format avoids having to biopsy again in the future.",
     "rebiopsy_note": "Actual spending as of {fecha}, taken from the bank statements. Later tests are in the report above.",

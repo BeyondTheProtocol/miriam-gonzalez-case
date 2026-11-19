@@ -1136,7 +1136,7 @@
     "meta_description": "Destino del dinero de la campaña de Miriam: análisis del tejido, secuenciación y segundas opiniones, con el informe de gastos por categorías.",
     "rebiopsy_title": "Qué cuesta la rebiopsia",
     "rebiopsy_intro": "La pieza central de la campaña fue una sola biopsia ósea, hecha en julio de 2026 en Zúrich, de la que se extrae todo lo que la ciencia permite hoy.",
-    "rebiopsy_now_label": "Ejecutado a {fecha}",
+    "rebiopsy_now_label": "Lo que costaron las pruebas",
     "rebiopsy_now_desc": "Biopsia en Zúrich ({biopsia}), secuenciación genómica del tumor ({secuenciacion}) y alojamiento y envío de imagen médica ({imagen}).",
     "rebiopsy_value": "Una sola intervención, no varias: cada formato preservado evita tener que volver a biopsiar en el futuro.",
     "rebiopsy_note": "Gasto real a {fecha}, sacado de los extractos bancarios. Las pruebas posteriores están en el informe de arriba.",
