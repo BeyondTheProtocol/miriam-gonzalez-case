@@ -70,6 +70,8 @@
         <div class="lg:max-w-[760px]">
         <!-- Cronología con raíl continuo + estaciones por año -->
         <div class="relative max-w-2xl">
+          <!-- Raíl en degradado, elegido (playbook R18): la cronología va de lo nuevo a lo viejo y el violeta
+               pleno arriba se aclara hasta el 15 % en 2021. El tono dice qué es reciente; no es adorno. -->
           <span
             aria-hidden="true"
             class="absolute left-[10px] top-2 bottom-3 w-[2px] rounded-full"
