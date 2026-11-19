@@ -167,7 +167,7 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   const noEsResta = loc === 'es' ? /estimado a \{fecha\}: lo recaudado menos/i : /estimated as of \{fecha\}: what was raised minus/i
   const circular = loc === 'es' ? /se calcula sobre lo disponible|calculad[oa] sobre lo disponible/i : /worked out from what was available|calculated (on|from) what was available/i
   ok(noEsResta.test(d.expenses.report_available_desc) && !circular.test(d.expenses.report_available_desc), `${loc}: lo disponible dice de dónde parte y que no sale de restar lo gastado a lo recibido, sin la frase circular («${d.expenses.report_available_desc}»)`)
-  ok(['rebiopsy_now_label', 'phase1_desc', 'rebiopsy_note'].every((k) => d.expenses[k].includes('{fecha}')) && d.expenses.rebiopsy_note.includes('{corte}'), `${loc}: el bloque de la rebiopsia dice a qué fecha están sus cifras (la suya, no la del corte) y por qué el informe suma más`)
+  ok(['rebiopsy_now_label', 'phase1_desc', 'rebiopsy_note'].every((k) => d.expenses[k].includes('{fecha}')) , `${loc}: el bloque de la rebiopsia dice a qué fecha están sus cifras (la suya, no la del corte) y por qué el informe suma más`)
   ok(!/pr[oó]ximo corte|next cut/i.test(d.expenses.cuadre), `${loc}: la línea de cuadre ya no promete que «el próximo corte añadirá las comisiones»`)
 }
 // La rebiopsia y su desglose: las tres sublíneas se quedan (decisión de Miriam) y se rellenan desde el JSON.

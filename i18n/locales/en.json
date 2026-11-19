@@ -1139,7 +1139,7 @@
     "rebiopsy_now_label": "Spent as of {fecha}",
     "rebiopsy_now_desc": "Biopsy in Zürich ({biopsia}), tumor genomic sequencing ({secuenciacion}), and medical imaging storage and shipping ({imagen}).",
     "rebiopsy_value": "One procedure, not several: each preserved format avoids having to biopsy again in the future.",
-    "rebiopsy_note": "These are no longer estimates: they are actual spending, rebuilt from the bank statements. They stand as of {fecha}; “Diagnostic tests” in the report above runs to {corte} and includes other tests, which is why it adds up to more.",
+    "rebiopsy_note": "Actual spending as of {fecha}, taken from the bank statements. Later tests are in the report above.",
     "faq_title": "Frequently asked questions",
     "faq_q1": "How do I know the money goes to this?",
     "faq_a1": "The report on this page splits what has been spent by category, rebuilt from the bank statements.",

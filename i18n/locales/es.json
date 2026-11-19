@@ -1139,7 +1139,7 @@
     "rebiopsy_now_label": "Ejecutado a {fecha}",
     "rebiopsy_now_desc": "Biopsia en Zúrich ({biopsia}), secuenciación genómica del tumor ({secuenciacion}) y alojamiento y envío de imagen médica ({imagen}).",
     "rebiopsy_value": "Una sola intervención, no varias: cada formato preservado evita tener que volver a biopsiar en el futuro.",
-    "rebiopsy_note": "Estas cifras ya no son estimaciones: son el gasto real, reconstruido desde los extractos bancarios. Se quedan a {fecha}; «Pruebas diagnósticas», en el informe de arriba, llega hasta {corte} e incluye otras pruebas, y por eso suma más.",
+    "rebiopsy_note": "Gasto real a {fecha}, sacado de los extractos bancarios. Las pruebas posteriores están en el informe de arriba.",
     "faq_title": "Preguntas frecuentes",
     "faq_q1": "¿Cómo sé que el dinero se destina a esto?",
     "faq_a1": "El informe de esta misma página reparte lo gastado por categorías, reconstruido desde los extractos bancarios.",
