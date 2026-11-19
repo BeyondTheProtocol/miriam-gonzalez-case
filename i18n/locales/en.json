@@ -1173,7 +1173,7 @@
     "report_available_label": "Still available",
     "report_item_travel": "Case-related travel",
     "report_travel_zurich": "Biopsy in Zurich",
-    "report_travel_ensayos": "Clinical trials and medical consultations, net of what the trials have reimbursed",
+    "report_travel_ensayos": "Clinical trials and medical consultations (net of reimbursements)",
     "report_travel_congresos": "Conferences and events",
     "report_item_ai": "AI and analysis tools",
     "report_item_tax": "Gift tax",

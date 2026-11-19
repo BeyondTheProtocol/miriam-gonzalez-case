@@ -1173,7 +1173,7 @@
     "report_available_label": "Queda disponible",
     "report_item_travel": "Viajes del caso",
     "report_travel_zurich": "Biopsia en Zúrich",
-    "report_travel_ensayos": "Ensayos clínicos y consultas médicas, ya descontado lo que han reembolsado los ensayos",
+    "report_travel_ensayos": "Ensayos clínicos y consultas médicas (descontados los reembolsos)",
     "report_travel_congresos": "Congresos y eventos",
     "report_item_ai": "IA y herramientas de análisis",
     "report_item_tax": "Impuesto de donaciones",
