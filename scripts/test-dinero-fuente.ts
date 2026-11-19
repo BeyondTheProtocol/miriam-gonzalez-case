@@ -121,7 +121,7 @@ ok(!/banc|saldo|cuenta|account|balance|extracto|factura|invoice/i.test(JSON.stri
 ok(!/deuda|debt|tarjeta|card\b|proveedor|supplier|vendor|movimiento|transaction|devoluc|reembols|refund|reimburs|iban|swift|sello|rango|desglose/i.test(JSON.stringify(dinero)), 'el JSON no lleva deuda, tarjetas, proveedores, movimientos, devoluciones, rangos ni sellos internos (lista blanca del corte)')
 // Miriam quitó el 25-oct-2026 la fila de lo recibido (`ingresado`), el cuadre de GoFundMe (`gofundme`) y la nota del cargo duplicado
 // (`correccion`): no vuelven al JSON sin que ella lo pida (§9).
-ok(JSON.stringify(Object.keys(dinero).sort()) === JSON.stringify(['comprometido', 'corte', 'disponible', 'fases', 'moneda', 'partidas', 'rebiopsia', 'viajes'].sort()), 'el JSON tiene los campos previstos y ninguno más (un campo nuevo se piensa antes de publicarlo; ingresado, gofundme y correccion los quitó Miriam el 25-oct-2026)')
+ok(JSON.stringify(Object.keys(dinero).sort()) === JSON.stringify(['comprometido', 'corte', 'disponible', 'fases', 'moneda', 'partidas', 'queda', 'rebiopsia', 'viajes'].sort()), 'el JSON tiene los campos previstos y ninguno más (un campo nuevo se piensa antes de publicarlo; ingresado, gofundme y correccion los quitó Miriam el 25-oct-2026)')
 ok(dinero.partidas.every((p) => JSON.stringify(Object.keys(p).sort()) === JSON.stringify(['clave', 'importe'])), 'cada partida es solo {clave, importe}: la etiqueta vive en i18n (es y en) y ningún sello ni nota viaja con ella')
 // Reparto de viajes por destino (Miriam, 19-nov-2026): cuatro cifras que suman la partida `travel`, pintadas dentro de su rótulo.
 {
@@ -136,6 +136,12 @@ ok(JSON.stringify(Object.keys(dinero.rebiopsia).sort()) === JSON.stringify(['bio
   const fechaReal = (f: string) => /^\d{4}-\d{2}-\d{2}$/.test(f) && !Number.isNaN(Date.parse(f)) && Date.parse(f) <= Date.now()
   ok(fechaReal(dinero.rebiopsia.fecha) && dinero.rebiopsia.fecha <= dinero.corte, `la rebiopsia conserva su cifra con su fecha (${dinero.rebiopsia.fecha}), real y no posterior al corte: no se actualiza sola con el informe`)
   ok(centimos(dinero.disponible) > 0, 'lo disponible es positivo')
+{
+  // Lo que queda por gastar, por dónde está (Miriam, 19-nov-2026): en la cuenta, en GoFundMe y lo que ella repone. Suma el total.
+  const q = (dinero as unknown as { queda: Record<string, number> }).queda
+  ok(JSON.stringify(Object.keys(q).sort()) === JSON.stringify(['en_caja', 'en_gofundme', 'por_reponer']), 'lo que queda tiene sus tres partes')
+  ok(Object.values(q).reduce((a, n) => a + centimos(n), 0) === centimos(dinero.disponible), `las tres partes de lo que queda suman el total (${dinero.disponible})`)
+}
 }
 const ESTADOS = ['hecha', 'hecho', 'en_curso', 'presupuesto']
 ok(JSON.stringify(dinero.fases.map((f) => f.clave)) === JSON.stringify(['rebiopsy', 'bank', 'treatment']), 'las fases son tres y van en este orden: rebiopsia, banco de tejido, terapia personalizada')
@@ -163,7 +169,7 @@ for (const [loc, d] of [['es', es], ['en', en]] as const) {
   ok(!/\d|[€$%]|\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|january|february|march|april|june|july|august|september|october|november|december)\b/i.test(d.expenses.report_available_desc), `${loc}: la nota de lo disponible no lleva una cifra ni una fecha escritas a mano (ni un mes por su nombre)`)
   // «Recaudado» y no «recibido» desde el 25-oct-2026: sin la fila de lo recibido, la única cifra de entrada que se ve es la recaudada.
   // 19-nov-2026 (Miriam): la frase «no sale de restar…» no se entendía; ahora dice qué es: lo que quedaba a la fecha del corte.
-  const noEsResta = loc === 'es' ? /lo que quedaba el \{fecha\}/i : /what was left as of \{fecha\}/i
+  const noEsResta = loc === 'es' ? /estimado a \{fecha\}: lo recaudado menos/i : /estimated as of \{fecha\}: what was raised minus/i
   const circular = loc === 'es' ? /se calcula sobre lo disponible|calculad[oa] sobre lo disponible/i : /worked out from what was available|calculated (on|from) what was available/i
   ok(noEsResta.test(d.expenses.report_available_desc) && !circular.test(d.expenses.report_available_desc), `${loc}: lo disponible dice de dónde parte y que no sale de restar lo gastado a lo recibido, sin la frase circular («${d.expenses.report_available_desc}»)`)
   ok(['rebiopsy_now_label', 'phase1_desc', 'rebiopsy_note'].every((k) => d.expenses[k].includes('{fecha}')) && d.expenses.rebiopsy_note.includes('{corte}'), `${loc}: el bloque de la rebiopsia dice a qué fecha están sus cifras (la suya, no la del corte) y por qué el informe suma más`)
@@ -400,7 +406,8 @@ console.log('9. Lo que Miriam quitó de /gastos el 25-oct-2026 no vuelve')
   for (const [loc, d] of [['es', es], ['en', en]] as const) {
     const vuelven = QUITADAS.filter((k) => k in d.expenses)
     ok(vuelven.length === 0, `${loc}: las claves quitadas no vuelven a expenses (${vuelven.join(', ') || 'ninguna'})`)
-    const conFrase = Object.entries(d.expenses).filter(([, v]) => typeof v === 'string' && FRASES.test(v as string)).map(([k]) => k)
+    // Excepción decidida por Miriam el 19-nov-2026: «Pendiente de transferir por GoFundMe» vuelve como una de las tres partes de lo que queda.
+    const conFrase = Object.entries(d.expenses).filter(([k, v]) => k !== 'report_queda_en_gofundme' && typeof v === 'string' && FRASES.test(v as string)).map(([k]) => k)
     ok(conFrase.length === 0, `${loc}: ninguna clave de /gastos vuelve a decir lo quitado con otras palabras (${conFrase.join(', ') || 'ninguna'})`)
   }
   ok(!/DINERO\.(ingresado|gofundme|correccion)|expenses\.(report_note|report_ingresado|report_correccion|gfm_)/.test(gastos), '/gastos ya no pinta lo recibido, el cuadre de GoFundMe ni las dos notas')

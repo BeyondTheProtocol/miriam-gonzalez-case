@@ -2,7 +2,8 @@
   "corte": "2026-11-17",
   "moneda": "EUR",
   "comprometido": 79244.94,
-  "disponible": 3842.26,
+  "disponible": 15706.24,
+  "queda": { "en_caja": 3842.26, "en_gofundme": 1423.6, "por_reponer": 10440.38 },
   "partidas": [
     { "clave": "tax", "importe": 17662.27 },
     { "clave": "travel", "importe": 14755.06 },

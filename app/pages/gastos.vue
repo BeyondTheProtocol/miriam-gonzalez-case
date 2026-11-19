@@ -101,6 +101,24 @@
             >
               {{ money(DINERO.disponible) }}
             </p>
+            <!-- Dónde está lo que queda, incluido lo que Miriam debe reponer (su decisión, 19-nov-2026). -->
+            <ul class="w-full mt-2 space-y-1">
+              <li
+                v-for="parte in PARTES_QUEDA"
+                :key="parte"
+                class="flex items-baseline justify-between gap-4"
+              >
+                <span class="text-xs text-tinta/80 leading-relaxed">
+                  {{ $t(`expenses.report_queda_${parte}`) }}
+                </span>
+                <span
+                  class="text-xs font-mono text-berenjena/80 shrink-0"
+                  style="font-variant-numeric: tabular-nums"
+                >
+                  {{ money(DINERO.queda[parte]) }}
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -294,6 +312,7 @@ const { GOFUNDME_URL, trackSupport } = useSupport()
 // ninguna a mano (lo vigila scripts/test-dinero-fuente.ts). El informe se reconstruye movimiento a movimiento desde los extractos.
 const money = (n: number) => euros(n, locale.value)
 const DESTINOS_VIAJE = ['zurich', 'ensayos', 'congresos'] as const
+const PARTES_QUEDA = ['en_caja', 'en_gofundme', 'por_reponer'] as const
 const corte = computed(() => fechaDeCorte(DINERO.corte, locale.value))
 // El bloque de la rebiopsia lleva su fecha, que no es la del corte del informe.
 const fechaRebiopsia = computed(() => fechaDeCorte(DINERO.rebiopsia.fecha, locale.value))
