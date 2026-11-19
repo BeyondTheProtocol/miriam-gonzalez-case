@@ -71,7 +71,6 @@ useSchemaOrg([
   defineOrganization({
     name: 'Beyond the Protocol',
     url: 'https://helpmiriam.com',
-    logo: 'https://helpmiriam.com/img/miriam-avatar.webp',
     sameAs: [REPO_URL, ...urlsRedes],
   }),
   defineWebSite({
@@ -84,6 +83,7 @@ useSchemaOrg([
   }),
   definePerson({
     name: 'Miriam González',
+    image: 'https://helpmiriam.com/img/miriam-avatar.webp',
     jobTitle:
       locale.value === 'es'
         ? 'Ingeniera de software y divulgadora tech'

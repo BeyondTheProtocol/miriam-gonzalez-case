@@ -128,7 +128,7 @@ const emit = defineEmits<{ 'update:activo': [id: string]; cambia: [id: string] }
   font-weight: 600;
 }
 .reading-level__btn:focus-visible {
-  /* el anillo del sistema (violeta, 5,07:1): el coral daba 2,62:1 sobre crema (diseno, 19-oct) */
+  /* el anillo del sistema (violeta, 5,10:1): el coral daba 2,62:1 sobre crema (diseno, 19-oct) */
   outline: 2px solid var(--anillo-foco);
   outline-offset: 2px;
 }

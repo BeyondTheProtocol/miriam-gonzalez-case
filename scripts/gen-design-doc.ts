@@ -1,8 +1,9 @@
 // Genera lo que se DERIVA del canon de tokens (sistema v3):
 //   1. public/design-system/tokens.css: copia byte a byte del canon, para agencias.
 //   2. Las tablas de DESIGN-SYSTEM.md entre los marcadores `<!-- GENERADO:TOKENS -->` y `<!-- GENERADO:PUENTE -->`:
-//      cada token del canon con su valor, su valor en banda oscura y su nota; y las utilidades de Tailwind que apuntan
-//      a un token. El resto del documento (prosa, contratos, excepciones) es a mano.
+//      cada token del canon con su valor en las cuatro combinaciones de capa y tema (Casa, Casa · banda oscura, Piloto,
+//      Piloto · banda oscura) y su nota; y las utilidades de Tailwind que apuntan a un token. Los bloques de isla de casa
+//      (`[data-capa="casa"]`, copias literales de la base) no generan filas. El resto del documento es a mano.
 //
 //   pnpm gen:design-doc              escribe lo generado
 //   pnpm gen:design-doc --comprobar  no escribe: sale con código 1 si algo generado está desfasado (lo usa test:diseno, R9)
@@ -19,7 +20,18 @@ export const CANON = join(RAIZ, 'app/assets/css/design-system-v2/btp-tokens.css'
 export const COPIA_PUBLICA = join(RAIZ, 'public/design-system/tokens.css')
 export const DOC = join(RAIZ, 'app/assets/css/design-system-v2/DESIGN-SYSTEM.md')
 
-export type Token = { nombre: string; valor: string; nota: string; grupo: string; tema: 'raiz' | 'oscuro' | 'ambos' }
+/** `capa`: «casa» es la base (`:root` y `[data-tema="oscuro"]`), «piloto» los bloques `[data-capa="piloto"]`, «isla» las copias
+ *  `[data-capa="casa"]`, y «todas» el bloque de derivados (`:root, [data-capa], [data-tema="oscuro"]`), que vale en cualquier capa. */
+export type Capa = 'casa' | 'piloto' | 'isla' | 'todas'
+export type Token = { nombre: string; valor: string; nota: string; grupo: string; tema: 'raiz' | 'oscuro' | 'ambos'; capa: Capa; selector: string; media?: string }
+
+/** Capa de un selector del canon. */
+export function capaDe(selector: string): Capa {
+  if (selector.includes('data-capa="casa"')) return 'isla'
+  if (selector.includes('data-capa="piloto"')) return 'piloto'
+  if (/\[data-capa\]/.test(selector)) return 'todas'
+  return 'casa'
+}
 
 /* ───────────────────────────── lectura del canon ───────────────────────────── */
 
@@ -56,7 +68,7 @@ export function leerTokens(css: string): Token[] {
     if (enLinea) {
       for (const d of enLinea[3].split(';')) {
         const m = d.match(/^\s*(--[a-z0-9-]+)\s*:\s*(.+?)\s*$/)
-        if (m) out.push({ nombre: m[1], valor: m[2], nota: `solo ${enLinea[1].trim().replace(/@media /, '')}`, grupo, tema: 'raiz' })
+        if (m) out.push({ nombre: m[1], valor: m[2], nota: `solo ${enLinea[1].trim().replace(/@media /, '')}`, grupo, tema: enLinea[2] === ':root' ? 'raiz' : 'oscuro', capa: 'casa', selector: enLinea[2], media: enLinea[1].trim() })
       }
       continue
     }
@@ -71,7 +83,8 @@ export function leerTokens(css: string): Token[] {
     const valor = resto.replace(/\/\*.*?\*\//g, '').replace(/;\s*$/, '').replace(/\s+/g, ' ').trim()
     const oscuro = selector.includes('data-tema="oscuro"')
     const raiz = selector.includes(':root')
-    out.push({ nombre: t[1], valor, nota, grupo, tema: oscuro && raiz ? 'ambos' : oscuro ? 'oscuro' : 'raiz' })
+    const capa = capaDe(selector)
+    out.push({ nombre: t[1], valor, nota, grupo, tema: oscuro && (raiz || capa === 'todas') ? 'ambos' : oscuro ? 'oscuro' : 'raiz', capa, selector })
   }
   return out
 }
@@ -81,19 +94,37 @@ export function leerTokens(css: string): Token[] {
 const celda = (s: string) => s.replace(/\|/g, '\\|')
 const cod = (s: string) => (s ? `\`${celda(s)}\`` : '')
 
+/** Cuatro columnas de valor: Casa, Casa · banda oscura, Piloto, Piloto · banda oscura. Celda vacía = hereda la de su
+ *  izquierda en la misma capa (oscuro vacío: el valor en claro) o, en el piloto, el valor de la casa. Un token del bloque de
+ *  derivados (o de `:root, [data-tema="oscuro"]`) vale igual en todas: se resuelve con los roles de cada capa y banda. */
 export function tablaTokens(css: string): string {
-  const tokens = leerTokens(css)
-  const oscuros = new Map(tokens.filter((t) => t.tema === 'oscuro').map((t) => [t.nombre, t.valor]))
+  const tokens = leerTokens(css).filter((t) => t.capa !== 'isla')
+  const valorDe = (capa: 'casa' | 'piloto', tema: 'raiz' | 'oscuro') =>
+    new Map(tokens.filter((t) => t.capa === capa && t.tema === tema && !t.media).map((t) => [t.nombre, t.valor]))
+  const casaOsc = valorDe('casa', 'oscuro')
+  const piloto = valorDe('piloto', 'raiz')
+  const pilotoOsc = valorDe('piloto', 'oscuro')
+  // Filas: un token por nombre, en el orden del canon, desde su declaración base (casa en claro o el bloque de derivados).
+  const filas: Token[] = []
+  const vistos = new Set<string>()
+  const clave = (t: Token) => `${t.nombre}${t.media ? ` ${t.media}` : ''}` // un @media es una fila más (--gutter desde 640…)
+  for (const t of tokens) {
+    if (vistos.has(clave(t))) continue
+    if ((t.capa === 'casa' && t.tema === 'raiz') || t.tema === 'ambos') { filas.push(t); vistos.add(clave(t)) }
+  }
+  // Un token que solo existiera en el piloto o en oscuro también sale (hoy no hay ninguno).
+  for (const t of tokens) if (!t.media && !vistos.has(clave(t))) { filas.push({ ...t, valor: '' }); vistos.add(clave(t)) }
   const grupos: string[] = []
-  for (const t of tokens) if (t.tema !== 'oscuro' && !grupos.includes(t.grupo)) grupos.push(t.grupo)
+  for (const t of filas) if (!grupos.includes(t.grupo)) grupos.push(t.grupo)
+  const IGUAL = 'igual, resuelto con los roles de la banda'
   const bloques: string[] = []
   for (const g of grupos) {
-    const filas = tokens.filter((t) => t.grupo === g && t.tema !== 'oscuro')
-    if (!filas.length) continue
-    bloques.push(`#### ${g}\n\n| Token | Valor | En banda oscura | Nota |\n|---|---|---|---|`)
-    for (const t of filas) {
-      const osc = t.tema === 'ambos' ? 'igual, resuelto con los roles de la banda' : oscuros.has(t.nombre) ? cod(oscuros.get(t.nombre)!) : ''
-      bloques.push(`| \`${t.nombre}\` | ${cod(t.valor)} | ${osc} | ${celda(t.nota)} |`)
+    bloques.push(`#### ${g}\n\n| Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |\n|---|---|---|---|---|---|`)
+    for (const t of filas.filter((f) => f.grupo === g)) {
+      const celdas = t.tema === 'ambos'
+        ? [cod(t.valor), IGUAL, IGUAL, IGUAL]
+        : [cod(t.valor), cod(casaOsc.get(t.nombre) ?? ''), cod(piloto.get(t.nombre) ?? ''), cod(pilotoOsc.get(t.nombre) ?? '')]
+      bloques.push(`| \`${t.nombre}\` | ${celdas.join(' | ')} | ${celda(t.nota)} |`)
     }
     bloques.push('')
   }

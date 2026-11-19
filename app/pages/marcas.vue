@@ -137,7 +137,7 @@
                  penLine de Constellation.vue). Anclado junto al lado del avatar.
                  VISIBILIDAD (lo que antes fallaba): estrellas op. 0.5–0.85 (núcleos
                  casi opacos), enlaces op. 0.22–0.30; UN núcleo en miriam-claro
-                 (#c77dd2), el resto crema (#faf6f0) → se ve claro sobre la berenjena.
+                 (--color-miriam-claro), el resto crema (#faf6f0) → se ve claro sobre la berenjena.
                  Estático salvo un único parpadeo sutil al entrar (off con reduced-
                  motion). aria-hidden: pura decoración. -->
             <svg
@@ -189,11 +189,11 @@
               </g>
 
               <!-- Núcleos: 3-4 estrellas grandes y casi opacas (op. 0.78–0.85),
-                   el racimo del avatar. UNO en miriam-claro (#c77dd2), el resto
+                   el racimo del avatar. UNO en miriam-claro (--color-miriam-claro), el resto
                    crema. El violeta es el núcleo guía (lóbulo derecho, junto al
                    avatar). scale ~0.42–0.5. -->
               <g class="cluster-cores">
-                <use href="#m-star" fill="#c77dd2" opacity="0.85" transform="translate(300 84)  scale(0.50) translate(-10 -10)" />
+                <use href="#m-star" fill="var(--color-miriam-claro)" opacity="0.85" transform="translate(300 84)  scale(0.50) translate(-10 -10)" />
                 <use href="#m-star" fill="#faf6f0" opacity="0.82" transform="translate(318 150) scale(0.44) translate(-10 -10)" />
                 <use href="#m-star" fill="#faf6f0" opacity="0.8"  transform="translate(262 178) scale(0.42) translate(-10 -10)" />
                 <use href="#m-star" fill="#faf6f0" opacity="0.8"  transform="translate(70 132)  scale(0.44) translate(-10 -10)" />

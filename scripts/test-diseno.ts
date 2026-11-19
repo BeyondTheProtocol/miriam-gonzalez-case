@@ -9,7 +9,7 @@
 //   pnpm test:diseno --lista R3      imprime cada hallazgo de una regla (o de todas, sin argumento)
 //   pnpm test:diseno --archivo X     solo los ficheros cuya ruta contiene X (para trabajar; no comprueba la baseline)
 //
-// Reglas R1 a R9, R11, R12 y R13 (esta herramienta; no necesitan build). La R10 (render en Chrome sobre el build estático) es
+// Reglas R1 a R9 y R11 a R15 (esta herramienta; no necesitan build). La R10 (render en Chrome sobre el build estático) es
 // scripts/test-diseno-render.mjs, con su propia baseline, y corre en .github/workflows/diseno.yml.
 //
 // Por qué un ratchet y no «cero»: el sitio nació con tres vocabularios de diseño y se corrige por páginas (fases P1 a P13).
@@ -47,6 +47,77 @@ export const REGLAS: Record<string, string> = {
   R11: 'espacios: un espacio al principio o al final de un elemento (`<span> {{ x }}</span>`, `<template> <em>`): Vue lo elimina y el texto sale pegado',
   R12: 'contenedor: `max-w-[Npx]` con el relleno de página (`px-4 sm:px-6 lg:px-8`) o `section-container` fuera de /gracias y /links: el H1 no cae bajo el logo, se usa .section-wide',
   R13: 'medida: `max-w-2xl` o `max-w-3xl` en un <p>: la medida de un párrafo es .measure (68ch), no un ancho suelto',
+  R14: 'violeta: tokens o utilidades `miriam`, hex o canales del violeta fuera de su lista permitida (trinquete: el violeta es del piloto)',
+  R15: 'capas: los bloques de isla del canon (5 y 6) no copian la base (1 y 2), o un data-capa va dentro de otro en una plantilla (falla siempre)',
+}
+
+/** R14 · regla del violeta (dictado de tres capas, R2.3). Patrón sin distinguir mayúsculas: cualquier token o utilidad con
+ *  `miriam` del color (no `miriam-avatar` ni el nombre), los hex del violeta y sus canales RGB: los de hoy (−22°, 19-nov-2026:
+ *  #804fc3, #ac87e9, #ded7f4) y los de antes (#9d44ab, #c77dd2, #e8d4ed, #a44db2, #5a2466), que se quedan para cazar restos. Lista permitida, que no
+ *  cuenta: en el canon, la definición de los átomos (y sus canales del puente), los bloques 3 y 4 (`[data-capa="piloto"]`) y la
+ *  declaración de --hueco-piloto-borde; BrandMark.vue; y la copia pública de tokens (no se escanea). Lo demás es la deuda que
+ *  hoy vive en el piloto, en trinquete: puede bajar, no subir. */
+export const RE_VIOLETA = new RegExp(
+  [
+    String.raw`(?<![\w-])(?:bg|text|border|ring|fill|stroke|from|to|via|outline|decoration|accent|caret|divide|shadow)-miriam(?![\w])(?:-[\w-]+)?(?:\/[\d.]+)?`,
+    String.raw`(?<![\w])color-miriam(?:-[\w-]+)?`,
+    String.raw`(?<![\w-])(?:--)?miriam-(?:soft|claro|rgb|hover|active)(?![\w])(?:-[\w-]+)?`,
+    String.raw`#(?:804fc3|ac87e9|ded7f4|9d44ab|a44db2|c77dd2|e8d4ed|5a2466)(?![0-9a-f])`,
+    String.raw`\b(?:128[\s,]+79[\s,]+195|172[\s,]+135[\s,]+233|222[\s,]+215[\s,]+244|157[\s,]+68[\s,]+171|199[\s,]+125[\s,]+210|232[\s,]+212[\s,]+237)\b`,
+  ].join('|'),
+  'gi',
+)
+const VIOLETA_PERMITIDO = new Set(['app/components/BrandMark.vue'])
+
+/** R14 en el canon (que `ficheros()` no lista): cuenta el violeta fuera de los átomos, los bloques del piloto y --hueco-piloto-borde. */
+export function violetaCanon(css: string): Hallazgo[] {
+  const out: Hallazgo[] = []
+  for (const b of bloquesCss(enBlanco(css, /\/\*[\s\S]*?\*\//g))) {
+    if (b.selector.includes('data-capa="piloto"')) continue
+    for (const d of b.decls) {
+      if (d.prop.startsWith('--color-miriam') || d.prop === '--hueco-piloto-borde') continue
+      for (const m of `${d.prop}: ${d.valor}`.matchAll(RE_VIOLETA)) out.push({ regla: 'R14', archivo: CANON, linea: d.linea, texto: `${d.prop}: ${m[0]}` })
+    }
+  }
+  return out
+}
+
+/** R15 · los bloques de isla del canon copian la base: los nombres de 5 son los de 3, y su valor el del 1; los de 6, los de 4, con el valor del 2. */
+export function capasCanon(css: string): string[] {
+  const tokens = leerTokens(css).filter((t) => !t.media)
+  const de = (sel: string) => new Map(tokens.filter((t) => t.selector === sel).map((t) => [t.nombre, t.valor]))
+  const base = de(':root'), baseOsc = de('[data-tema="oscuro"]')
+  const piloto = de('[data-capa="piloto"]'), pilotoOsc = de('[data-capa="piloto"] [data-tema="oscuro"], [data-capa="piloto"][data-tema="oscuro"]')
+  const isla = de('[data-capa="casa"]'), islaOsc = de('[data-capa="casa"] [data-tema="oscuro"], [data-capa="casa"][data-tema="oscuro"]')
+  const fallos: string[] = []
+  // Ningún bloque puede leerse vacío: un selector mal escrito dejaría la comparación sin nada que comparar y R15 en verde.
+  const vacios = [[piloto, 3], [pilotoOsc, 4], [isla, 5], [islaOsc, 6]].filter(([m]) => !(m as Map<string, string>).size).map(([, n]) => n)
+  if (vacios.length) fallos.push(`el canon no tiene, o no se leen, los bloques ${vacios.join(', ')} de las capas`)
+  const comparar = (nombre: string, copia: Map<string, string>, roles: Map<string, string>, fuente: Map<string, string>, n: string) => {
+    for (const k of roles.keys()) if (!copia.has(k)) fallos.push(`${nombre}: falta ${k}, que el piloto redeclara`)
+    for (const [k, v] of copia) {
+      if (!roles.has(k)) fallos.push(`${nombre}: ${k} no es un rol de capa (el piloto no lo redeclara)`)
+      if (fuente.get(k) !== v) fallos.push(`${nombre}: ${k} vale «${v}» y en el bloque ${n} «${fuente.get(k) ?? '(no está)'}»`)
+    }
+  }
+  comparar('bloque 5 ([data-capa="casa"])', isla, piloto, base, '1')
+  comparar('bloque 6 (isla de casa en banda oscura)', islaOsc, pilotoOsc, baseOsc, '2')
+  return fallos
+}
+
+/** R15 en una plantilla: un elemento con data-capa dentro de otro con data-capa en el mismo fichero. Entre componentes lo vigila
+ *  test:diseno-render en el DOM (un [data-capa] dentro de otro que no sea <html>). */
+function capaAnidada(tx: string): number[] {
+  const pila: boolean[] = []
+  const out: number[] = []
+  for (const m of tx.matchAll(/<(\/?)([a-zA-Z][\w.-]*)((?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*(\/?)>/g)) {
+    const [, cierra, tag, attrs, auto] = m
+    if (cierra) { pila.pop(); continue }
+    const capa = /(?:^|\s)(?::|v-bind:)?data-capa\s*=/.test(attrs)
+    if (capa && pila.some(Boolean)) out.push(m.index!)
+    if (!auto && !VACIOS.has(tag.toLowerCase())) pila.push(capa)
+  }
+  return out
 }
 
 /** Las dos páginas donde `.section-container` (896 px, centrado) es a propósito: una sola columna centrada (DS sección 3). */
@@ -68,6 +139,12 @@ const BASE = new Set([
 ])
 /** Tokens que forman una RAMPA o un juego: que se lea solo una parte no los hace sobrantes (R9). */
 const FAMILIAS_ESCALA = ['--sp-', '--viz-div-', '--viz-sev-', '--viz-cat-', '--texto-']
+/** Tokens que el canon declara aunque hoy no los lea nadie, cada uno con su motivo (R9). No es un cajón: cada entrada sale de un dictado. */
+const SIN_CONSUMO_FIRMADO: Record<string, string> = {
+  '--miriam-hover': 'EN DESUSO desde el dictado de tres capas (19-nov-2026): se queda declarado; se borra en un PR propio',
+  '--miriam-active': 'EN DESUSO desde el dictado de tres capas (19-nov-2026): se queda declarado; se borra en un PR propio',
+  '--hueco-piloto-borde': 'dictado de tres capas (19-nov-2026): el borde del hueco «Caso piloto» de la casa; aún no lo pinta ninguna pieza de la web',
+}
 
 /* ───────────────────────────── lectura y regiones ───────────────────────────── */
 
@@ -381,6 +458,7 @@ function reglasEnPlantilla(archivo: string, r: Region, salida: Hallazgo[]) {
   for (const m of tx.matchAll(/\bstyle\s*=\s*"[^"]*letter-spacing[^"]*"/g)) H('R6', m.index!, m[0])
   for (const m of tx.matchAll(RE_GLIFO)) H('R6', m.index!, `glifo ${m[0]}`)
   for (const h of hallazgosR11(tx)) H('R11', h.idx, h.texto)
+  for (const i of capaAnidada(tx)) H('R15', i, 'data-capa dentro de otro data-capa: página + una isla, y nada más')
   // R12 · contenedor propio: lo que el DS llama «el H1 no cae bajo el logo». Mira cada atributo class (también :class).
   for (const m of tx.matchAll(/(?::|v-bind:)?class\s*=\s*("([^"]*)"|'([^']*)')/g)) {
     const clases = m[2] ?? m[3] ?? ''
@@ -411,6 +489,9 @@ export function analizar(archivo: string, src: string): Analisis {
     } else {
       reglasPlantilla(archivo, r, bruto) // template, script y .ts: cadenas con clases y literales
       if (r.tipo === 'template') reglasEnPlantilla(archivo, r, bruto)
+    }
+    if (!VIOLETA_PERMITIDO.has(archivo)) {
+      for (const m of r.texto.matchAll(RE_VIOLETA)) bruto.push({ regla: 'R14', archivo, linea: lineaDe(r.texto, m.index!, r.desde), texto: m[0] })
     }
   }
   // Excepciones firmadas: `ds-exc: motivo` en la misma línea o en la anterior.
@@ -495,6 +576,7 @@ export function tokensSinConsumo(canonCss: string, uso: string): string[] {
     const internos = (canonCss.match(new RegExp(`var\\(${escapado}[,)]`, 'g')) ?? []).length
     if (re.test(uso) || internos > 0 || prefijos.some((p) => n.startsWith(p))) continue
     if (FAMILIAS_ESCALA.some((f) => n.startsWith(f))) continue
+    if (n in SIN_CONSUMO_FIRMADO) continue
     sinConsumo.push(n)
   }
   return sinConsumo
@@ -521,6 +603,8 @@ function contar(filtroArchivo?: string): Recuentos {
     const canonCss = readFileSync(join(RAIZ, CANON), 'utf8')
     const mainCss = readFileSync(join(RAIZ, 'app/assets/css/main.css'), 'utf8')
     for (const h of reglaR7(mainCss, canonCss)) { reglas.R7[h.archivo] = (reglas.R7[h.archivo] ?? 0) + 1; hallazgos.push(h) }
+    for (const h of violetaCanon(canonCss)) { reglas.R14[h.archivo] = (reglas.R14[h.archivo] ?? 0) + 1; hallazgos.push(h) }
+    for (const f of capasCanon(canonCss)) { reglas.R15[CANON] = (reglas.R15[CANON] ?? 0) + 1; hallazgos.push({ regla: 'R15', archivo: CANON, linea: 1, texto: f }) }
     for (const f of desfasados()) {
       const archivo = f.replace(/^.*?(app\/|public\/)/, '$1')
       reglas.R9[archivo] = (reglas.R9[archivo] ?? 0) + 1
@@ -631,6 +715,22 @@ function autotest(): string[] {
   const canonDePrueba = ':root {\n  --control-min: 44px;\n  --texto-ui: 16px;\n}\n'
   eq('R7 verde', reglaR7('.link-action { min-height: var(--control-min); } .form-input { font-size: var(--texto-ui); min-height: var(--control-min); }', canonDePrueba).length, 0)
   eq('R7 rojo', reglaR7('.link-action { display: flex; } .form-input { font-size: 14px; min-height: 42px; }', canonDePrueba).length, 3)
+  // R14
+  eq('R14 tokens y utilidades del violeta', cuenta('x.vue', vue('<p class="text-miriam hover:bg-miriam-soft border-miriam/30"/>', '.a { color: var(--color-miriam); box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / .2) } .b { color: var(--miriam-hover) }'), 'R14'), 6)
+  eq('R14 hex y canales del violeta de antes (restos)', cuenta('x.vue', vue('<p/>', '.a { color: #9D44AB; background: #e8d4ed } .b { color: rgb(157 68 171) } .c { color: rgba(199, 125, 210, .5) }'), 'R14'), 4)
+  eq('R14 hex y canales del violeta de hoy', cuenta('x.vue', vue('<p/>', '.a { color: #804FC3; background: #ded7f4; border-color: #ac87e9 } .b { color: rgb(128 79 195) } .c { color: rgba(172, 135, 233, .5) } .d { color: rgb(222,215,244) }'), 'R14'), 6)
+  eq('R14 hex vecino del violeta no cuenta', cuenta('x.vue', vue('<p/>', '.a { color: #804fc30 } .b { color: rgb(128 79 196) }'), 'R14'), 0)
+  eq('R14 lo que no es el color no cuenta', cuenta('x.vue', vue('<img src="/img/miriam-avatar.webp" alt="Miriam González"><p>{{ t(\'miriam.hola\') }}</p>', '.a { color: var(--identidad) } .b { color: #9d44ab0 }'), 'R14'), 0)
+  eq('R14 en un comentario no cuenta', cuenta('x.vue', vue('<!-- bg-miriam-soft -->', '/* #9d44ab */ .a { color: var(--texto-1) }'), 'R14'), 0)
+  eq('R14 BrandMark está permitido', cuenta('app/components/BrandMark.vue', vue('<circle fill="var(--color-miriam)"/>'), 'R14'), 0)
+  eq('R14 canon: átomos, piloto y hueco no cuentan', violetaCanon(':root {\n  --color-miriam: #9d44ab;\n  --color-miriam-rgb: 157 68 171;\n  --hueco-piloto-borde: var(--color-miriam);\n  --x: var(--color-miriam-soft);\n}\n[data-capa="piloto"] {\n  --identidad: var(--color-miriam);\n}\n[data-capa="piloto"] [data-tema="oscuro"],\n[data-capa="piloto"][data-tema="oscuro"] {\n  --identidad: var(--color-miriam-claro);\n}\n').length, 1)
+  // R15
+  eq('R15 data-capa anidado', cuenta('x.vue', vue('<section data-capa="casa"><div><p :data-capa="c">a</p></div></section>'), 'R15'), 1)
+  eq('R15 dos islas hermanas no cuentan', cuenta('x.vue', vue('<section data-capa="casa"><br><img src="a"></section><section data-capa="piloto"><p>b</p></section>'), 'R15'), 0)
+  const capas = (isla: string) => `:root {\n  --identidad: var(--color-text);\n}\n[data-tema="oscuro"] {\n  --identidad: var(--color-bg);\n}\n[data-capa="piloto"] {\n  --identidad: var(--color-miriam);\n}\n[data-capa="piloto"] [data-tema="oscuro"],\n[data-capa="piloto"][data-tema="oscuro"] {\n  --identidad: var(--color-miriam-claro);\n}\n[data-capa="casa"] {\n  --identidad: ${isla};\n}\n[data-capa="casa"] [data-tema="oscuro"],\n[data-capa="casa"][data-tema="oscuro"] {\n  --identidad: var(--color-bg);\n}\n`
+  eq('R15 isla igual a la base', capasCanon(capas('var(--color-text)')).length, 0)
+  eq('R15 isla que deriva de la base', capasCanon(capas('var(--color-text-soft)')).length, 1)
+  eq('R15 bloque de capa vacío o ilegible', capasCanon(capas('var(--color-text)').replace('[data-capa="casa"] [data-tema="oscuro"],', '[data-capa="casa"] .x,')).length > 0 ? 1 : 0, 1)
   // R9
   eq('R9 tokens con consumo', tokensSinConsumo(':root {\n  --a-b: 1px;\n  --c-d: var(--a-b);\n  --e-f: 2px;\n  --viz-cat-x: 3px;\n}\n', 'var(--c-d) var(--e-f)').length, 0)
   eq('R9 token huérfano', tokensSinConsumo(':root {\n  --a-b: 1px;\n  --e-f: 2px;\n}\n', 'var(--e-f)').length, 1)
