@@ -76,7 +76,8 @@
   }
 
   ::selection {
-    @apply bg-miriam-soft text-berenjena;
+    background-color: var(--seleccionado-bg);
+    color: var(--seleccionado-text);
   }
 
   /* Headings — Fraunces display */
@@ -833,7 +834,7 @@
     @apply font-medium;
     color: var(--identidad);
     text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--identidad) 45%, transparent);
+    text-decoration-color: var(--subrayado);
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
     background-image: linear-gradient(var(--marcador), var(--marcador));
@@ -854,7 +855,7 @@
     .link-inline:hover,
     .link-underline:hover {
       color: var(--texto-1);
-      text-decoration-color: var(--miriam-hover);
+      text-decoration-color: var(--identidad-hover);
       background-size: 100% 60%;
     }
   }
@@ -895,12 +896,12 @@
     transition: color var(--dur-micro) var(--curva-salida), transform var(--dur-micro) var(--curva-salida);
   }
   .link-logo:focus-visible {
-    color: var(--color-miriam);
+    color: var(--identidad);
     transform: translateY(-1px);
   }
   @media (hover: hover) and (pointer: fine) {
     .link-logo:hover {
-      color: var(--color-miriam); /* miriam */
+      color: var(--identidad);
       transform: translateY(-1px);
     }
   }
@@ -909,7 +910,7 @@
      los subraya; aquí solo les añadimos el mismo resaltado de marca. */
   .prose a {
     color: var(--identidad);
-    text-decoration-color: color-mix(in srgb, var(--identidad) 45%, transparent);
+    text-decoration-color: var(--subrayado);
     text-underline-offset: 3px;
     background-image: linear-gradient(var(--marcador), var(--marcador));
     background-size: 0% 60%;
@@ -1348,11 +1349,11 @@
 .link-underline:active,
 .prose a:active {
   color: var(--texto-1);
-  text-decoration-color: var(--miriam-active);
+  text-decoration-color: var(--identidad-active);
   background-size: 100% 60%;
 }
 .link-logo:active {
-  color: var(--color-miriam);
+  color: var(--identidad);
 }
 .link-action:active {
   text-decoration: underline;

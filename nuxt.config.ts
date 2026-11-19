@@ -122,6 +122,9 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      // Capa de marca (dictado de tres capas, 19-nov-2026): la casa es la base del canon de tokens y helpmiriam.com es el
+      // piloto. Va aquí y no en app.vue ni en el layout para salir en el HTML del servidor y llegar también a error.vue.
+      htmlAttrs: { 'data-capa': 'piloto' },
       title: 'Miriam González — Buscando un tratamiento oncológico de precisión',
       meta: [
         { name: 'theme-color', content: '#faf6f0' },
