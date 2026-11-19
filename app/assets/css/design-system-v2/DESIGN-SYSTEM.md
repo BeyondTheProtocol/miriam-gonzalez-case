@@ -62,7 +62,7 @@ Generado desde `btp-tokens.css`. Un token que nadie lee se borra: `pnpm test:dis
 | Token | Casa | Casa · banda oscura | Piloto | Piloto · banda oscura | Nota |
 |---|---|---|---|---|---|
 | `--color-miriam-claro` | `#ac87e9` |  |  |  | Violeta sobre fondo oscuro (berenjena: 5,54:1); NUNCA sobre crema |
-| `--cielo-resplandor` | `#3a2450` |  |  |  | SOLO fondos de "cielo" (universo constelación) |
+| `--cielo-resplandor` | `#3a2450` |  |  |  | SOLO fondos de "cielo" (universo constelación). Por qué degradado (playbook R18): es la noche donde cada dato o célula es un punto que se enciende (cd6ed84, 24-sep-26); el resplandor sale de donde está la constelación. Nunca detrás de lectura larga. |
 
 #### Estados derivados
 
