@@ -267,7 +267,6 @@ const repartoViajes = computed(() => ({
   zurich: money(DINERO.viajes.zurich),
   ensayos: money(DINERO.viajes.ensayos),
   congresos: money(DINERO.viajes.congresos),
-  otros: money(DINERO.viajes.otros),
 }))
 const corte = computed(() => fechaDeCorte(DINERO.corte, locale.value))
 // El bloque de la rebiopsia lleva su fecha, que no es la del corte del informe.

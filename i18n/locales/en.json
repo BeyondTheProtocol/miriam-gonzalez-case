@@ -1172,7 +1172,7 @@
     "report_intro": "Rebuilt transaction by transaction from the bank statements, with figures as of {fecha}.",
     "cuadre": "The amount raised on GoFundMe is the gross figure, live; this report shows what has been spent and what is available as of its cutoff date.",
     "report_available_label": "Still available",
-    "report_item_travel": "Case-related travel, net of what the trials have reimbursed: biopsy in Zurich ({zurich}), clinical trials in Barcelona ({ensayos}), conferences ({congresos}) and other ({otros})",
+    "report_item_travel": "Case-related travel, net of what the trials have reimbursed: biopsy in Zurich ({zurich}), clinical trials and medical consultations ({ensayos}) and conferences and events ({congresos})",
     "report_item_ai": "AI and analysis tools",
     "report_item_tax": "Gift tax",
     "report_item_diagnostics": "Diagnostic tests: biopsy, sequencing and imaging",

@@ -14,7 +14,7 @@
     { "clave": "equipment", "importe": 3310.45 },
     { "clave": "outreach", "importe": 1916.32 }
   ],
-  "viajes": { "zurich": 6251.87, "ensayos": 6167.51, "congresos": 1020.6, "otros": 1315.08 },
+  "viajes": { "zurich": 6251.87, "ensayos": 6403.03, "congresos": 2100.16 },
   "rebiopsia": {
     "fecha": "2026-08-19",
     "ejecutado": 8051.29,
