@@ -124,7 +124,7 @@ solution must be readable as "something annotated in that notebook".
 | hand-drawn underline (single ink) | emphasis | "dos caras" in the hero |
 | graph-paper grid | the page surface | two-faces, star map |
 
-Ink is berenjena `#2d1b3d`. **One accent per piece** — magenta `#9d44ab`
+Ink is berenjena `#2d1b3d`. **One accent per piece** — violet `#804fc3` (`--color-miriam`)
 (concept / Miriam) OR coral `#ff6b47` (action / urgency), never both in the
 same piece. Science labels in handwriting go UPPERCASE. Never below 11px.
 

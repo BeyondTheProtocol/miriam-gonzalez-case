@@ -45,13 +45,12 @@ export default {
         berenjena: 'rgb(var(--color-text-rgb) / <alpha-value>)',     // var(--color-text)
         tinta: 'rgb(var(--color-text-soft-rgb) / <alpha-value>)',         // var(--color-text-soft)
         miriam: {
-          // Firma / emphasis / links. Oscurecido de #a44db2 a #9d44ab para que el
-          // texto pase WCAG AA (4.5:1) también sobre cream-card (4.77:1), no solo
-          // sobre cream. El violeta sigue siendo prácticamente el mismo.
+          // Firma / emphasis / links. Los valores viven solo en el canon (btp-tokens.css): aquí se leen por el puente -rgb.
+          // Desde el 19-nov-2026, violeta −22° (#804fc3): pasa WCAG AA (4.5:1) sobre cream (5.10:1) y sobre cream-card (4.80:1).
           DEFAULT: 'rgb(var(--color-miriam-rgb) / <alpha-value>)',
           soft: 'rgb(var(--color-miriam-soft-rgb) / <alpha-value>)',        // var(--color-miriam-soft) — badge genómico bg
           // Violeta claro para ÉNFASIS sobre fondos oscuros (berenjena): el miriam
-          // DEFAULT no contrasta sobre berenjena, este sí (5.46:1, pasa WCAG AA).
+          // DEFAULT no contrasta sobre berenjena, este sí (#ac87e9, 5.54:1, pasa WCAG AA).
           // Usado en el dossier /marcas (titulares e identidad sobre bandas oscuras).
           claro: 'rgb(var(--color-miriam-claro-rgb) / <alpha-value>)',
         },

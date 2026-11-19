@@ -52,7 +52,8 @@ export const REGLAS: Record<string, string> = {
 }
 
 /** R14 · regla del violeta (dictado de tres capas, R2.3). Patrón sin distinguir mayúsculas: cualquier token o utilidad con
- *  `miriam` del color (no `miriam-avatar` ni el nombre), los cinco hex del violeta y sus canales RGB. Lista permitida, que no
+ *  `miriam` del color (no `miriam-avatar` ni el nombre), los hex del violeta y sus canales RGB: los de hoy (−22°, 19-nov-2026:
+ *  #804fc3, #ac87e9, #ded7f4) y los de antes (#9d44ab, #c77dd2, #e8d4ed, #a44db2, #5a2466), que se quedan para cazar restos. Lista permitida, que no
  *  cuenta: en el canon, la definición de los átomos (y sus canales del puente), los bloques 3 y 4 (`[data-capa="piloto"]`) y la
  *  declaración de --hueco-piloto-borde; BrandMark.vue; y la copia pública de tokens (no se escanea). Lo demás es la deuda que
  *  hoy vive en el piloto, en trinquete: puede bajar, no subir. */
@@ -61,8 +62,8 @@ export const RE_VIOLETA = new RegExp(
     String.raw`(?<![\w-])(?:bg|text|border|ring|fill|stroke|from|to|via|outline|decoration|accent|caret|divide|shadow)-miriam(?![\w])(?:-[\w-]+)?(?:\/[\d.]+)?`,
     String.raw`(?<![\w])color-miriam(?:-[\w-]+)?`,
     String.raw`(?<![\w-])(?:--)?miriam-(?:soft|claro|rgb|hover|active)(?![\w])(?:-[\w-]+)?`,
-    String.raw`#(?:9d44ab|a44db2|c77dd2|e8d4ed|5a2466)(?![0-9a-f])`,
-    String.raw`\b(?:157[\s,]+68[\s,]+171|199[\s,]+125[\s,]+210|232[\s,]+212[\s,]+237)\b`,
+    String.raw`#(?:804fc3|ac87e9|ded7f4|9d44ab|a44db2|c77dd2|e8d4ed|5a2466)(?![0-9a-f])`,
+    String.raw`\b(?:128[\s,]+79[\s,]+195|172[\s,]+135[\s,]+233|222[\s,]+215[\s,]+244|157[\s,]+68[\s,]+171|199[\s,]+125[\s,]+210|232[\s,]+212[\s,]+237)\b`,
   ].join('|'),
   'gi',
 )
@@ -716,7 +717,9 @@ function autotest(): string[] {
   eq('R7 rojo', reglaR7('.link-action { display: flex; } .form-input { font-size: 14px; min-height: 42px; }', canonDePrueba).length, 3)
   // R14
   eq('R14 tokens y utilidades del violeta', cuenta('x.vue', vue('<p class="text-miriam hover:bg-miriam-soft border-miriam/30"/>', '.a { color: var(--color-miriam); box-shadow: 0 0 0 3px rgb(var(--color-miriam-rgb) / .2) } .b { color: var(--miriam-hover) }'), 'R14'), 6)
-  eq('R14 hex y canales del violeta', cuenta('x.vue', vue('<p/>', '.a { color: #9D44AB; background: #e8d4ed } .b { color: rgb(157 68 171) } .c { color: rgba(199, 125, 210, .5) }'), 'R14'), 4)
+  eq('R14 hex y canales del violeta de antes (restos)', cuenta('x.vue', vue('<p/>', '.a { color: #9D44AB; background: #e8d4ed } .b { color: rgb(157 68 171) } .c { color: rgba(199, 125, 210, .5) }'), 'R14'), 4)
+  eq('R14 hex y canales del violeta de hoy', cuenta('x.vue', vue('<p/>', '.a { color: #804FC3; background: #ded7f4; border-color: #ac87e9 } .b { color: rgb(128 79 195) } .c { color: rgba(172, 135, 233, .5) } .d { color: rgb(222,215,244) }'), 'R14'), 6)
+  eq('R14 hex vecino del violeta no cuenta', cuenta('x.vue', vue('<p/>', '.a { color: #804fc30 } .b { color: rgb(128 79 196) }'), 'R14'), 0)
   eq('R14 lo que no es el color no cuenta', cuenta('x.vue', vue('<img src="/img/miriam-avatar.webp" alt="Miriam González"><p>{{ t(\'miriam.hola\') }}</p>', '.a { color: var(--identidad) } .b { color: #9d44ab0 }'), 'R14'), 0)
   eq('R14 en un comentario no cuenta', cuenta('x.vue', vue('<!-- bg-miriam-soft -->', '/* #9d44ab */ .a { color: var(--texto-1) }'), 'R14'), 0)
   eq('R14 BrandMark está permitido', cuenta('app/components/BrandMark.vue', vue('<circle fill="var(--color-miriam)"/>'), 'R14'), 0)

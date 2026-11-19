@@ -164,7 +164,7 @@ try {
   await sleep(300)
   const oscuro = await ev(muestras)
   ok(JSON.stringify(claro) !== JSON.stringify(oscuro), 'el tema oscuro repinta la rampa')
-  ok(oscuro[0] === 'rgb(199, 125, 210)', `en oscuro, «muy alta» es el violeta claro (${oscuro[0]})`)
+  ok(oscuro[0] === 'rgb(172, 135, 233)', `en oscuro, «muy alta» es el violeta claro (${oscuro[0]})`)
   await ev(`document.querySelector('.exp__tema').click()`)
 
   console.log('Aperturas y cierres')
@@ -297,7 +297,7 @@ try {
   ;[ex, ey] = await centro('.gin__3d[data-gen3d="ERBB2"]')
   await raton(ex, ey); await espera(FLOTA, 8000); await sleep(300)
   const oscuroPv = await ev(`[...document.querySelectorAll('.pv__flota .de__muestra')].map((m) => getComputedStyle(m).backgroundColor)`)
-  ok(oscuroPv[0] === 'rgb(199, 125, 210)', `hereda el tema oscuro de .exp (muy alta en violeta claro: ${oscuroPv[0]})`)
+  ok(oscuroPv[0] === 'rgb(172, 135, 233)', `hereda el tema oscuro de .exp (muy alta en violeta claro: ${oscuroPv[0]})`)
   await tecla('Escape'); await ev(`document.querySelector('.exp__tema').click()`); await raton(5, 5); await sleep(300)
   let ciclosPv = 0
   ;[ex, ey] = await centro('.gin__3d[data-gen3d="ERBB2"]')

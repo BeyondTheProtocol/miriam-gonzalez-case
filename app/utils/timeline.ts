@@ -56,6 +56,6 @@ export const CATEGORY_META: Record<
   { accent: string; soft: string; ring: string }
 > = {
   clinical: { accent: '#2d1b3d', soft: 'rgba(45,27,61,0.10)', ring: 'rgba(45,27,61,0.30)' },
-  molecular: { accent: '#9d44ab', soft: 'rgba(157,68,171,0.14)', ring: 'rgba(157,68,171,0.45)' },
+  molecular: { accent: 'var(--color-miriam)', soft: 'rgb(var(--color-miriam-rgb) / 0.14)', ring: 'rgb(var(--color-miriam-rgb) / 0.45)' },
   network: { accent: '#ff6b47', soft: 'rgba(255,107,71,0.14)', ring: 'rgba(255,107,71,0.50)' },
 }
