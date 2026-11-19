@@ -1,12 +1,12 @@
 {
   "corte": "2026-11-17",
   "moneda": "EUR",
-  "comprometido": 79244.94,
-  "disponible": 15706.24,
+  "comprometido": 79429.63,
+  "disponible": 15521.55,
   "partidas": [
     { "clave": "tax", "importe": 17662.27 },
     { "clave": "travel", "importe": 14755.06 },
-    { "clave": "ai", "importe": 14497.9 },
+    { "clave": "ai", "importe": 14682.59 },
     { "clave": "legal", "importe": 10043.0 },
     { "clave": "diagnostics", "importe": 9480.88 },
     { "clave": "treatment", "importe": 3854.91 },
