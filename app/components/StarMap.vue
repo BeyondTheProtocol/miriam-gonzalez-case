@@ -816,6 +816,8 @@ const tipStyle = computed(() => {
   height: 100%;
   opacity: 0.28;
 }
+/* Aura de M44 en degradado, elegida (playbook R18): el Pesebre es un cúmulo que a simple vista se ve como una mancha
+   difusa, y el halo dice dónde está «el corazón» del mapa. Va al 16 % sobre crema: no es un brillo neón. */
 .starmap__beehive {
   position: absolute;
   width: 150px;
