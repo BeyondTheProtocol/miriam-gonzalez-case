@@ -23,8 +23,10 @@ export const CASILLAS = ['frio-1', 'frio-2', 'frio-3', 'frio-4', 'tierra-1', 'ti
 export type Casilla = (typeof CASILLAS)[number]
 /** Tipo celular (`g.id` del fichero) → casilla: mismo tipo, mismo color en el hígado y en el hueso. T, B y mastocito existen
  * como rótulo pero aún no en los datos: sin casilla propia toman una libre (el test avisa si un fichero real trae un tipo sin casilla). */
+// Mieloide en frio-1 y NK en frio-2 (consejero-color, 19-nov-2026): con el violeta del piloto a ~300°, el tipo que está en
+// las DOS biopsias necesita la casilla más lejana del violeta (212°); el azul de frio-2 (≈ 260°) solo cabe donde hay menos frías (hígado).
 export const CASILLA_DE_TIPO: Record<string, Casilla> = {
-  NK: 'frio-1', mieloide: 'frio-2', neutrofilo: 'frio-3', plasmatica: 'frio-4',
+  NK: 'frio-2', mieloide: 'frio-1', neutrofilo: 'frio-3', plasmatica: 'frio-4',
   hepatocito: 'tierra-1', endotelio: 'tierra-2', fibroblasto_estelar: 'tierra-3',
 }
 

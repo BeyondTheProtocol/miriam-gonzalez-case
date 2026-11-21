@@ -89,11 +89,7 @@ const initial = computed(
   font-size: 3.5rem;
   letter-spacing: -0.04em;
   color: var(--color-miriam); /* miriam */
-  background: linear-gradient(
-    180deg,
-    rgb(var(--color-miriam-rgb) / 0.08),
-    rgb(var(--color-miriam-rgb) / 0.02)
-  );
+  background: rgb(var(--color-miriam-rgb) / 0.05); /* plano: el degradado del 8 al 2 % no se veía (playbook R18) */
 }
 
 .team-portrait__caption {

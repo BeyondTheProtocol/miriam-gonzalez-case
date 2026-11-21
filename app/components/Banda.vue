@@ -51,9 +51,14 @@ withDefaults(defineProps<{
 .banda--tarjeta { background-color: var(--color-bg-card); color: var(--color-text); }
 .banda--oscura { background-color: var(--fondo); color: var(--texto-1); }
 .banda__contenido { position: relative; }
+/* La trama de la casa: tokens --trama-* del canon (punto de 2 px de diámetro cada 32 px, al 4 % en pantalla). */
 .banda__reticula {
-  position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
-  background-image: radial-gradient(circle at 1px 1px, var(--texto-1) 1px, transparent 0);
-  background-size: 32px 32px;
+  position: absolute; inset: 0; opacity: var(--trama-opacidad); pointer-events: none;
+  background-image: radial-gradient(
+    circle at calc(var(--trama-punto) / 2) calc(var(--trama-punto) / 2),
+    var(--texto-1) calc(var(--trama-punto) / 2),
+    transparent 0
+  );
+  background-size: var(--trama-paso) var(--trama-paso);
 }
 </style>

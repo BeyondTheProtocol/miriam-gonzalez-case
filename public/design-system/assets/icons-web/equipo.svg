@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="equipo · personas">
   <rect width="64" height="64" rx="8" fill="#FAF6F0"></rect>
   <circle cx="22" cy="22" r="7" fill="#2D1B3D"></circle>
-  <circle cx="42" cy="22" r="7" fill="#A855B5"></circle>
+  <circle cx="42" cy="22" r="7" fill="#804fc3"></circle>
   <path d="M 10 50 Q 10 34 22 34 Q 34 34 34 50 Z" fill="#2D1B3D"></path>
-  <path d="M 30 50 Q 30 34 42 34 Q 54 34 54 50 Z" fill="#A855B5"></path>
+  <path d="M 30 50 Q 30 34 42 34 Q 54 34 54 50 Z" fill="#804fc3"></path>
 </svg>

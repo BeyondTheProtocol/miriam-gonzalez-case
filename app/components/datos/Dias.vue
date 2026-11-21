@@ -328,7 +328,7 @@ const miles = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, props.la
       <canvas ref="lienzo" class="dias__lienzo" role="slider" tabindex="0"
               :aria-label="etiquetaLector"
               :aria-valuemin="0" :aria-valuemax="Math.max(0, hitos.length - 1)"
-              :aria-valuenow="sel ? Math.max(0, hitos.findIndex((d) => d.t === sel!.t)) : undefined" :aria-valuetext="lectura || undefined"
+              :aria-valuenow="sel ? Math.max(0, hitos.findIndex((d) => d.t === sel!.t)) : 0" :aria-valuetext="lectura || L('Ningún día elegido todavía', 'No day selected yet')"
               @pointerdown="empezar" @pointermove="mover" @pointerup="soltar" @pointercancel="soltar" @pointerleave="hover = null" @focus="enfocado = true" @blur="enfocado = false" @keydown="tecla" />
     </div>
     <p class="dias__lee nums" aria-live="polite">

@@ -80,11 +80,11 @@ function pintar() {
   const fila = ALTO_FILA.value
   const tope = desde + (hasta - desde) * barrido
   const crema = color('--color-bg') || '#faf6f0'
-  const violeta = color('--color-miriam-claro') || '#c77dd2'
+  const violeta = color('--color-miriam-claro') || '#ac87e9'
 
   // líneas de tratamiento (franjas) y progresiones (rayas)
-  // (199,125,210) = --color-miriam-claro: el canvas no mezcla variables CSS con alfa
-  cx.fillStyle = 'rgba(199,125,210,0.07)'
+  // (172,135,233) = --color-miriam-claro: el canvas no mezcla variables CSS con alfa
+  cx.fillStyle = 'rgba(172,135,233,0.07)'
   for (const b of props.contexto.bandas) {
     const a = Math.max(b.ini, desde), z = Math.min(b.fin, tope)
     if (z > a) cx.fillRect(X(a), 8, X(z) - X(a), filas.value.length * fila)
@@ -130,7 +130,7 @@ function pintar() {
   if (barrido < 1) {
     const xh = X(tope)
     const grad = cx.createLinearGradient(xh - 30, 0, xh, 0)
-    grad.addColorStop(0, 'rgba(199,125,210,0)'); grad.addColorStop(1, 'rgba(199,125,210,0.55)')
+    grad.addColorStop(0, 'rgba(172,135,233,0)'); grad.addColorStop(1, 'rgba(172,135,233,0.55)')
     cx.fillStyle = grad; cx.fillRect(xh - 30, 4, 30, filas.value.length * fila + 6)
   }
 
@@ -228,8 +228,8 @@ const lectura = computed(() => {
       <div ref="caja" class="cielo__lienzo" @pointerup="tocar">
         <canvas ref="lienzo" class="cielo__canvas" role="slider" tabindex="0"
                 :aria-label="L(`${nPuntos} valores de laboratorio de ${nExtracciones} extracciones desde diciembre de 2023, ${nFuera} fuera de rango, ordenados por fecha y por prueba. Flechas izquierda y derecha: fechas; arriba y abajo: pruebas; Intro: ir a esa fecha.`, `${nPuntos} lab values from ${nExtracciones} blood draws since December 2023, ${nFuera} out of range, by date and by test. Left and right arrows: dates; up and down: tests; Enter: go to that date.`)"
-                :aria-valuemin="0" :aria-valuemax="Math.max(0, nPuntos - 1)" :aria-valuenow="sel ? puntos.indexOf(sel) : undefined"
-                :aria-valuetext="lectura || undefined" @keydown="tecla" />
+                :aria-valuemin="0" :aria-valuemax="Math.max(0, nPuntos - 1)" :aria-valuenow="sel ? puntos.indexOf(sel) : 0"
+                :aria-valuetext="lectura || L('Ningún valor elegido todavía', 'No value selected yet')" @keydown="tecla" />
       </div>
       <p class="cielo__lee nums" aria-live="polite">
         <template v-if="sel">{{ lectura }} <span class="cielo__sello">↧ {{ L('extraído del informe', 'extracted from report') }}</span>
@@ -268,7 +268,7 @@ const lectura = computed(() => {
 .cielo__px { width: 6px; height: 5px; background: rgb(var(--color-bg-rgb) / 0.45); display: inline-block; }
 .cielo__px--fuera { background: var(--color-miriam-claro); box-shadow: 0 0 6px var(--color-miriam-claro); }
 .cielo__raya { width: 1px; height: 12px; border-left: 1px dashed rgb(var(--color-bg-rgb) / 0.5); display: inline-block; }
-.cielo__franja { width: 14px; height: 10px; background: rgb(199 125 210 / 0.25); display: inline-block; }
+.cielo__franja { width: 14px; height: 10px; background: rgb(var(--color-miriam-claro-rgb) / 0.25); display: inline-block; }
 /* T3-BARRIDO: a la escala 13/15/16/17 desde `lg`; el móvil conserva su valor (regla de la tanda). */
 @media (min-width: 1024px) { .cielo__sub { font-size: var(--texto-sm); } }
 </style>

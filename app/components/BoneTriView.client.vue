@@ -766,11 +766,11 @@ let needleGeos: THREE.BufferGeometry[] = []
 /*   ocluye sola cuando el punto rota detrás (comportamiento de algo        */
 /*   pintado). polygonOffset evita z-fight con la cara que recubre. El      */
 /*   PARPADEO anima la opacidad/emisivo en el bucle continuo.               */
-/*  DS: aros coral #ff6b47 con borde malva #9d44ab de contraste, mate.      */
+/*  DS: aros coral #ff6b47 con borde malva #804fc3 de contraste, mate.      */
 /*  Se distingue de la aguja de biopsia (#13, ÁMBAR FIJA) por color y      */
 /*  parpadeo, y por SER superficie (la aguja es un objeto 3D montado).      */
 /* ====================================================================== */
-const C_TARGET_RING = '#9d44ab'   // miriam/malva · borde de contraste de la diana
+const C_TARGET_RING = '#804fc3'   // miriam/malva · borde de contraste de la diana
 const C_TARGET_CORE = '#ff6b47'   // coral · aros de la diana (color de acción del DS)
 let targetMats: THREE.MeshStandardMaterial[] = [] // materiales del decal (uno por panel) — dispose
 let targetGeos: THREE.BufferGeometry[] = []       // geometrías de decal — dispose

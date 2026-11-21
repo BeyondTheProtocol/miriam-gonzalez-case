@@ -1,20 +1,20 @@
 {
-  "corte": "2026-09-30",
+  "corte": "2026-11-17",
   "moneda": "EUR",
-  "comprometido": 49071.16,
-  "disponible": 9829.47,
+  "comprometido": 79429.63,
+  "disponible": 15521.55,
   "partidas": [
-    { "clave": "travel", "importe": 13571.66 },
-    { "clave": "ai", "importe": 10249.37 },
-    { "clave": "diagnostics", "importe": 9286.79 },
-    { "clave": "tax", "importe": 6385.48 },
-    { "clave": "equipment", "importe": 2523.53 },
-    { "clave": "samples", "importe": 2230.7 },
-    { "clave": "legal", "importe": 1573.0 },
-    { "clave": "outreach", "importe": 1472.28 },
-    { "clave": "treatment", "importe": 896.16 },
-    { "clave": "ops", "importe": 882.19 }
+    { "clave": "tax", "importe": 17662.27 },
+    { "clave": "travel", "importe": 14755.06 },
+    { "clave": "ai", "importe": 14682.59 },
+    { "clave": "legal", "importe": 10043.0 },
+    { "clave": "diagnostics", "importe": 9480.88 },
+    { "clave": "treatment", "importe": 3854.91 },
+    { "clave": "samples", "importe": 3724.15 },
+    { "clave": "equipment", "importe": 3310.45 },
+    { "clave": "outreach", "importe": 1916.32 }
   ],
+  "viajes": { "zurich": 6251.87, "ensayos": 6403.03, "congresos": 2100.16 },
   "rebiopsia": {
     "fecha": "2026-08-19",
     "ejecutado": 8051.29,

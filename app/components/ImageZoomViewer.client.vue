@@ -208,7 +208,7 @@ watch(() => [props.src, props.markerX, props.markerY], () => reset())
   touch-action: none;
   outline-offset: 2px;
 }
-.izv-frame:focus-visible { outline: 2px solid #9d44ab; }
+.izv-frame:focus-visible { outline: 2px solid var(--color-miriam); }
 /* modo ajustar (lightbox): centra la imagen contenida (no se corta) */
 .izv-frame--fit { display: flex; align-items: center; justify-content: center; }
 .izv-stage {

@@ -129,6 +129,15 @@
 //                       al pegarse, la cabecera los tapa (WCAG 2.4.11). Un `lg:top-24` son 96 px y la cabecera mide 73 (112 con la barra «lo
 //                       último»). Se mide por geometría y no haciendo scroll: solo cuenta el que SÍ puede pegarse (su contenedor es más alto
 //                       que él y ningún antepasado tiene overflow, que anularía el sticky) y se mueve con el viewport.
+//   axe_<regla>         axe-core 4.14.0 (MPL-2.0) sobre la página pintada: UNA métrica por regla, con el número de nodos que la incumplen
+//                       (WCAG 2.0, 2.1 y 2.2 A/AA más buenas prácticas; ver `AXE_ETIQUETAS`). Tapa lo que nada de lo de arriba mira: ARIA
+//                       (roles, nombres, valores, ids a los que apunta), nombres que no contienen el texto visible (2.5.3), regiones con
+//                       scroll que el teclado no alcanza. En la baseline van dentro de `axe`, solo las reglas con algo; la que falta vale 0,
+//                       así que una regla nueva en una ruta SUBE. Nació de la cata del 13-nov-2026 sobre helpmiriam.com (13 reglas, tres
+//                       críticas: deslizadores de /datos sin `aria-valuenow` y el listbox del diagrama de fenotipo del mapa, con
+//                       `role=button` dentro y un `aria-activedescendant` a un id inexistente). Corre con la página como la mide MEDIR
+//                       (scroll 0, animaciones apagadas) y sin iframes. Su `color-contrast` se solapa con `contraste` y no mide lo mismo
+//                       (axe deja como «incompleto», y aquí no cuenta, lo que no sabe resolver: degradados, imágenes, texto tapado).
 //
 // Y tres comprobaciones SIN baseline (o cumplen o no): el visor 3D de /lesiones con WebGL por software (ver `VISOR_3D`); `.rejilla-par` a 390 px, con un SVG de 700 px dentro, no ensancha la columna del texto; y el cielo de
 // /links a 1024, 1280, 1440 y 1920 px (desde `lg`) deja ver la estrella coral «tú» (al menos el 90 % de su área, sin el avatar ni nada encima) y la
@@ -156,6 +165,7 @@
 //                                                  hay prueba de que la métrica mida algo.
 //                                                  `--rutas <ruta>` y `--ancho <px>` eligen dónde (por defecto, / a 1280). No compara baseline.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { abrirNavegador, ROOT } from './lib/navegador-cdp.mjs'
 
@@ -184,6 +194,21 @@ const ANCHO_MOVIL = 390
 const ANCHOS_AUX = [ANCHO_MOVIL, 1280]
 const METRICAS = ['desborde', 'desborde_oculto', 'h1_borde', 'texto_bajo_suelo', 'texto_svg_bajo_suelo', 'objetivos_pequenos', 'objetivos_svg', 'contraste', 'foco_tapado', 'linea_larga', 'sticky_tapado', 'recorte_1412']
 const PASOS_TAB = 14
+// axe-core (axe_<regla>, ver la cabecera): las reglas de WCAG 2.0, 2.1 y 2.2 A/AA más las buenas prácticas, las mismas de la cata
+// del 13-nov-2026. Se inyecta en cada página tal cual sale de node_modules; no hace llamadas de red propias.
+const AXE_FUENTE = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8')
+const AXE_ETIQUETAS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa', 'best-practice']
+// `iframes: false`: un iframe de otro origen (un vídeo) no contesta a axe y la pasada esperaría a su tiempo límite.
+// `preload: false`: sin ella axe vuelve a pedir las hojas de estilo; solo la usa una regla (css-orientation-lock) y así no depende del servidor.
+const AXE_CORRER = `(async () => {
+  const r = await axe.run(document, { runOnly: { type: 'tag', values: ${JSON.stringify(AXE_ETIQUETAS)} }, resultTypes: ['violations'], iframes: false, preload: false })
+  const por = {}, ej = {}
+  for (const v of r.violations) {
+    por[v.id] = v.nodes.length
+    ej['axe_' + v.id] = v.nodes.slice(0, 6).map((n) => (n.impact || v.impact || '?') + ' · ' + n.target.join(' ') + ' · ' + (n.failureSummary || '').replace(/\\s+/g, ' ').slice(0, 160))
+  }
+  return { por, ej }
+})()`
 // Nombre corto de cada métrica en la línea de salida (con slice(0, 8), «desborde» y «desborde_oculto», u «objetivos_pequenos» y «objetivos_svg», salían iguales).
 const ETIQUETA = { desborde: 'desborde', desborde_oculto: 'desb_ocu', h1_borde: 'h1_borde', texto_bajo_suelo: 'txt_bajo', texto_svg_bajo_suelo: 'txt_svg', objetivos_pequenos: 'obj_peq', objetivos_svg: 'obj_svg', contraste: 'contraste', foco_tapado: 'foco_tap', linea_larga: 'lin_larg', sticky_tapado: 'sticky', recorte_1412: 'rec_1412' }
 
@@ -973,6 +998,36 @@ async function medirCanario(ruta, ancho) {
   }
 }
 
+// Capas de marca (dictado de tres capas, 19-nov-2026). helpmiriam.com es el piloto: nuxt.config.ts pone data-capa="piloto" en <html>
+// y el canon, sin atributo, es la casa (berenjena). Si el atributo se perdiera, el sitio perdería el violeta en silencio. Por eso, en
+// /, /links, /guia-de-estilo y la 404 (error.vue no pasa por el layout), --identidad tiene que resolver a #804fc3 (--color-miriam) en <html> y a
+// #ac87e9 (--color-miriam-claro) dentro de una banda oscura (la real de la página si la hay, y siempre una sonda). Y en TODAS las rutas medidas: <html> lleva
+// data-capa="piloto" y ningún [data-capa] va dentro de otro que no sea <html> (página + una isla, y nada más).
+const RUTAS_CAPA = ['/', '/links', '/guia-de-estilo', '/404']
+const ESPERADO_CAPA = { claro: '#804fc3', oscuro: '#ac87e9' }
+const CAPAS = `(() => {
+  const html = document.documentElement
+  const val = (el) => getComputedStyle(el).getPropertyValue('--identidad').trim().toLowerCase()
+  const sonda = document.createElement('div')
+  sonda.setAttribute('data-tema', 'oscuro')
+  document.body.appendChild(sonda)
+  const banda = document.querySelector('[data-tema="oscuro"]:not([data-sonda])')
+  const r = {
+    capa: html.getAttribute('data-capa'),
+    claro: val(html),
+    oscuroSonda: val(sonda),
+    oscuroBanda: banda && banda !== sonda ? val(banda) : null,
+    error404: !!document.querySelector('main h1') && /404/.test(document.body.innerText),
+  }
+  sonda.remove()
+  return r
+})()`
+const CAPA_ANIDADA = `(() => {
+  const html = document.documentElement
+  const malos = [...document.querySelectorAll('[data-capa]')].filter((el) => el !== html && el.parentElement.closest('[data-capa]') && el.parentElement.closest('[data-capa]') !== html)
+  return { capa: html.getAttribute('data-capa'), anidados: malos.map((el) => el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : '')) }
+})()`
+
 async function medir(rutas) {
   // `--font-render-hinting=none`: el avance de cada letra no se redondea al píxel según la plataforma. `linea_larga` cuenta caracteres por línea
   // pintada y el corte de línea depende de ese avance; sin el flag, un Chrome de Linux con hinting podría partir una línea una palabra antes o
@@ -988,6 +1043,8 @@ async function medir(rutas) {
   let cielo
   let barra
   let prosa
+  let capas
+  const capaPorRuta = {}
   try {
     for (const ruta of rutas) {
       for (const ancho of ANCHOS) {
@@ -1000,7 +1057,11 @@ async function medir(rutas) {
           await nav.evaluate('document.fonts.ready.then(() => true)')
           await nav.evaluate("(() => { const s = document.createElement('style'); s.textContent = '*{animation:none!important;transition:none!important}'; document.documentElement.appendChild(s) })()")
           await nav.sleep(300)
+          if (!(ruta in capaPorRuta)) capaPorRuta[ruta] = await nav.evaluate(CAPA_ANIDADA)
           const { cuenta, ej } = await nav.evaluate(MEDIR)
+          // axe, con la página tal cual la mide MEDIR: scroll 0, sin animaciones, antes de pulsar Tab ni de bajar a la barra fija.
+          const axe = await nav.evaluate(`${AXE_FUENTE};${AXE_CORRER}`)
+          Object.assign(ej, axe.ej)
           const f = await focoTapado(nav)
           if (ancho < 1024) {
             // La barra fija solo existe tras pasar el hero (480 px) y si ningún botón coral está a la vista: se baja a 700 px y se espera a que entre.
@@ -1018,14 +1079,21 @@ async function medir(rutas) {
           cuenta.recorte_1412 = rec.cuenta
           ej.recorte_1412 = rec.ej
           for (const k of Object.keys(tipos)) tipos[k] += rec.tipos[k]
-          res[clave] = { ...cuenta, foco_tapado: f.tapados }
+          res[clave] = { ...cuenta, foco_tapado: f.tapados, axe: axe.por }
           ejemplos[clave] = { ...ej, foco_tapado: f.ej }
-          console.log(`  ${clave.padEnd(34)} ${METRICAS.map((m) => `${ETIQUETA[m]} ${res[clave][m]}`).join('  ')}`)
+          const axeTxt = Object.entries(axe.por).map(([r, n]) => `${r} ${n}`).join(', ')
+          console.log(`  ${clave.padEnd(34)} ${METRICAS.map((m) => `${ETIQUETA[m]} ${res[clave][m]}`).join('  ')}  axe ${Object.values(axe.por).reduce((a, b) => a + b, 0)}${axeTxt ? ` (${axeTxt})` : ''}`)
         } catch (e) {
           res[clave] = { error: String(e.message || e) }
           console.log(`✘ ${clave}  ${e.message || e}`)
         }
       }
+    }
+    capas = []
+    for (const ruta of RUTAS_CAPA) {
+      await nav.cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
+      await nav.cargar(ruta)
+      capas.push({ ruta, ...(await nav.evaluate(CAPAS)) })
     }
     await nav.cdp('Emulation.setDeviceMetricsOverride', { width: ANCHO_MOVIL, height: 900, deviceScaleFactor: 1, mobile: false })
     await nav.cargar('/guia-de-estilo')
@@ -1049,7 +1117,7 @@ async function medir(rutas) {
   } finally {
     await nav.cerrar()
   }
-  return { res, ejemplos, tipos, rejilla, cielo, barra, prosa }
+  return { res, ejemplos, tipos, rejilla, cielo, barra, prosa, capas, capaPorRuta }
 }
 
 const args = process.argv.slice(2)
@@ -1091,12 +1159,29 @@ if (args.includes('--canario')) {
   process.exit(0)
 }
 const rutas = arg('--rutas') ? arg('--rutas').split(',') : RUTAS
-const { res, ejemplos, tipos, rejilla, cielo, barra, prosa } = await medir(rutas)
+const { res, ejemplos, tipos, rejilla, cielo, barra, prosa, capas, capaPorRuta } = await medir(rutas)
 const errores = Object.entries(res).filter(([, v]) => v.error)
 if (errores.length) {
   console.log(`\n✘ ${errores.length} medición(es) con error: ${errores.map(([k]) => k).join(', ')}`)
   process.exit(1)
 }
+const fallosCapa = []
+for (const c of capas) {
+  if (c.ruta === '/404' && !c.error404) fallosCapa.push('/404: no se pintó error.vue (sin <main h1> ni «404»): la comprobación no vale sobre una página vacía')
+  if (c.capa !== 'piloto') fallosCapa.push(`${c.ruta}: <html data-capa="${c.capa}"> y no "piloto"`)
+  if (c.claro !== ESPERADO_CAPA.claro) fallosCapa.push(`${c.ruta}: --identidad en <html> = ${c.claro} (esperado ${ESPERADO_CAPA.claro})`)
+  if (c.oscuroSonda !== ESPERADO_CAPA.oscuro) fallosCapa.push(`${c.ruta}: --identidad en una banda oscura (sonda) = ${c.oscuroSonda} (esperado ${ESPERADO_CAPA.oscuro})`)
+  if (c.oscuroBanda !== null && c.oscuroBanda !== ESPERADO_CAPA.oscuro) fallosCapa.push(`${c.ruta}: --identidad en la banda oscura de la página = ${c.oscuroBanda} (esperado ${ESPERADO_CAPA.oscuro})`)
+}
+for (const [ruta, c] of Object.entries(capaPorRuta)) {
+  if (c.capa !== 'piloto') fallosCapa.push(`${ruta}: <html data-capa="${c.capa}"> y no "piloto"`)
+  if (c.anidados.length) fallosCapa.push(`${ruta}: data-capa dentro de otro data-capa (${c.anidados.join(', ')}): página + una isla, y nada más`)
+}
+if (fallosCapa.length) {
+  console.log(`\n✘ Capas de marca:\n   ${fallosCapa.join('\n   ')}`)
+  process.exit(1)
+}
+console.log(`  capas: ${capas.map((c) => `${c.ruta} ${c.claro} / banda ${c.oscuroBanda ?? '—'} / sonda ${c.oscuroSonda}`).join(' · ')} · ${Object.keys(capaPorRuta).length} rutas con <html data-capa="piloto"> y sin anidar`)
 if (rejilla.texto > rejilla.ancho) {
   console.log(`\n✘ .rejilla-par a ${ANCHO_MOVIL} px: el texto mide ${rejilla.texto} px en una ventana de ${rejilla.ancho} (pista «${rejilla.pista}»). Una pieza ancha ensancha la columna: la pista de la pila debe ser minmax(0, 1fr).`)
   process.exit(1)
@@ -1145,7 +1230,19 @@ if (arg('--rutas')) process.exit(0)
 
 const previa = existsSync(RUTA_BASELINE) ? JSON.parse(readFileSync(RUTA_BASELINE, 'utf8')) : null
 const total = (m) => Object.values(res).reduce((a, v) => a + v[m], 0)
-const resumen = METRICAS.map((m) => `${m} ${total(m)}`).join(' · ')
+// axe: un recuento por regla, `axe_<regla>` = nodos que la incumplen. En la baseline van dentro de `axe` y solo las reglas con algo;
+// una regla que no está vale 0, así que una regla que aparece por primera vez en una ruta SUBE y el ratchet la para.
+const axeTotal = {}
+for (const v of Object.values(res)) for (const [r, n] of Object.entries(v.axe ?? {})) axeTotal[r] = (axeTotal[r] ?? 0) + n
+const resumen = [...METRICAS.map((m) => `${m} ${total(m)}`), ...Object.entries(axeTotal).sort().map(([r, n]) => `axe_${r} ${n}`)].join(' · ')
+/** Pares [métrica, ahora, baseline] de una clave: las fijas y una por regla de axe que salga en cualquiera de los dos lados. */
+function pares(k, absorber = false) {
+  const v = res[k], b = previa?.rutas[k]
+  const fijas = METRICAS.filter((m) => !(absorber && b && !(m in b))).map((m) => [m, v?.[m] ?? 0, b?.[m] ?? 0])
+  if (absorber && b && !b.axe) return fijas // la baseline aún no mide axe en esta ruta: entra con lo que trae
+  const reglas = new Set([...Object.keys(v?.axe ?? {}), ...Object.keys(b?.axe ?? {})])
+  return [...fijas, ...[...reglas].sort().map((r) => [`axe_${r}`, v?.axe?.[r] ?? 0, b?.axe?.[r] ?? 0])]
+}
 // El reparto de recorte_1412 por motivo. El ratchet guarda UN número por clave; esto es lo que hace falta para decidir si
 // la métrica tiene demasiados falsos positivos para ser ratchet (y para escribirlo en el PR con cifras).
 console.log(`  recorte_1412 por motivo: ${Object.entries(tipos).map(([k, v]) => `${k} ${v}`).join(' · ')}`)
@@ -1154,12 +1251,10 @@ if (args.includes('--actualizar')) {
   if (previa) {
     const sube = []
     const absorber = args.includes('--absorber')
-    for (const [k, v] of Object.entries(res)) {
+    for (const k of Object.keys(res)) {
       if (absorber && !previa.rutas[k]) continue // ruta nueva: entra con lo que trae
-      for (const m of METRICAS) {
-        if (absorber && !(m in previa.rutas[k])) continue // métrica nueva (la baseline no la conoce): entra con lo que trae
-        if (v[m] > (previa.rutas[k]?.[m] ?? 0)) sube.push(`${k} ${m}: ${previa.rutas[k]?.[m] ?? 0} → ${v[m]}`)
-      }
+      // métrica nueva (la baseline no la conoce): entra con lo que trae; `pares` se salta las fijas que faltan y axe entero si falta `axe`
+      for (const [m, a, b] of pares(k, absorber)) if (a > b) sube.push(`${k} ${m}: ${b} → ${a}`)
     }
     if (sube.length) {
       console.log(`✘ La baseline no se actualiza: solo puede bajar.\n   ${sube.join('\n   ')}`)
@@ -1178,8 +1273,7 @@ if (!previa) {
 }
 const fallos = []
 for (const k of new Set([...Object.keys(res), ...Object.keys(previa.rutas)])) {
-  for (const m of METRICAS) {
-    const a = res[k]?.[m] ?? 0, b = previa.rutas[k]?.[m] ?? 0
+  for (const [m, a, b] of pares(k)) {
     if (a > b) fallos.push(`${k} ${m}: ${b} → ${a} (SUBE)`)
     else if (a < b) fallos.push(`${k} ${m}: ${b} → ${a} (BAJA: bien; regenera con pnpm test:diseno-render --actualizar)`)
   }

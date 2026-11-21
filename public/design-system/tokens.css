@@ -13,7 +13,21 @@
    estado/velo/trazo se deriva con color-mix(). Si "hace falta" un color, la respuesta es no.
    EXCEPCIONES FIRMADAS (cada una con su fecha y quién; cualquier otra vuelve a pasar por Miriam):
      · --viz-cat-* (Miriam, 19-oct-2026): los 14 tokens de la categórica NOMINAL del mapa del explorador (ver el bloque
-       «Categórica NOMINAL»). No abren la puerta a más colores. */
+       «Categórica NOMINAL»). No abren la puerta a más colores.
+
+   CAPAS DE MARCA (dictado de tres capas, 19-nov-2026: estudio-identidad, Iris y diseno). La casa, Beyond the Protocol, es la
+   base: sin `data-capa`, una página sale en crema, berenjena y coral, con la trama. El piloto (helpmiriam.com) se pide con
+   `data-capa="piloto"`, que nuxt.config.ts pone en <html>. Siete bloques en orden fijo (mismo peso de selector, gana el último):
+     1 :root                       casa, claro (base)
+     2 [data-tema="oscuro"]        casa, banda oscura (base)
+     3 [data-capa="piloto"]        piloto, claro
+     4 piloto + banda oscura       piloto, banda oscura
+     5 [data-capa="casa"]          isla de casa dentro del piloto: copia literal de los roles de capa del 1
+     6 isla de casa + banda oscura copia literal de los roles de capa del 2
+     7 :root, [data-capa], [data-tema="oscuro"]   derivados de rol (--estado-*, --identidad-hover/-active, --subrayado)
+   `pnpm test:diseno` (R15) falla si 5 no copia a 1 o 6 no copia a 2, o si un data-capa va dentro de otro.
+   Límite: página + una isla. Dentro de una isla de casa no va otra capa.
+   El violeta es del piloto: fuera de los átomos, los bloques 3 y 4 y --hueco-piloto-borde, lo cuenta R14 en trinquete. */
 
 :root {
   /* ── Paleta: 5 colores (disciplina máxima) ───────────────────── */
@@ -21,23 +35,27 @@
   --color-bg-card:   #f5efe6; /* Crema profunda — superficies elevadas */
   --color-text:      #2d1b3d; /* Berenjena — texto/trazo/fondo oscuro (nunca negro) */
   --color-text-soft: #3a3340; /* Tinta — texto secundario */
-  --color-miriam:    #9d44ab; /* Violeta FIRMA — validado por Ceci/MCP: 5.07:1 sobre crema y 4.77:1 sobre tarjeta elevada = AA-normal en AMBAS. Gana a #a44db2 (4.55/4.29 = solo AA-large). Producción sirve aún #a44db2 → alinear vía PR. */
-  --color-miriam-soft:#e8d4ed;/* Violeta soft — fondo de badges */
+  --color-miriam:    #804fc3; /* Violeta FIRMA — −22° en OKLCH sobre el violeta anterior (consejero-color, 19-nov-2026): 5,10:1 sobre crema y 4,80:1 sobre tarjeta elevada = AA-normal en AMBAS. */
+  --color-miriam-soft:#ded7f4;/* Violeta soft — fondo de badges (berenjena encima: 11,33:1) */
   --color-cta:       #ff6b47; /* Coral — SOLO acción (nunca porta significado sobre crema) */
   --color-cta-hover: #e5573a;
 
   /* ── Derivados oficiales (los 2 únicos "extra" permitidos) ───── */
-  --color-miriam-claro: #c77dd2; /* Violeta sobre fondo oscuro (berenjena); NUNCA sobre crema */
-  --cielo-resplandor:   #3a2450; /* SOLO fondos de "cielo" (universo constelación) */
+  --color-miriam-claro: #ac87e9; /* Violeta sobre fondo oscuro (berenjena: 5,54:1); NUNCA sobre crema */
+  --cielo-resplandor:   #3a2450; /* SOLO fondos de "cielo" (universo constelación). Por qué degradado (playbook R18): es la noche donde cada dato o célula es un punto que se enciende (cd6ed84, 24-sep-26); el resplandor sale de donde está la constelación. Nunca detrás de lectura larga. */
 
   /* ── Estados derivados (color-mix, sin hexes nuevos) — COL-5 ─── */
   --cta-active:        color-mix(in srgb, var(--color-cta) 85%, var(--color-text));
-  --miriam-hover:      color-mix(in srgb, var(--color-miriam) 88%, var(--color-text));
-  --miriam-active:     color-mix(in srgb, var(--color-miriam) 78%, var(--color-text));
+  --miriam-hover:      color-mix(in srgb, var(--color-miriam) 88%, var(--color-text)); /* EN DESUSO: usa --identidad-hover / --identidad-active */
+  --miriam-active:     color-mix(in srgb, var(--color-miriam) 78%, var(--color-text)); /* EN DESUSO: usa --identidad-hover / --identidad-active */
   --secundario-hover:  color-mix(in srgb, var(--color-text) 6%, transparent);
-  --seleccionado-bg:   var(--color-miriam-soft);
+  --seleccionado-bg:   color-mix(in srgb, var(--color-text) 12%, var(--color-bg)); /* fondo del control activo; nunca es la única señal: va con borde o con subrayado */
   --seleccionado-text: var(--color-text);
-  --btn-dark-hover:    color-mix(in srgb, var(--color-text) 84%, var(--color-miriam)); /* #3f224f; antes #3d2752 escrito a mano */
+  --btn-dark-hover:    color-mix(in srgb, var(--color-text) 88%, var(--color-bg)); /* hover del botón oscuro: berenjena aclarada en la casa, berenjena con violeta en el piloto */
+  /* Porcentajes por capa (R2.1): un porcentaje no apunta a otra variable, así que se hereda sin la trampa de resolución y el
+     color se recalcula en el bloque 7 con el --identidad de cada banda. */
+  --subrayado-mezcla:   55%; /* porcentaje de --identidad en el subrayado: 55 % casa (3,60 crema · 3,54 tarjeta · 5,36 berenjena; mínimo 50 %), 45 % piloto */
+  --hecho-borde-mezcla: 55%; /* porcentaje de --identidad en el borde de «hecho»: 55 % casa (3,60 · 5,36), 45 % piloto */
 
   /* ── Velos (backdrops / cielos) ──────────────────────────────── */
   --velo-berenjena-60: color-mix(in srgb, var(--color-text) 60%, transparent); /* backdrop de dialog */
@@ -118,6 +136,15 @@
   --control-min: 44px;   /* táctil mínimo y alto de campo */
   --cabecera-alto: 4.0625rem; /* 65 px: la cabecera fija sola en móvil; 73 desde 640. app/plugins/cabecera-alto.client.ts lo sustituye por el real (con la barra «lo último» llega a +38) */
 
+  /* ── Trama: la rejilla de puntos de la casa (antes «retícula de puntos») ──
+     Es de la casa y la heredan Polaris y el piloto: no depende de la capa. El punto se pinta con var(--texto-1) en el
+     componente (Banda.vue): no hay --trama-color, porque declarado aquí se resolvería en berenjena también en la banda
+     oscura. El avatar no lleva token: es una especificación de exportación (DESIGN-SYSTEM.md, «Capas de marca»). */
+  --trama-paso:  32px; /* geometría de la trama de la casa (Banda oscura) */
+  --trama-punto: 2px;  /* diámetro del punto de la trama web (el componente usa la mitad como radio) */
+  --trama-opacidad: 0.04;       /* opacidad de la trama en pantalla; en @media print toma --trama-opacidad-papel (valores: Iris) */
+  --trama-opacidad-papel: 0.24; /* opacidad de la trama en papel: dossier y piezas impresas (valor: Iris) */
+
   /* ── Tipografía compuesta (los componentes usan ESTOS) — TYP-3 ──
      Atajo `font:` (familia+peso+tamaño+interlineado) por rol, para que
      ninguna superficie declare fuentes a mano. El tracking va aparte
@@ -163,11 +190,11 @@
   --viz-div-6:   color-mix(in srgb, var(--color-cta) 62%, var(--color-bg));
   --viz-div-7:   var(--color-cta);
   /* Severidad (secuencial, mono-hue sobre identidad) */
-  --viz-sev-1: color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg));
-  --viz-sev-2: color-mix(in srgb, var(--color-miriam) 38%, var(--color-bg));
-  --viz-sev-3: color-mix(in srgb, var(--color-miriam) 60%, var(--color-bg));
-  --viz-sev-4: color-mix(in srgb, var(--color-miriam) 82%, var(--color-bg));
-  --viz-sev-5: var(--color-miriam);
+  --viz-sev-1: color-mix(in srgb, var(--color-text) 16%, var(--color-bg)); /* severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* */
+  --viz-sev-2: color-mix(in srgb, var(--color-text) 38%, var(--color-bg)); /* severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* */
+  --viz-sev-3: color-mix(in srgb, var(--color-text) 60%, var(--color-bg)); /* severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* */
+  --viz-sev-4: color-mix(in srgb, var(--color-text) 82%, var(--color-bg)); /* severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* */
+  --viz-sev-5: var(--color-text); /* severidad, mono-hue: berenjena en la casa, violeta en el piloto; nunca junto a --viz-div-* */
 
   /* Categórica NOMINAL del mapa del explorador (/celula-a-celula/explorar) — EXCEPCIÓN ACOTADA a «ni un hex nuevo»
      (Miriam, 19-oct-2026). SOLO grupos de referencia de ese mapa; NUNCA niveles, severidad ni estados.
@@ -176,11 +203,14 @@
      19-oct: con deuteranopía y protanopía el violeta del interés se vuelve azul; con 0,07 su croma es ≥ 2,5 veces el de
      una referencia en claro y ≥ 2,0 en oscuro), ≥ 3:1 con el fondo y por debajo del contraste del violeta.
      El color no es la única señal: hay etiqueta sobre el mapa y leyenda.
-     El componente lee los dos juegos desde :root (el tema oscuro vive en data-tema del bloque, no en :root): por eso -osc. */
-  --viz-cat-frio-1: #3f7986;   --viz-cat-frio-1-osc: #5595a3;
-  --viz-cat-frio-2: #788fb3;   --viz-cat-frio-2-osc: #5e769b;
-  --viz-cat-frio-3: #5c758a;   --viz-cat-frio-3-osc: #738ea4;
-  --viz-cat-frio-4: #6d9098;   --viz-cat-frio-4-osc: #53767f;
+     El componente lee los dos juegos desde :root (el tema oscuro vive en data-tema del bloque, no en :root): por eso -osc.
+     Frías recolocadas (consejero-color, 19-nov-2026) por el violeta −22°: a ~300° el violeta queda cerca de los azules
+     (244-259°) y el ΔE2000 con la referencia más cercana caía a 13,8. El mieloide, que está en las dos biopsias, pasa a
+     frio-1 (212°, la más lejana del violeta) y el NK a frio-2; frio-3 baja a ~238° y frio-4 sube de croma. Mismos umbrales. */
+  --viz-cat-frio-1: #427883;   --viz-cat-frio-1-osc: #6196a4;
+  --viz-cat-frio-2: #7a8fb4;   --viz-cat-frio-2-osc: #596e95;
+  --viz-cat-frio-3: #5483a2;   --viz-cat-frio-3-osc: #52819f;
+  --viz-cat-frio-4: #6297a2;   --viz-cat-frio-4-osc: #407681;
   --viz-cat-tierra-1: #9b8b7b; --viz-cat-tierra-1-osc: #7c6c5d;
   --viz-cat-tierra-2: #ab7f61; --viz-cat-tierra-2-osc: #996e51;
   --viz-cat-tierra-3: #896b4d; --viz-cat-tierra-3-osc: #a88a6c;
@@ -194,9 +224,12 @@
   --texto-1:      var(--color-text);       /* texto principal */
   --texto-2:      var(--color-text-soft);  /* texto secundario */
   --texto-3:      color-mix(in srgb, var(--color-text-soft) 72%, var(--color-bg)); /* terciario / mute — 72% = 4.9:1 AA verificado (62% daba 3.7, fallaba) */
-  --identidad:    var(--color-miriam);     /* violeta que porta identidad sobre este fondo */
-  --anillo-foco:  var(--color-miriam);
-  --marcador:     var(--color-miriam-soft); /* resaltado «de rotulador» de un enlace al pasar o enfocar; el texto encima es --texto-1 */
+  --identidad:    var(--color-text);       /* color que porta identidad sobre este fondo: berenjena o crema en la casa, violeta en el piloto */
+  --anillo-foco:  var(--color-text);       /* anillo de foco: tinta en la casa, violeta en el piloto */
+  --marcador:     color-mix(in srgb, var(--color-text) 12%, var(--color-bg)); /* resaltado «de rotulador» de un enlace al pasar o enfocar; el texto encima es --texto-1 */
+  /* Borde del hueco «Caso piloto» dentro de la casa. Cambia con el tema y no con la capa: se declara aquí y en
+     [data-tema="oscuro"], nunca en los bloques de capa. En oscuro no puede ser el átomo (2,88:1 sobre berenjena). */
+  --hueco-piloto-borde: var(--color-miriam); /* borde del hueco «Caso piloto» dentro de la casa; único violeta de la casa */
   /* Color con el que se ESCRIBE la acción en esta superficie.
      Sobre crema NO puede ser coral (Consolidado D6: «coral nunca sobre crema»;
      2.62:1 no llega ni al 3:1 de elemento gráfico) → berenjena.
@@ -216,9 +249,10 @@
   --texto-1:      var(--color-bg);         /* crema */
   --texto-2:      color-mix(in srgb, var(--color-bg) 78%, transparent);
   --texto-3:      color-mix(in srgb, var(--color-bg) 58%, transparent);
-  --identidad:    var(--color-miriam-claro);
-  --anillo-foco:  var(--color-miriam-claro);
-  --marcador:     color-mix(in srgb, var(--color-miriam-claro) 30%, var(--color-text)); /* crema sobre él: 8,7:1 */
+  --identidad:    var(--color-bg);
+  --anillo-foco:  var(--color-bg);
+  --marcador:     color-mix(in srgb, var(--color-bg) 16%, var(--color-text)); /* crema sobre él: 9,04:1 */
+  --hueco-piloto-borde: var(--color-miriam-claro); /* 5,54:1 sobre berenjena */
   --cta-texto:    var(--color-cta);        /* coral pleno ≈5.6:1 sobre berenjena — AA */
   --trazo-sutil:  color-mix(in srgb, var(--color-bg) 10%, transparent);
   --trazo-medio:  color-mix(in srgb, var(--color-bg) 16%, transparent);
@@ -226,9 +260,59 @@
   --trazo-interactivo: color-mix(in srgb, var(--color-bg) 40%, transparent);  /* borde de controles ≥3:1 sobre berenjena (3.51) — MCP/Ceci */
   /* Estados de enlace y de control que se derivan de los colores de PALETA y por eso hay que repetir aquí: una variable que
      apunta a otra se resuelve donde se declara (arriba, en :root, serían violeta oscuro y berenjena sobre berenjena). */
-  --miriam-hover:     color-mix(in srgb, var(--color-miriam-claro) 88%, var(--color-bg));
-  --miriam-active:    color-mix(in srgb, var(--color-miriam-claro) 78%, var(--color-bg));
+  --miriam-hover:     color-mix(in srgb, var(--color-miriam-claro) 88%, var(--color-bg)); /* EN DESUSO: usa --identidad-hover / --identidad-active */
+  --miriam-active:    color-mix(in srgb, var(--color-miriam-claro) 78%, var(--color-bg)); /* EN DESUSO: usa --identidad-hover / --identidad-active */
   --secundario-hover: color-mix(in srgb, var(--color-bg) 8%, transparent);
+}
+
+/* ── Capa piloto (helpmiriam.com): bloque 3, claro ──────────────────────────────────────────────────────────────
+   Al introducir las capas (#364) cada valor era literalmente el de antes. Desde el #365 (19-nov-2026) el violeta es −22° más frío. */
+[data-capa="piloto"] {
+  --identidad:    var(--color-miriam);
+  --anillo-foco:  var(--color-miriam);
+  --marcador:     var(--color-miriam-soft);
+  --seleccionado-bg: var(--color-miriam-soft);
+  --btn-dark-hover:  color-mix(in srgb, var(--color-text) 84%, var(--color-miriam)); /* #3a2352 (con el violeta −22°, 19-nov-2026) */
+  --viz-sev-1: color-mix(in srgb, var(--color-miriam) 16%, var(--color-bg));
+  --viz-sev-2: color-mix(in srgb, var(--color-miriam) 38%, var(--color-bg));
+  --viz-sev-3: color-mix(in srgb, var(--color-miriam) 60%, var(--color-bg));
+  --viz-sev-4: color-mix(in srgb, var(--color-miriam) 82%, var(--color-bg));
+  --viz-sev-5: var(--color-miriam);
+  --subrayado-mezcla:   45%;
+  --hecho-borde-mezcla: 45%;
+}
+
+/* Bloque 4: piloto en banda oscura. Pesa 0,2,0 y gana al bloque 2. */
+[data-capa="piloto"] [data-tema="oscuro"],
+[data-capa="piloto"][data-tema="oscuro"] {
+  --identidad:    var(--color-miriam-claro);
+  --anillo-foco:  var(--color-miriam-claro);
+  --marcador:     color-mix(in srgb, var(--color-miriam-claro) 30%, var(--color-text)); /* crema sobre él: 8,7:1 */
+}
+
+/* Bloques 5 y 6: isla de casa dentro del piloto. Copia LITERAL de los roles de capa de los bloques 1 y 2 (lo comprueba
+   test:diseno, R15). Van después del 4 para ganarle en sus bandas oscuras (los dos pesan 0,2,0). No generan filas en
+   DESIGN-SYSTEM.md. */
+[data-capa="casa"] {
+  --identidad:    var(--color-text);
+  --anillo-foco:  var(--color-text);
+  --marcador:     color-mix(in srgb, var(--color-text) 12%, var(--color-bg));
+  --seleccionado-bg: color-mix(in srgb, var(--color-text) 12%, var(--color-bg));
+  --btn-dark-hover:  color-mix(in srgb, var(--color-text) 88%, var(--color-bg));
+  --viz-sev-1: color-mix(in srgb, var(--color-text) 16%, var(--color-bg));
+  --viz-sev-2: color-mix(in srgb, var(--color-text) 38%, var(--color-bg));
+  --viz-sev-3: color-mix(in srgb, var(--color-text) 60%, var(--color-bg));
+  --viz-sev-4: color-mix(in srgb, var(--color-text) 82%, var(--color-bg));
+  --viz-sev-5: var(--color-text);
+  --subrayado-mezcla:   55%;
+  --hecho-borde-mezcla: 55%;
+}
+
+[data-capa="casa"] [data-tema="oscuro"],
+[data-capa="casa"][data-tema="oscuro"] {
+  --identidad:    var(--color-bg);
+  --anillo-foco:  var(--color-bg);
+  --marcador:     color-mix(in srgb, var(--color-bg) 16%, var(--color-text));
 }
 
 /* ── Estados derivados de los ROLES (sistema v3, D4): hecho, en curso, pendiente, no puede y atención ──────────────
@@ -237,12 +321,15 @@
    Se declaran en :root Y en [data-tema="oscuro"] a propósito: una variable que apunta a otra se resuelve donde se
    declara, así que sin esto una banda oscura heredaría los valores de la clara.
    Contrastes del texto sobre su fondo, medidos con color-mix en sRGB (claro sobre crema; en oscuro, sobre berenjena):
-   hecho 11,7 · en curso 14,6 · pendiente 10,1 · no puede 4,9 (la tarjeta crema da 4,6) · atención 12,3. */
+   hecho 11,8 · en curso 14,6 · pendiente 10,1 · no puede 4,9 (la tarjeta crema da 4,6) · atención 12,3 (piloto).
+   Bloque 7 de las capas: el selector incluye [data-capa] para que cada elemento que redeclara un rol de capa recalcule sus
+   derivados. --identidad-hover, --identidad-active y --subrayado viven aquí por la misma razón. */
 :root,
+[data-capa],
 [data-tema="oscuro"] {
   --estado-hecho-fondo:     color-mix(in srgb, var(--identidad) 16%, var(--fondo));
   --estado-hecho-texto:     var(--texto-1);
-  --estado-hecho-borde:     color-mix(in srgb, var(--identidad) 45%, var(--fondo));
+  --estado-hecho-borde:     color-mix(in srgb, var(--identidad) var(--hecho-borde-mezcla), var(--fondo));
   --estado-curso-fondo:     var(--texto-1);
   --estado-curso-texto:     var(--fondo);
   --estado-curso-borde:     var(--texto-1);
@@ -255,6 +342,9 @@
   --estado-atencion-fondo:  color-mix(in srgb, var(--color-cta) 18%, var(--fondo));
   --estado-atencion-texto:  var(--texto-1);
   --estado-atencion-borde:  color-mix(in srgb, var(--color-cta) 60%, var(--fondo));
+  --identidad-hover:  color-mix(in srgb, var(--identidad) 88%, var(--texto-1)); /* subrayado del enlace al pasar; sigue a --identidad */
+  --identidad-active: color-mix(in srgb, var(--identidad) 78%, var(--texto-1)); /* subrayado del enlace al pulsar; sigue a --identidad */
+  --subrayado:        color-mix(in srgb, var(--identidad) var(--subrayado-mezcla), transparent); /* subrayado del enlace en reposo; en la casa es la única pista del enlace: ≥3:1 (Iris) */
 }
 
 /* ── Escena de los visores 3D: el fondo oscuro, su texto y su velo, derivados (D7, parcial) ──────────────────────
@@ -270,6 +360,7 @@
 /* ── Responsive de la retícula: gutter de 24 px, 32 desde 640 y 48 desde 1024 (los px-6 sm:px-8 lg:px-12 de .section-wide) ── */
 @media (min-width: 640px)  { :root { --gutter: 2rem; --cabecera-alto: 4.5625rem; } }
 @media (min-width: 1024px) { :root { --gutter: 3rem; } }
+@media print { :root { --trama-opacidad: var(--trama-opacidad-papel); } }
 
 /* Puente Tailwind: canales RGB para rgb(var(--x-rgb) / <alpha-value>) (Fase 0) */
 :root {
@@ -277,17 +368,17 @@
   --color-bg-card-rgb: 245 239 230;
   --color-text-rgb: 45 27 61;
   --color-text-soft-rgb: 58 51 64;
-  --color-miriam-rgb: 157 68 171;
-  --color-miriam-soft-rgb: 232 212 237;
-  --color-miriam-claro-rgb: 199 125 210;
+  --color-miriam-rgb: 128 79 195;
+  --color-miriam-soft-rgb: 222 215 244;
+  --color-miriam-claro-rgb: 172 135 233;
   --color-cta-rgb: 255 107 71;
   --color-cta-hover-rgb: 229 87 58;
   --berenjena-2-rgb: 58 35 80;
   /* categórica nominal del mapa del explorador (mismos valores que --viz-cat-*; lo lee paleta()) */
-  --viz-cat-frio-1-rgb: 63 121 134;   --viz-cat-frio-1-osc-rgb: 85 149 163;
-  --viz-cat-frio-2-rgb: 120 143 179;  --viz-cat-frio-2-osc-rgb: 94 118 155;
-  --viz-cat-frio-3-rgb: 92 117 138;   --viz-cat-frio-3-osc-rgb: 115 142 164;
-  --viz-cat-frio-4-rgb: 109 144 152;   --viz-cat-frio-4-osc-rgb: 83 118 127;
+  --viz-cat-frio-1-rgb: 66 120 131;   --viz-cat-frio-1-osc-rgb: 97 150 164;
+  --viz-cat-frio-2-rgb: 122 143 180;  --viz-cat-frio-2-osc-rgb: 89 110 149;
+  --viz-cat-frio-3-rgb: 84 131 162;   --viz-cat-frio-3-osc-rgb: 82 129 159;
+  --viz-cat-frio-4-rgb: 98 151 162;   --viz-cat-frio-4-osc-rgb: 64 118 129;
   --viz-cat-tierra-1-rgb: 155 139 123; --viz-cat-tierra-1-osc-rgb: 124 108 93;
   --viz-cat-tierra-2-rgb: 171 127 97;  --viz-cat-tierra-2-osc-rgb: 153 110 81;
   --viz-cat-tierra-3-rgb: 137 107 77;  --viz-cat-tierra-3-osc-rgb: 168 138 108;

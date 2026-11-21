@@ -70,10 +70,12 @@
         <div class="lg:max-w-[760px]">
         <!-- Cronología con raíl continuo + estaciones por año -->
         <div class="relative max-w-2xl">
+          <!-- Raíl en degradado, elegido (playbook R18): la cronología va de lo nuevo a lo viejo y el violeta
+               pleno arriba se aclara hasta el 15 % en 2021. El tono dice qué es reciente; no es adorno. -->
           <span
             aria-hidden="true"
             class="absolute left-[10px] top-2 bottom-3 w-[2px] rounded-full"
-            style="background: linear-gradient(180deg, #9d44ab 0%, rgba(157, 68, 171,0.15) 100%)"
+            style="background: linear-gradient(180deg, var(--color-miriam) 0%, rgb(var(--color-miriam-rgb) / 0.15) 100%)"
           />
           <!-- key=selected → al filtrar, el bloque se remonta y reproduce un fundido
                CSS limpio (evita el estado atascado de <Transition mode="out-in">).

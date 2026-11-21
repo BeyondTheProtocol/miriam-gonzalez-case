@@ -17,8 +17,8 @@
           <stop offset="100%" stop-color="#faf6f0" stop-opacity="0" />
         </radialGradient>
         <radialGradient id="cn-halo-v">
-          <stop offset="0%" stop-color="#9d44ab" stop-opacity="0.14" />
-          <stop offset="100%" stop-color="#9d44ab" stop-opacity="0" />
+          <stop offset="0%" stop-color="var(--color-miriam)" stop-opacity="0.14" />
+          <stop offset="100%" stop-color="var(--color-miriam)" stop-opacity="0" />
         </radialGradient>
         <radialGradient id="cn-halo-c">
           <stop offset="0%" stop-color="#ff6b47" stop-opacity="0.22" />
@@ -33,7 +33,7 @@
           v-for="(s, i) in field"
           :key="i"
           href="#cn-star"
-          fill="#9d44ab"
+          fill="var(--color-miriam)"
           :opacity="s.o"
           :transform="`translate(${s.x} ${s.y}) scale(${s.r / 10}) translate(-10 -10)`"
         />
@@ -49,7 +49,7 @@
           :key="i"
           :d="d"
           fill="none"
-          stroke="#9d44ab"
+          stroke="var(--color-miriam)"
           stroke-width="0.5"
           stroke-linecap="round"
           opacity="0.24"
@@ -70,7 +70,7 @@
         :style="{ '--o': String(a.o), '--d': a.delay + 's' }"
         :transform="`translate(${a.x} ${a.y}) scale(${a.r / 10}) translate(-10 -10)`"
       >
-        <use href="#cn-star" fill="#9d44ab" />
+        <use href="#cn-star" fill="var(--color-miriam)" />
       </g>
 
       <!-- Estrella «tú»: quien acaba de llegar (la donación más reciente). -->
