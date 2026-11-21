@@ -425,5 +425,19 @@ console.log('10. /gastos tiene un solo nombre en sus enlaces y títulos (lote 3 
   }
 }
 
+console.log('11. Ninguna partida ni rótulo de /gastos es una bolsa sin nombre («otros», «varios», «operativo»…)')
+// /gastos enseña dinero donado: cada euro va con una categoría clara, nunca en una bolsa sin nombre. Se miran las claves de
+// `partidas` y TODOS los rótulos `expenses.report_item_*` de ES y EN (también los que ya no se usan, por si alguien los rescata).
+{
+  const BOLSA = /\b(otros|other|others|varios|misc|miscellaneous|operativo|operational|ops)\b/i
+  const malas = dinero.partidas.filter((p) => BOLSA.test(p.clave)).map((p) => p.clave)
+  ok(malas.length === 0, `ninguna partida de app/data/dinero.json es una bolsa sin nombre (${malas.join(', ') || 'ninguna'})`)
+  for (const [loc, d] of [['es', es], ['en', en]] as const) {
+    const rotulos = Object.entries(d.expenses as Record<string, unknown>).filter(([k]) => k.startsWith('report_item_'))
+    const turbios = rotulos.filter(([k, v]) => BOLSA.test(k.slice('report_item_'.length)) || BOLSA.test(String(v))).map(([k, v]) => `${k} = «${v}»`)
+    ok(rotulos.length > 0 && turbios.length === 0, `${loc}: ningún rótulo expenses.report_item_* es «otros», «varios» u «operativo» (${turbios.join('; ') || `los ${rotulos.length}`})`)
+  }
+}
+
 console.log(fallos ? `\n❌ ${fallos} fallo(s)` : '\n✅ las cifras de dinero tienen una sola fuente y la norma de transparencia se cumple')
 process.exit(fallos ? 1 : 0)
