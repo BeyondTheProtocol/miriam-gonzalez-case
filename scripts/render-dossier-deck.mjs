@@ -19,6 +19,7 @@ import { existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync } from 'no
 import { tmpdir } from 'node:os'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { SIN_LLAVERO } from './lib/navegador-cdp.mjs'
 // El mismo formateador de moneda que la web (sin JSON ni Nuxt dentro: Node lo importa tal cual).
 import { formatCurrency } from '../app/utils/currency.ts'
 
@@ -74,6 +75,7 @@ try {
       '--headless=new',
       '--disable-gpu',
       '--no-pdf-header-footer',
+      ...SIN_LLAVERO, // sin Llavero de macOS: ver scripts/lib/navegador-cdp.mjs
       '--no-margins',
       `--print-to-pdf=${outPdf}`,
       // Da tiempo a que carguen las webfonts (Fraunces / JetBrains Mono).

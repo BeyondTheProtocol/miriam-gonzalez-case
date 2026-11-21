@@ -80,6 +80,15 @@ function vigilarSalida() {
   }
 }
 
+/** Chrome sin el Llavero de macOS (14-nov-2026, deuda de Polaris `chrome-headless-no-carga-paginas`).
+ *  Al arrancar, Chrome lee su clave «Chrome Safe Storage» del login.keychain para cifrar cookies. El
+ *  12-nov, con securityd del Mac abortando en bucle, headless cargaba `data:` pero se colgaba en toda
+ *  URL real (Page.navigate no respondía y test-cifras-datos se quedaba colgado). Que el cuelgue venga
+ *  de esa espera es inferido; lo verificado es que con estos flags Chrome no toca el Llavero. Los
+ *  perfiles son temporales: no hay nada que cifrar. El «CVDisplayLinkCreateWithCGDisplay failed» de
+ *  una sesión sin pantalla es ruido. Lo fija scripts/test-chrome-sin-llavero.mjs. */
+export const SIN_LLAVERO = ['--use-mock-keychain', '--password-store=basic']
+
 /** Crea un perfil temporal (`prefijo`), lanza Chrome con él y deja ambos a cargo de la limpieza de salida.
  *  Devuelve `{ chrome, profile, matar }`; `matar()` los elimina ya (síncrona y repetible). Todo junto a
  *  propósito: la vigilancia va antes que el perfil para que un SIGTERM en pleno arranque no deje nada, y
@@ -87,7 +96,7 @@ function vigilarSalida() {
 export function lanzarChrome(prefijo, binario, args, opciones) {
   vigilarSalida()
   const profile = mkdtempSync(join(tmpdir(), prefijo))
-  const chrome = spawn(binario, [`--user-data-dir=${profile}`, ...args], { ...opciones, detached: true })
+  const chrome = spawn(binario, [`--user-data-dir=${profile}`, ...SIN_LLAVERO, ...args], { ...opciones, detached: true })
   const vivo = { chrome, profile }
   vivos.add(vivo)
   return { chrome, profile, matar: () => matarChrome(vivo) }
