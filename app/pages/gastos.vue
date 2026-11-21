@@ -133,7 +133,7 @@
                   :href="$t('expenses.phase2_link_url')"
                   target="_blank"
                   rel="noopener"
-                  class="inline-block mt-1.5 text-sm text-berenjena underline underline-offset-2"
+                  class="inline-flex items-center min-h-[44px] mt-1.5 text-sm text-berenjena underline underline-offset-2"
                 >
                   {{ $t('expenses.phase2_link') }}
                 </a>
@@ -168,7 +168,7 @@
               >
                 {{ money(DINERO.rebiopsia.ejecutado) }}
               </p>
-              <p class="text-sm text-tinta leading-relaxed">
+              <p class="text-sm text-tinta leading-relaxed measure">
                 {{ $t('expenses.rebiopsy_now_desc', lineasRebiopsia) }}
               </p>
             </div>
