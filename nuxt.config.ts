@@ -318,6 +318,10 @@ export default defineNuxtConfig({
     // salta por un Link de Umami, que sí cuenta el clic y reenvía al repo. Se mide en Umami → Links,
     // «General → Repo Polaris», no en las visitas de la web.
     '/polaris': { redirect: { to: 'https://cloud.umami.is/q/polaris-repo', statusCode: 302 } },
+    // QR de la pantalla de donación de Talent Land España 2026 (Main Stage, 26-nov-2026). Va a GoFundMe por un
+    // Link de Umami («Talent Land 2026 · pantalla donar»), que cuenta cada escaneo. El corto vive en NUESTRO dominio
+    // para que el móvil, al escanear, enseñe helpmiriam.com y no un dominio desconocido en el momento de donar.
+    '/tl': { redirect: { to: 'https://cloud.umami.is/q/TLDONA26', statusCode: 302 } },
     // (acceso para médicos) enlace corto SERIO para reenviar al equipo clínico (no de redes):
     // helpmiriam.com/caso → «Qué buscamos» de /datos: lo que el equipo clínico puede hacer por el caso.
     // Hasta el 23-oct-2026 llevaba al panel del mapa de /ciencia (#mapa-acceso). UTM «referral/medico»
@@ -363,7 +367,7 @@ export default defineNuxtConfig({
         '/design-system', '/mapa-metastasis.md', '/en/mapa-metastasis.md',
         // guía viva del sistema de diseño: su export Markdown está bloqueado a propósito (utils/aiExportBlocklist.ts) y daría 404
         '/guia-de-estilo.md', '/en/style-guide.md',
-        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso', '/polaris',
+        '/3d', '/3d-x', '/3d-in', '/3d-ig', '/3d-tt', '/3d-yt', '/donar', '/caso', '/polaris', '/tl',
         '/lesiones-x', '/lesiones-in', '/lesiones-ig', '/lesiones-tt', '/lesiones-yt',
         '/biopsia-x', '/biopsia-in', '/biopsia-ig', '/biopsia-tt', '/biopsia-yt',
         // la página vieja de la biopsia: solo queda su 301 a /laminillas

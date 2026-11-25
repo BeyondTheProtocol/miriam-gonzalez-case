@@ -79,6 +79,7 @@ control y tu analítica.
 | `/caso` | `/datos#que-buscamos` | `equipo-clinico` (reenvío a médicos, no redes) |
 | `/donar` | GoFundMe (externo) | — (sin UTM: salto externo, no medible en Umami) |
 | `/polaris` | repo público de Polaris en GitHub (externo) | medido vía Link de Umami `cloud.umami.is/q/polaris-repo` («General → Repo Polaris», en Umami → Links) |
+| `/tl` | GoFundMe (externo), QR de la pantalla de Talent Land España 2026 | medido vía Link de Umami `cloud.umami.is/q/TLDONA26` («Talent Land 2026 · pantalla donar», en Umami → Links) |
 
 ## Páginas fusionadas y redirecciones de i18n (redirecciones permanentes, no son cortos de campaña)
 
