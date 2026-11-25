@@ -193,6 +193,12 @@ const supporters = [
   // (marketing UCAM) autorizando el uso del logo. Blanco puro → entra directo en
   // el tratamiento --vector, sin caja que quitar.
   { name: 'UCAM', img: '/svg/ucam.svg', url: 'https://www.ucam.edu' },
+  // Female Startup Leaders: el logo compacto «FSL›› de la cabecera de su web
+  // (femalestartupleaders.com/wp-content/uploads/2026/10/FSL-logo.webp), su identidad
+  // vigente; los cuadrados rojos de su biblioteca son la de 2020-22. Pasado a silueta
+  // blanca con su alfa (las flechas rojas, en gris, se perdían en la banda).
+  // El cartel cuadrado que mandaron no cabe a 30 px de alto: tres líneas ilegibles.
+  { name: 'Female Startup Leaders', img: '/img/female-startup-leaders.png', url: 'https://femalestartupleaders.com' },
 ]
 
 // Los enlaces del pie (tres grupos), las redes y lo legal viven en app/utils/navegacion.ts: `PIE`, `REDES`, `LEGAL`.
