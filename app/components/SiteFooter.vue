@@ -68,8 +68,8 @@
                 <img
                   :src="s.img"
                   :alt="s.name"
-                  class="logo-wall__mark w-auto object-contain"
-                  :class="s.raster ? 'logo-wall__mark--raster' : 'logo-wall__mark--vector'"
+                  class="logo-wall__mark w-auto"
+                  :style="{ height: `${s.alto}px` }"
                   loading="lazy"
                   decoding="async"
                 />
@@ -177,29 +177,40 @@ const { minimo } = useChromeMinimo()
 // El pie ya no lleva la fecha global del build («Última actualización»): rediseño de arquitectura, F3. Cada página dice la
 // suya donde tiene una fecha fiable (ActualizadoEl).
 
-// "Con el apoyo de" — todos iguales (logos de empresas/colaboradores). Todos se
-// pintan en blanco monocromo (CSS) para leerse como un conjunto sobre berenjena.
-// `raster: true` marca el logo en mapa de bits CON fondo blanco horneado (el JPEG
-// de Never Surrender): se le quita la caja por CSS (invert + mix-blend screen).
-// NOTA: para nitidez perfecta, Never Surrender pediría un PNG blanco/transparente;
-// con CSS queda como silueta limpia sin recuadro, suficiente para el muro.
+// "Con el apoyo de" — un muro homogéneo. Cada logo vive en public/img/apoyos/ como
+// silueta BLANCA sobre transparente, recortada a su contorno (sin margen propio), así
+// que no hace falta ningún filtro ni mezcla: todos se pintan igual sobre berenjena.
+// Tamaño óptico por ÁREA, no por alto: un alto fijo hace gigantes a los anchos y
+// diminutos a los cuadrados. alto = LADO / √proporción × (TINTA_REF / tinta)^0,2,
+// donde proporción = ancho/alto del recorte y tinta = fracción opaca del recorte (un
+// logo macizo pesa más a igual área). `prop` y `tinta` se midieron al generar el PNG.
+// Para añadir uno: silueta blanca recortada en apoyos/, medir prop y tinta, y entra.
+//
+// Origen de cada silueta:
+// - GitHub, Notion: los SVG oficiales que ya había; Notion pasa a su versión de trazo
+//   (la tinta negra → blanca, la caja blanca → transparente), la de fondo oscuro.
+// - Never Surrender: el JPEG con fondo blanco horneado, invertido a silueta.
+// - UCAM: SVG oficial "horizontal / blanco / sin fondo" de su página de identidad
+//   visual (ucam.edu/universidad/identidad), el enlace que pasó Marta Rodríguez
+//   (marketing UCAM) autorizando el uso del logo.
+// - Female Startup Leaders: el logo compacto «FSL››» de la cabecera de su web
+//   (femalestartupleaders.com/wp-content/uploads/2026/10/FSL-logo.webp), su identidad
+//   vigente; los cuadrados rojos de su biblioteca son la de 2020-22. El cartel cuadrado
+//   que mandaron no se lee a este tamaño.
+// Anthropic NO va aquí: las reglas de AI for Science (§7) prohíben usar su nombre o logo
+// sin permiso; solo permiten decir con verdad que fue seleccionada en el programa.
+const LADO = 36
+const TINTA_REF = 0.4
+const altoOptico = (prop: number, tinta: number) =>
+  Math.round((LADO / Math.sqrt(prop)) * (TINTA_REF / Math.max(tinta, 0.15)) ** 0.2)
 const supporters = [
-  { name: 'GitHub', img: '/svg/github.svg' },
-  { name: 'Notion', img: '/svg/notion.svg' },
-  { name: 'Never Surrender', img: '/img/neversurrender.jpeg', raster: true },
-  { name: 'Tahe', img: '/img/thae.png', url: 'https://tahecosmetics.com' },
-  // UCAM: SVG oficial "horizontal / blanco / sin fondo" de su página de identidad
-  // visual (ucam.edu/universidad/identidad), el enlace que pasó Marta Rodríguez
-  // (marketing UCAM) autorizando el uso del logo. Blanco puro → entra directo en
-  // el tratamiento --vector, sin caja que quitar.
-  { name: 'UCAM', img: '/svg/ucam.svg', url: 'https://www.ucam.edu' },
-  // Female Startup Leaders: el logo compacto «FSL›› de la cabecera de su web
-  // (femalestartupleaders.com/wp-content/uploads/2026/10/FSL-logo.webp), su identidad
-  // vigente; los cuadrados rojos de su biblioteca son la de 2020-22. Pasado a silueta
-  // blanca con su alfa (las flechas rojas, en gris, se perdían en la banda).
-  // El cartel cuadrado que mandaron no cabe a 30 px de alto: tres líneas ilegibles.
-  { name: 'Female Startup Leaders', img: '/img/female-startup-leaders.png', url: 'https://femalestartupleaders.com' },
-]
+  { name: 'GitHub', img: '/img/apoyos/github.png', prop: 1.031, tinta: 0.465 },
+  { name: 'Notion', img: '/img/apoyos/notion.png', prop: 0.963, tinta: 0.502 },
+  { name: 'Never Surrender', img: '/img/apoyos/never-surrender.png', prop: 1.719, tinta: 0.78 },
+  { name: 'Tahe', img: '/img/apoyos/tahe.png', prop: 2.306, tinta: 0.252, url: 'https://tahecosmetics.com' },
+  { name: 'UCAM', img: '/img/apoyos/ucam.png', prop: 2.656, tinta: 0.175, url: 'https://www.ucam.edu' },
+  { name: 'Female Startup Leaders', img: '/img/apoyos/female-startup-leaders.png', prop: 2.816, tinta: 0.409, url: 'https://femalestartupleaders.com' },
+].map(s => ({ ...s, alto: altoOptico(s.prop, s.tinta) }))
 
 // Los enlaces del pie (tres grupos), las redes y lo legal viven en app/utils/navegacion.ts: `PIE`, `REDES`, `LEGAL`.
 // El explorador de células solo sale con su puerta abierta (useHerramientas).
@@ -213,25 +224,20 @@ function medirPie(key: string) {
 
 <style scoped>
 /* ── Muro "Con el apoyo de" ───────────────────────────────────────────────────
-   Todos los logos como silueta crema monocromo, misma altura óptica y opacidad,
-   para que se lean como un conjunto sobre la banda berenjena. Hover → opacidad
-   plena. (SiteFooter es global: este tratamiento afecta a todo el sitio.) */
-/* La opacidad va en la PROPIA imagen (no en el wrapper) para no aislar el grupo:
-   así mix-blend-mode sigue componiendo contra la banda berenjena, no contra un
-   contenedor transparente. */
+   Las siluetas ya son blancas y recortadas (public/img/apoyos/): aquí solo van la
+   opacidad común y el hover. El alto de cada logo lo pone el script (área óptica).
+   (SiteFooter es global: este tratamiento afecta a todo el sitio.) */
 .logo-wall__mark {
-  height: 1.9rem; /* altura óptica común; SVG/PNG comparten escala */
-  max-width: 140px;
-  opacity: 0.8;
+  opacity: 0.85;
   transition: opacity 0.2s ease;
 }
-/* Objetivo táctil de 44 px en los logos que son enlace (Tahe, UCAM): el logo mide
-   30 px de alto; el padding agranda la zona pulsable y el margen negativo lo
-   compensa, así el muro no se mueve ni el logo crece (diseno, tras el PR #269). */
+/* Objetivo táctil de 44 px en los logos que son enlace: la caja del enlace mide 44
+   de alto (el logo, menos) con un margen negativo que la compensa, así el muro no
+   se mueve ni el logo crece (diseno, tras el PR #269). */
 a.logo-wall__item {
   min-width: 44px;
-  padding-block: 0.45rem;
-  margin-block: -0.45rem;
+  min-height: 44px;
+  margin-block: -0.5rem;
 }
 a.logo-wall__item:focus-visible .logo-wall__mark {
   opacity: 1;
@@ -240,25 +246,6 @@ a.logo-wall__item:focus-visible .logo-wall__mark {
   a.logo-wall__item:hover .logo-wall__mark {
     opacity: 1;
   }
-}
-
-/* Vectores y PNG transparentes (GitHub, Notion, Tahe): monocromo claro.
-   `grayscale` quita el color; `mix-blend-mode: lighten` deja en blanco las zonas
-   claras del arte y deja ver la banda en las zonas oscuras → conserva el detalle
-   interno (p.ej. la "N" calada de Notion) en lugar de aplanarlo a un bloque. */
-.logo-wall__mark--vector {
-  filter: grayscale(1) brightness(1.05);
-  mix-blend-mode: lighten;
-}
-
-/* Raster con fondo blanco horneado (JPEG Never Surrender): invertimos (fondo
-   blanco → negro, logo → claro) y con mix-blend screen el negro cae a la banda
-   → desaparece la caja; queda la silueta clara del logo, sin recuadro. */
-.logo-wall__mark--raster {
-  filter: invert(1) grayscale(1) brightness(2.1) contrast(1.1);
-  mix-blend-mode: screen;
-  height: 2.4rem; /* el JPEG trae mucho margen interno: compensa la altura óptica */
-  max-width: 150px;
 }
 
 @media (prefers-reduced-motion: reduce) {
