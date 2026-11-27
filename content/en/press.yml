@@ -21,12 +21,15 @@
 #      Jaimovich, 29 Oct); first coverage in Latin America. Position PROPOSED on
 #      4-Nov-2026: Adri and Miriam confirm it. No `home`. El Tiempo (CO) and Red Uno (BO)
 #      republished it: not listed separately.
-#   8. Roca Project — podcast with its own community; after the interview (episode 100,
+#   8. El Correo — major regional daily (Bilbao, Vocento group), own interview
+#      (by Yolanda Veiga, 27 Nov). Position PROPOSED on 27-Nov-2026: Adri and
+#      Miriam confirm it. No `home`.
+#   9. Roca Project — podcast with its own community; after the interview (episode 100,
 #      15 Jul) the website's contact form fills up (timeline.yml). Position PROPOSED on
 #      25-Oct-2026: Adri and Miriam confirm it. No `home`: the home strip does not change.
-#   9. Corresponsables — CSR outlet; exclusive interview.
-#  10. La Opinión de Murcia — regional, anchors the local/human angle.
-#  11. La 7 — regional TV (Instagram clip), closes the list.
+#  10. Corresponsables — CSR outlet; exclusive interview.
+#  11. La Opinión de Murcia — regional, anchors the local/human angle.
+#  12. La 7 — regional TV (Instagram clip), closes the list.
 articles:
   - outlet: El País (English)
     home: 2
@@ -64,6 +67,10 @@ articles:
     url: https://www.lanacion.com.ar/tecnologia/tiene-un-cancer-inusual-y-esta-usando-ia-para-ayudar-a-los-medicos-que-la-estan-tratando-nid29102026/
     title: She has an unusual cancer and is using AI to help the doctors treating her (in Spanish)
     date: '2026-10-29'
+  - outlet: El Correo
+    url: https://www.elcorreo.com/sociedad/salud/miriam-ingeniera-investiga-ia-tumor-mama-raro-20261126002314-nt.html
+    title: Miriam, the engineer using AI to investigate her rare breast tumour (in Spanish)
+    date: '2026-11-27'
   - outlet: Roca Project
     url: https://www.youtube.com/watch?v=zVUECrux6zA
     title: 'The case reaches episode 100 of Roca Project (in Spanish)'
