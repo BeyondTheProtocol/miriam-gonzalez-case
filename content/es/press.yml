@@ -20,12 +20,15 @@
 #      Desirée Jaimovich, 29-oct); primera cobertura en LatAm. Puesto PROPUESTO el
 #      4-nov-2026: lo confirman Adri y Miriam. Sin `home`. El Tiempo (CO) y Red Uno (BO)
 #      la reprodujeron: no entran aparte.
-#   8. Roca Project — pódcast con comunidad propia; tras la entrevista (programa 100, 15-jul)
+#   8. El Correo — gran diario regional (Bilbao, grupo Vocento), entrevista propia
+#      (firma Yolanda Veiga, 27-nov). Puesto PROPUESTO el 27-nov-2026: lo confirman
+#      Adri y Miriam. Sin `home`.
+#   9. Roca Project — pódcast con comunidad propia; tras la entrevista (programa 100, 15-jul)
 #      el formulario de contacto de la web se llena (timeline.yml). Puesto PROPUESTO el
 #      25-oct-2026: lo confirman Adri y Miriam. Sin `home`: la tira de la home no cambia.
-#   9. Corresponsables — medio de RSE; entrevista en exclusiva.
-#  10. La Opinión de Murcia — regional, ancla el ángulo local/humano.
-#  11. La 7 — TV regional (clip en Instagram), cierra la lista.
+#  10. Corresponsables — medio de RSE; entrevista en exclusiva.
+#  11. La Opinión de Murcia — regional, ancla el ángulo local/humano.
+#  12. La 7 — TV regional (clip en Instagram), cierra la lista.
 articles:
   - outlet: El País
     home: 2
@@ -63,6 +66,10 @@ articles:
     url: https://www.lanacion.com.ar/tecnologia/tiene-un-cancer-inusual-y-esta-usando-ia-para-ayudar-a-los-medicos-que-la-estan-tratando-nid29102026/
     title: Tiene un cáncer inusual y está usando IA para ayudar a los médicos que la están tratando
     date: '2026-10-29'
+  - outlet: El Correo
+    url: https://www.elcorreo.com/sociedad/salud/miriam-ingeniera-investiga-ia-tumor-mama-raro-20261126002314-nt.html
+    title: Miriam, la ingeniera que investiga con la IA su raro tumor de mama
+    date: '2026-11-27'
   - outlet: Roca Project
     url: https://www.youtube.com/watch?v=zVUECrux6zA
     title: El caso, en el programa 100 de Roca Project
